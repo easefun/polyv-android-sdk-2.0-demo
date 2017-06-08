@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/polyv_white_click_to_gray"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal" >
+
+        <com.easefun.polyvsdk.view.PolyvGrayImageView
+            android:id="@+id/iv_demo"
+            android:layout_width="@dimen/center_top_iv_width"
+            android:layout_height="@dimen/center_top_iv_height"
+            android:scaleType="fitXY"
+            android:src="@drawable/polyv_demo" />
+
+        <TextView
+            android:id="@+id/tv_tv_teac"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/iv_demo"
+            android:layout_alignRight="@id/iv_demo"
+            android:layout_marginBottom="@dimen/center_right_margin_bottom"
+            android:background="@drawable/polyv_tag_video"
+            android:gravity="center"
+            android:text="陈老师"
+            android:textColor="@color/top_layout_color_white"
+            android:textSize="@dimen/center_right_text_size" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="@dimen/center_bottom_margin_bottom"
+        android:layout_marginLeft="@dimen/center_bottom_margin_left"
+        android:layout_marginRight="@dimen/center_bottom_margin_right"
+        android:layout_marginTop="@dimen/center_bottom_margin_top"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:lines="2"
+            android:text="这是一行测试文本。。。。。。。。。。。。。。。。。。。。。。。。。。。。"
+            android:textColor="@color/top_text_color_black"
+            android:textSize="@dimen/center_bottom_text_size" />
+
+        <TextView
+            android:id="@+id/tv_learn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/center_bottom_margin_top_s"
+            android:background="@drawable/polyv_border_s"
+            android:gravity="center"
+            android:text="1010人在学"
+            android:textColor="@color/center_bottom_text_color_blue"
+            android:textSize="@dimen/center_right_text_size" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/common_sline_height"
+            android:layout_marginTop="@dimen/center_bottom_margin_top_s"
+            android:background="@color/commom_sline_color_gray" />
+
+        <TextView
+            android:id="@+id/tv_money"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/center_bottom_margin_top_s"
+            android:text="￥99.99"
+            android:textColor="@color/center_bottom_text_color_red"
+            android:textSize="@dimen/center_bottom_text_size_l" />
+    </LinearLayout>
+
+</LinearLayout>

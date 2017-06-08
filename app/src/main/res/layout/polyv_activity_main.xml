@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/center_layout_color_gray_deep">
+
+    <RelativeLayout
+        android:id="@+id/rl_top"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/top_layout_height"
+        android:background="@color/top_layout_color_white">
+
+        <ImageView
+            android:id="@+id/iv_online"
+            style="@style/iv_click_commom"
+            android:layout_centerVertical="true"
+            android:src="@drawable/polyv_top_videolist" />
+
+        <ImageView
+            android:id="@+id/iv_upload"
+            style="@style/iv_click_commom"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/iv_download"
+            android:src="@drawable/polyv_top_upload" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="POLYV Android SDK"
+            android:textColor="@color/top_text_color_black"
+            android:textSize="@dimen/top_text_size" />
+
+        <ImageView
+            android:id="@+id/iv_download"
+            style="@style/iv_click_commom"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/polyv_top_cache" />
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/iv_def"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/top_center_player_height"
+        android:layout_below="@id/rl_top"
+        android:scaleType="fitXY"
+        android:src="@drawable/polyv_pic_def" />
+
+    <RelativeLayout
+        android:id="@+id/rl_center"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/center_layout_height"
+        android:layout_below="@id/iv_def"
+        android:paddingLeft="@dimen/common_margin_lr"
+        android:paddingRight="@dimen/common_margin_lr">
+
+        <View
+            android:id="@+id/v_line"
+            android:layout_width="@dimen/center_view_width"
+            android:layout_height="@dimen/center_view_height_l"
+            android:layout_centerVertical="true"
+            android:background="@color/center_view_color_blue" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/center_tv_margin_left"
+            android:layout_toRightOf="@id/v_line"
+            android:text="热门课程"
+            android:textColor="@color/top_text_color_black"
+            android:textSize="@dimen/center_text_size" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/tv_guide"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/rl_center"
+        android:gravity="center"
+        android:lineSpacingExtra="@dimen/talk_common_margin_l"
+        android:textColor="@color/center_view_color_blue"
+        android:textSize="@dimen/top_text_size_l"
+        android:visibility="visible" />
+
+    <com.easefun.polyvsdk.view.PolyvSimpleSwipeRefreshLayout
+        android:id="@+id/srl_bot"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/rl_center">
+
+        <RelativeLayout
+            android:id="@+id/rl_bot"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <GridView
+                android:id="@+id/gv_hc"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:columnWidth="@dimen/center_bottom_sub_layout_width"
+                android:gravity="fill"
+                android:horizontalSpacing="@dimen/common_margin_lr"
+                android:numColumns="2"
+                android:paddingLeft="@dimen/common_margin_lr"
+                android:paddingRight="@dimen/common_margin_lr"
+                android:scrollbarStyle="outsideOverlay"
+                android:scrollbars="vertical"
+                android:stretchMode="columnWidth"
+                android:verticalSpacing="@dimen/common_margin_tb" />
+
+            <include layout="@layout/polyv_center_loadlayout" />
+        </RelativeLayout>
+    </com.easefun.polyvsdk.view.PolyvSimpleSwipeRefreshLayout>
+
+</RelativeLayout>

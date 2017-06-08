@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rl_center_bit"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:alpha="0.7"
+    android:background="@color/top_left_layout_color_black"
+    android:visibility="gone" >
+
+    <ImageView
+        android:id="@+id/iv_close_bit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:clickable="true"
+        android:padding="@dimen/talk_common_margin_l_l"
+        android:src="@drawable/polyv_btn_close" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:translationY="@dimen/bottom_layout_height_l_half" >
+
+        <TextView
+            android:id="@+id/tv_sc"
+            style="@style/tv_click_controller_land_center"
+            android:layout_marginRight="@dimen/center_margin_right"
+            android:text="超清" />
+
+        <TextView
+            android:id="@+id/tv_hd"
+            style="@style/tv_click_controller_land_center"
+            android:layout_marginRight="@dimen/center_margin_right"
+            android:text="高清" />
+
+        <TextView
+            android:id="@+id/tv_flu"
+            style="@style/tv_click_controller_land_center"
+            android:layout_marginRight="@dimen/center_margin_right"
+            android:text="流畅" />
+
+        <TextView
+            android:id="@+id/tv_auto"
+            style="@style/tv_click_controller_land_center"
+            android:text="自动" />
+    </LinearLayout>
+
+</RelativeLayout>

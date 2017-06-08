@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item>
+        <shape android:shape="rectangle" >
+
+            <!-- 0:-> 90:由下至上 180:<-（角度逆时针） -->
+            <gradient
+                android:angle="315"
+                android:centerX="0"
+                android:centerY="1"
+                android:endColor="@color/commom_click_color_gray"
+                android:startColor="@color/top_layout_color_white"
+                android:type="linear"
+                android:useLevel="false" />
+
+            <padding
+                android:bottom="@dimen/corners_common_s"
+                android:right="@dimen/corners_common_s" />
+        </shape>
+    </item>
+
+</layer-list>

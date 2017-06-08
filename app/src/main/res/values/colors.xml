@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="top_text_color_black">#000000</color>
+    <color name="top_layout_color_white">#ffffff</color>
+    <color name="top_left_layout_color_black">#00101b</color>
+    <color name="top_left_layout_color_black_alpha">#b200101b</color>
+    <color name="top_right_text_color_black">#575e65</color>
+    <color name="top_right_text_color_gray">#ededed</color>
+    <color name="top_sline_color_gray">#cfd9db</color>
+    <color name="center_view_color_blue">#31adfe</color>
+    <color name="center_layout_color_gray">#f9f9f9</color>
+    <color name="center_layout_color_gray_deep">#e9e9e9</color>
+    <color name="center_bottom_text_color_blue">#6ec6ff</color>
+    <color name="center_bottom_text_color_red">#ff6000</color>
+    <color name="center_right_text_color_green">#86cf00</color>
+    <color name="commom_click_color_gray">#e0e0e0</color>
+    <color name="commom_click_color_gray_half">#7fe0e0e0</color>
+    <color name="commom_sline_color_gray">#e9e9e9</color>
+    <color name="commom_dialog_color_gray">#cacaca</color>
+    <color name="bottom_layout_color_blue">#0000ff</color>
+    <color name="center_bottom_sb_pg_color_blue">#14a2f4</color>
+    <!-- b2->a2 -->
+    <color name="center_bottom_sb_pg_color_blue_alpha">#a214a2f4</color>
+    <!-- no use -->
+    <color name="center_bottom_sb_sec_color_blue">#95d5fa</color>
+    <color name="center_bottom_text_color_gray">#848e99</color>
+    <color name="center_right_text_color_black">#2c2f33</color>
+    <color name="center_right_botton_color_purple">#dda0dd</color>
+    <color name="center_left_text_color_gray">#aaaaaa</color>
+    <color name="activity_color_translucence">#80000000</color>
+
+</resources>

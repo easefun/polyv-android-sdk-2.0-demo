@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rl_port"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@null"
+    android:visibility="visible">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/bottom_layout_height"
+        android:layout_alignParentBottom="true"
+        android:alpha="0.7"
+        android:background="@color/top_left_layout_color_black">
+
+        <ImageView
+            android:id="@+id/iv_play"
+            style="@style/iv_click_controller_port_bottom"
+            android:src="@drawable/polyv_play_bt_pic_port" />
+
+        <TextView
+            android:id="@+id/tv_curtime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/center_bottom_margin_left_s"
+            android:layout_toRightOf="@id/iv_play"
+            android:text="00:00"
+            android:textColor="@color/top_layout_color_white"
+            android:textSize="@dimen/bottom_right_text_size" />
+
+        <TextView
+            android:id="@+id/tv_sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/tv_curtime"
+            android:text=" / "
+            android:textColor="@color/top_layout_color_white"
+            android:textSize="@dimen/bottom_right_text_size" />
+
+        <TextView
+            android:id="@+id/tv_tottime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/tv_sp"
+            android:text="00:00"
+            android:textColor="@color/top_layout_color_white"
+            android:textSize="@dimen/bottom_right_text_size" />
+
+        <ImageView
+            android:id="@+id/iv_land"
+            style="@style/iv_click_controller_port_bottom"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/polyv_btn_fullscreen" />
+    </RelativeLayout>
+
+    <SeekBar
+        android:id="@+id/sb_play"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="@dimen/bottom_pb_margin_bottom"
+        android:focusable="true"
+        android:max="1000"
+        android:paddingTop="@dimen/talk_common_margin"
+        android:maxHeight="@dimen/center_pb_width_l"
+        android:minHeight="@dimen/center_pb_width_l"
+        android:progress="0"
+        android:progressDrawable="@drawable/polyv_sb_pg_drawable"
+        android:secondaryProgress="0"
+        android:thumb="@drawable/polyv_sb_thumb"
+        android:thumbOffset="0dp" />
+
+</RelativeLayout>

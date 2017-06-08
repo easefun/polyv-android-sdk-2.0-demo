@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/polyv_ll_shade"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/tv_hd"
+        style="@style/selbit_text"
+        android:text="高清画质" />
+
+    <TextView
+        android:id="@+id/tv_sd"
+        style="@style/selbit_text"
+        android:text="标清画质" />
+
+    <TextView
+        android:id="@+id/tv_flu"
+        style="@style/selbit_text"
+        android:text="流畅画质" />
+
+</LinearLayout>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/center_layout_color_gray" >
+
+    <RelativeLayout
+        android:id="@+id/rl_bot"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/bottom_layout_height"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/polyv_blue_click_to_gray"
+        android:clickable="true" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:orientation="horizontal" >
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/polyv_ic_disc" />
+
+            <TextView
+                android:id="@+id/et_talk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="@dimen/bottom_tv_margin_left"
+                android:text="讨论"
+                android:textColor="@color/top_layout_color_white"
+                android:textSize="@dimen/bottom_text_size" />
+        </LinearLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/rl_bot" >
+
+        <ListView
+            android:id="@+id/lv_talk"
+            style="@style/lv_commom"
+            android:dividerHeight="@dimen/center_bottom_margin_top_s" />
+
+        <include layout="@layout/polyv_center_loadlayout" />
+    </RelativeLayout>
+
+</RelativeLayout>

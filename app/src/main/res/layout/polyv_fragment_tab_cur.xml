@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/center_layout_color_gray" >
+
+    <LinearLayout
+        android:id="@+id/ll_top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/common_margin_lr"
+        android:visibility="gone" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="画质 : "
+            android:textColor="@color/center_view_color_blue" />
+
+        <LinearLayout
+            android:id="@+id/ll_selbit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:paddingBottom="@dimen/talk_common_margin"
+            android:paddingTop="@dimen/talk_common_margin" >
+
+            <TextView
+                android:id="@+id/tv_selbit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="高清画质"
+                android:textColor="@color/center_right_botton_color_purple" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:rotation="180"
+                android:scaleType="center"
+                android:scaleX="0.7"
+                android:scaleY="0.7"
+                android:src="@drawable/polyv_cling_arrow_up" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_bot"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/bottom_layout_height"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/polyv_blue_click_to_gray"
+        android:clickable="true" >
+
+        <LinearLayout
+            android:id="@+id/ll_download"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone" >
+
+            <TextView
+                android:id="@+id/tv_cancle"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/polyv_blue_click_to_gray"
+                android:clickable="true"
+                android:gravity="center"
+                android:text="取消"
+                android:textColor="@color/top_layout_color_white"
+                android:textSize="@dimen/bottom_text_size" />
+
+            <TextView
+                android:id="@+id/tv_all"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/polyv_blue_click_to_gray"
+                android:clickable="true"
+                android:gravity="center"
+                android:text="全部缓存"
+                android:textColor="@color/top_layout_color_white"
+                android:textSize="@dimen/bottom_text_size" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true" >
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/polyv_ic_cache" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="@dimen/bottom_tv_margin_left"
+                android:text="缓存"
+                android:textColor="@color/top_layout_color_white"
+                android:textSize="@dimen/bottom_text_size" />
+        </LinearLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/rl_bot"
+        android:layout_below="@id/ll_top" >
+
+        <ListView
+            android:id="@+id/lv_cur"
+            style="@style/lv_commom"
+            android:dividerHeight="@dimen/common_margin_tb" />
+
+        <include layout="@layout/polyv_center_loadlayout" />
+    </RelativeLayout>
+
+</RelativeLayout>

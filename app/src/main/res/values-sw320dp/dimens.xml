@@ -1,0 +1,127 @@
+<resources>
+
+    <!-- w3.375 ts3.375(ts max) h4 -->
+    <!-- /3.375 -->
+    <dimen name="top_center_player_height">181.3dp</dimen>
+    <dimen name="top_left_iv_width">32.6dp</dimen>
+    <dimen name="top_left_iv_width_l">44.4dp</dimen>
+    <dimen name="top_left_iv_height">27.5dp</dimen>
+    <dimen name="top_dm_tv_margin_right">44.4dp</dimen>
+    <dimen name="top_dm_tv_maring_bottom">12.5dp</dimen>
+    <dimen name="top_dm_iv_margin_right">39.6dp</dimen>
+    <!-- +2 -->
+    <dimen name="top_right_text_size">15.6sp</dimen>
+    <!-- +4 -->
+    <dimen name="top_dm_et_height">27.7dp</dimen>
+    <dimen name="top_layout_dm_height_half_reverse">-9.8dp</dimen>
+    <dimen name="top_layout_dm_height">37.5dp</dimen>
+    <dimen name="top_center_v_margin_right">11.2dp</dimen>
+    <dimen name="top_center_v_width">118.5dp</dimen>
+    <dimen name="top_center_margin_top">35dp</dimen>
+    <dimen name="top_center_margin_top_s">20.5dp</dimen>
+    <dimen name="top_center_iv_margin_right">8.3dp</dimen>
+    <dimen name="top_center_iv_margin_right_l">10.7dp</dimen>
+    <dimen name="top_center_sb_width">240.6dp</dimen>
+    <!-- +n -->
+    <dimen name="top_layout_height_s">30dp</dimen>
+    <dimen name="top_layout_height">33.5dp</dimen>
+    <dimen name="top_layout_height_l">38.7dp</dimen>
+    <!-- +2 -->
+    <dimen name="top_text_size">14.4sp</dimen>
+    <dimen name="top_text_size_l">21.6sp</dimen>
+    <dimen name="top_left_layout_height">60dp</dimen>
+    <dimen name="top_left_layout_width">113.8dp</dimen>
+    <!-- replace by center_bottom_margin_top_m not use this -->
+    <dimen name="top_bottom_margin_top">8.5dp</dimen>
+    <dimen name="top_bottom_margin_right">6.5dp</dimen>
+    <dimen name="center_layout_width_l">106.6dp</dimen>
+    <dimen name="center_layout_height_l">90dp</dimen>
+    <dimen name="center_layout_height">29dp</dimen>
+    <!-- +2 -->
+    <dimen name="center_text_size">12.6sp</dimen>
+    <!-- +2 -->
+    <dimen name="center_text_size_l">18sp</dimen>
+    <dimen name="center_view_height">9dp</dimen>
+    <!-- +2 -->
+    <dimen name="center_view_height_l">11dp</dimen>
+    <dimen name="center_margin_right">81.7dp</dimen>
+    <dimen name="center_margin_right_s">48.8dp</dimen>
+    <!-- reverse data -0.5 -->
+    <dimen name="center_pb_width">1.6dp</dimen>
+    <dimen name="center_pb_width_l">2.1dp</dimen>
+    <dimen name="center_view_width">1.2dp</dimen>
+    <dimen name="center_tab_view_width">77dp</dimen>
+    <dimen name="center_tv_margin_left">3.5dp</dimen>
+    <dimen name="center_top_margin_bottom">6.5dp</dimen>
+    <!-- /3.375 -->
+    <dimen name="center_top_iv_height">88dp</dimen>
+    <dimen name="center_top_iv_width">142.2dp</dimen>
+    <!-- +6 +12 +2 -->
+    <dimen name="center_top_iv_height_s">80dp</dimen>
+    <dimen name="center_top_iv_width_s">113.7dp</dimen>
+    <dimen name="center_right_layout_height">48.9dp</dimen>
+    <dimen name="center_right_margin_right">16.6dp</dimen>
+    <dimen name="center_right_margin_bottom">2.5dp</dimen>
+    <!-- +2 -->
+    <dimen name="center_right_text_size">9.1sp</dimen>
+    <!-- +2 -->
+    <dimen name="center_right_text_size_l">11.5sp</dimen>
+    <dimen name="center_right_tv_margin_left">3dp</dimen>
+    <dimen name="center_bottom_margin_top">7.5dp</dimen>
+    <dimen name="center_bottom_margin_left">8.8dp</dimen>
+    <dimen name="center_bottom_margin_right">8.8dp</dimen>
+    <dimen name="center_bottom_margin_bottom">7.5dp</dimen>
+    <!-- +2 -->
+    <dimen name="center_bottom_text_size">10.8sp</dimen>
+    <!-- +2 -->
+    <dimen name="center_bottom_text_size_s">9.7sp</dimen>
+    <dimen name="center_bottom_margin_top_s">5dp</dimen>
+    <dimen name="center_bottom_margin_top_s_s">2dp</dimen>
+    <dimen name="center_bottom_margin_left_s">6dp</dimen>
+    <dimen name="center_bottom_margin_top_m">6dp</dimen>
+    <!-- +2 -->
+    <dimen name="center_bottom_text_size_l">10.3sp</dimen>
+    <dimen name="center_bottom_sub_layout_width">142.2dp</dimen>
+    <dimen name="center_bottom_tv_margin_left">4.4dp</dimen>
+    <dimen name="bottom_right_margin_left">5.3dp</dimen>
+    <!-- +2 -->
+    <dimen name="bottom_right_text_size">12sp</dimen>
+    <dimen name="bottom_layout_height_l">41.2dp</dimen>
+    <dimen name="bottom_layout_height_l_half">20.6dp</dimen>
+    <dimen name="bottom_layout_height">38.5dp</dimen>
+    <!-- +2 -->
+    <dimen name="bottom_text_size">16.2sp</dimen>
+    <dimen name="bottom_tv_margin_left">4.9dp</dimen>
+    <dimen name="bottom_tv_margin_top">4dp</dimen>
+    <!-- not use -->
+    <dimen name="bottom_pb_height">10dp</dimen>
+    <!-- 38.5-3(use 5) -->
+    <dimen name="bottom_pb_margin_bottom">33.5dp</dimen>
+    <!-- 41.2-3(use 5) -->
+    <dimen name="bottom_pb_margin_bottom_l">36.2dp</dimen>
+    <dimen name="common_margin_lr">11.8dp</dimen>
+    <dimen name="common_margin_lr_reverse">-11.8dp</dimen>
+    <dimen name="common_margin_tb">10dp</dimen>
+    <dimen name="common_sline_height">0.3dp</dimen>
+    <!-- talk custom -->
+    <dimen name="talk_common_margin">5dp</dimen>
+    <dimen name="talk_common_margin_l">10dp</dimen>
+    <dimen name="talk_common_margin_l_l">15dp</dimen>
+    <dimen name="talk_et_margin_right">3dp</dimen>
+    <!-- corners custom -->
+    <dimen name="corners_common_s">2dp</dimen>
+    <dimen name="corners_common">3dp</dimen>
+    <dimen name="corners_common_m">9dp</dimen>
+    <dimen name="corners_common_l">18dp</dimen>
+    <!-- cursor width custom -->
+    <dimen name="cursor_common_width">1dp</dimen>
+    <!-- danmu color custom -->
+    <dimen name="dmcolor_commom_wh">30dp</dimen>
+    <dimen name="dmcolor_commom_tran">-5dp</dimen>
+    <!-- selbit layout custom -->
+    <dimen name="selbit_text_height">33dp</dimen>
+    <dimen name="selbit_text_width">80dp</dimen>
+    <!-- share layout custom -->
+    <dimen name="share_layout_width">100dp</dimen>
+
+</resources>

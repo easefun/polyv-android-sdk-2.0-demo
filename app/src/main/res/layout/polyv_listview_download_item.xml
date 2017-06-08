@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/polyv_white_click_to_gray"
+    android:orientation="horizontal">
+
+    <FrameLayout
+        android:id="@+id/fl_start"
+        android:layout_width="@dimen/top_left_layout_width"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="@dimen/common_margin_lr"
+        android:alpha="0.7"
+        android:background="@drawable/polyv_black_click_to_gray"
+        android:clickable="true">
+
+        <ImageView
+            android:id="@+id/iv_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@drawable/polyv_btn_download" />
+    </FrameLayout>
+
+    <RelativeLayout
+        style="@style/lo_download_commom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/tv_seri"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="01"
+            android:textColor="@color/center_view_color_blue"
+            android:textSize="@dimen/center_text_size" />
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/center_bottom_margin_top_s"
+            android:layout_toRightOf="@id/tv_seri"
+            android:ellipsize="end"
+            android:lines="2"
+            android:text="这是一行测试的文本。。。。。。。。。。。。。。。。。。。。。。。。。。........。..。。。。。。。。。。"
+            android:textColor="@color/center_view_color_blue"
+            android:textSize="@dimen/center_text_size" />
+
+        <TextView
+            android:id="@+id/tv_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/tv_title"
+            android:layout_below="@id/tv_title"
+            android:layout_marginTop="@dimen/bottom_tv_margin_top"
+            android:background="@drawable/polyv_border_s"
+            android:gravity="center"
+            android:text="100M"
+            android:textColor="@color/top_right_text_color_black"
+            android:textSize="@dimen/center_right_text_size" />
+
+        <TextView
+            android:id="@+id/tv_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/tv_size"
+            android:layout_alignTop="@id/tv_size"
+            android:layout_marginLeft="@dimen/bottom_tv_margin_left"
+            android:layout_toRightOf="@id/tv_size"
+            android:background="@drawable/polyv_border_s"
+            android:gravity="center"
+            android:text="正在下载"
+            android:textColor="@color/polyv_status_text_color"
+            android:textSize="@dimen/center_right_text_size" />
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/tv_title"
+            android:layout_below="@id/tv_size"
+            android:layout_marginTop="@dimen/center_bottom_margin_top_m">
+
+            <TextView
+                android:id="@+id/tv_speed"
+                android:layout_width="@dimen/top_left_iv_width_l"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:singleLine="true"
+                android:text="0.00B/S"
+                android:textColor="@color/center_bottom_text_color_blue"
+                android:textSize="@dimen/center_right_text_size" />
+
+            <ProgressBar
+                android:id="@+id/pb_progress"
+                style="?android:progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/center_pb_width"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="@dimen/top_bottom_margin_right"
+                android:layout_toLeftOf="@id/tv_speed"
+                android:progress="50"
+                android:progressDrawable="@drawable/polyv_pb_pg_drawable" />
+        </RelativeLayout>
+    </RelativeLayout>
+
+</LinearLayout>

@@ -1,0 +1,184 @@
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:seekBarStyle">@android:style/Widget.SeekBar</item>
+        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+    </style>
+
+    <style name="iv_click_controller_land_top_dm">
+        <item name="android:layout_width">@dimen/dmcolor_commom_wh</item>
+        <item name="android:layout_height">@dimen/dmcolor_commom_wh</item>
+        <item name="android:clickable">true</item>
+        <item name="android:scaleType">centerInside</item>
+        <item name="android:translationX">@dimen/dmcolor_commom_tran</item>
+        <item name="android:translationY">@dimen/talk_common_margin</item>
+    </style>
+
+    <style name="iv_click_controller_land_top">
+        <item name="android:layout_width">@dimen/top_layout_height_s</item>
+        <item name="android:layout_height">@dimen/top_layout_height_s</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:clickable">true</item>
+        <item name="android:background">@drawable/polyv_commom_click_color_gray</item>
+        <item name="android:scaleType">center</item>
+    </style>
+
+    <style name="iv_click_controller_land_top_l">
+        <item name="android:layout_width">@dimen/top_layout_dm_height</item>
+        <item name="android:layout_height">@dimen/top_layout_dm_height</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:clickable">true</item>
+        <item name="android:background">@drawable/polyv_commom_click_color_gray</item>
+        <item name="android:scaleType">center</item>
+    </style>
+
+    <style name="iv_click_controller_land_center">
+        <item name="android:layout_width">@dimen/center_right_layout_height</item>
+        <item name="android:layout_height">@dimen/center_right_layout_height</item>
+        <item name="android:clickable">true</item>
+        <item name="android:scaleType">center</item>
+    </style>
+
+    <style name="iv_click_controller_land_bottom">
+        <item name="android:layout_width">@dimen/bottom_layout_height_l</item>
+        <item name="android:layout_height">@dimen/bottom_layout_height_l</item>
+        <item name="android:clickable">true</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:background">@drawable/polyv_commom_click_color_gray</item>
+        <item name="android:scaleType">center</item>
+    </style>
+
+    <style name="tv_click_controller_land_center">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:clickable">true</item>
+        <item name="android:textColor">@color/polyv_bit_text_color</item>
+        <item name="android:textSize">@dimen/center_text_size_l</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="tv_click_controller_land_center_s">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:clickable">true</item>
+        <item name="android:textColor">@color/polyv_bit_text_color</item>
+        <item name="android:textSize">@dimen/center_text_size</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="tv_click_controller_land_center_s_padding_tb" parent="tv_click_controller_land_center_s">
+        <item name="android:paddingTop">@dimen/talk_common_margin</item>
+        <item name="android:paddingBottom">@dimen/talk_common_margin</item>
+    </style>
+
+    <style name="tv_click_controller_land_center_not_click">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/top_layout_color_white</item>
+        <item name="android:textSize">@dimen/center_text_size</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="tv_click_controller_land_bottom">
+        <item name="android:layout_width">@dimen/bottom_layout_height_l</item>
+        <item name="android:layout_height">@dimen/bottom_layout_height_l</item>
+        <item name="android:clickable">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_marginRight">@dimen/center_bottom_margin_left_s</item>
+        <item name="android:textColor">@color/polyv_play_bt_color</item>
+        <item name="android:textSize">@dimen/bottom_right_text_size</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:background">@drawable/polyv_commom_click_color_gray</item>
+    </style>
+
+    <style name="iv_click_controller_port_bottom">
+        <item name="android:layout_width">@dimen/bottom_layout_height</item>
+        <item name="android:layout_height">@dimen/bottom_layout_height</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:clickable">true</item>
+        <item name="android:background">@drawable/polyv_commom_click_color_gray</item>
+        <item name="android:scaleType">center</item>
+    </style>
+
+    <style name="iv_click_commom">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/polyv_commom_click_color_gray</item>
+        <item name="android:clickable">true</item>
+    </style>
+
+    <style name="lo_click_commom">
+        <item name="android:background">@drawable/polyv_commom_click_color_gray</item>
+        <item name="android:clickable">true</item>
+    </style>
+
+    <style name="lo_intr_commom">
+        <item name="android:background">@color/top_layout_color_white</item>
+        <item name="android:paddingBottom">@dimen/common_margin_tb</item>
+        <item name="android:paddingLeft">@dimen/common_margin_lr</item>
+        <item name="android:paddingRight">@dimen/common_margin_lr</item>
+        <item name="android:paddingTop">@dimen/common_margin_tb</item>
+    </style>
+
+    <style name="lo_download_commom">
+        <item name="android:layout_marginBottom">@dimen/center_bottom_margin_top_m</item>
+        <item name="android:layout_marginLeft">@dimen/common_margin_lr</item>
+        <item name="android:layout_marginRight">@dimen/common_margin_lr</item>
+        <item name="android:layout_marginTop">@dimen/center_bottom_margin_top_m</item>
+    </style>
+
+    <style name="lv_commom">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:fadingEdge">none</item>
+        <item name="android:fastScrollEnabled">false</item>
+        <item name="android:footerDividersEnabled">false</item>
+        <item name="android:headerDividersEnabled">false</item>
+        <item name="android:smoothScrollbar">true</item>
+        <item name="android:cacheColorHint">@android:color/transparent</item>
+        <item name="android:divider">@android:color/transparent</item>
+    </style>
+
+    <style name="at_talk_et" parent="AppTheme">
+
+        <!-- 去除初始背景 -->
+        <item name="android:windowContentOverlay">@null</item>
+        <!-- 半透明 -->
+        <item name="android:windowIsTranslucent">true</item>
+        <!-- 无标题 -->
+        <item name="android:windowNoTitle">true</item>
+        <!-- 背景透明 -->
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+
+    <style name="alert">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <!--
+        <item name="android:maxLines">1</item>
+        <item name="android:scrollHorizontally">true</item>
+        <item name="android:textSize">@dimen/dialog_top_right_text_size</item>
+
+
+        -->
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <style name="popupwindow">
+        <item name="android:windowEnterAnimation">@anim/polyv_expand</item>
+        <item name="android:windowExitAnimation">@anim/polyv_collapse</item>
+    </style>
+
+    <style name="selbit_text">
+        <item name="android:layout_width">@dimen/selbit_text_width</item>
+        <item name="android:layout_height">@dimen/selbit_text_height</item>
+        <item name="android:background">@drawable/polyv_white_click_to_gray</item>
+        <item name="android:gravity">center</item>
+        <item name="android:clickable">true</item>
+        <item name="android:textColor">@color/center_view_color_blue</item>
+    </style>
+
+</resources>

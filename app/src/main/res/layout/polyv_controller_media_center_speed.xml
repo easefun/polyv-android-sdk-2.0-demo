@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rl_center_speed"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:alpha="0.7"
+    android:background="@color/top_left_layout_color_black"
+    android:visibility="gone">
+
+    <ImageView
+        android:id="@+id/iv_close_speed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:clickable="true"
+        android:padding="@dimen/talk_common_margin_l_l"
+        android:src="@drawable/polyv_btn_close" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:translationY="@dimen/bottom_layout_height_l_half">
+
+        <TextView
+            android:id="@+id/tv_speed05"
+            style="@style/tv_click_controller_land_center"
+            android:layout_marginRight="@dimen/center_margin_right_s"
+            android:padding="@dimen/talk_common_margin"
+            android:text="0.5x" />
+
+        <TextView
+            android:id="@+id/tv_speed10"
+            style="@style/tv_click_controller_land_center"
+            android:layout_marginRight="@dimen/center_margin_right_s"
+            android:padding="@dimen/talk_common_margin"
+            android:text="1x" />
+
+        <TextView
+            android:id="@+id/tv_speed12"
+            style="@style/tv_click_controller_land_center"
+            android:layout_marginRight="@dimen/center_margin_right_s"
+            android:padding="@dimen/talk_common_margin"
+            android:text="1.2x" />
+
+        <TextView
+            android:id="@+id/tv_speed15"
+            style="@style/tv_click_controller_land_center"
+            android:layout_marginRight="@dimen/center_margin_right_s"
+            android:padding="@dimen/talk_common_margin"
+            android:text="1.5x" />
+
+        <TextView
+            android:id="@+id/tv_speed20"
+            style="@style/tv_click_controller_land_center"
+            android:padding="@dimen/talk_common_margin"
+            android:text="2x" />
+    </LinearLayout>
+
+</RelativeLayout>

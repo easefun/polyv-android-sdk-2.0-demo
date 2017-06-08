@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/polyv_white_click_to_white"
+        android:clickable="true"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/tv_topic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/common_margin_lr"
+            android:layout_marginRight="@dimen/common_margin_lr"
+            android:layout_marginTop="@dimen/common_margin_tb"
+            android:text="话题：测试demo"
+            android:textColor="@color/center_right_text_color_green"
+            android:textSize="@dimen/center_right_text_size_l" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/common_sline_height"
+            android:layout_marginLeft="@dimen/common_margin_lr"
+            android:layout_marginRight="@dimen/common_margin_lr"
+            android:layout_marginTop="@dimen/center_top_margin_bottom"
+            android:background="@color/commom_sline_color_gray" />
+    </LinearLayout>
+
+    <include layout="@layout/polyv_listview_talk_item_bottom" />
+
+</LinearLayout>

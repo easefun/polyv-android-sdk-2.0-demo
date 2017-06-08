@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/top_layout_color_white"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:id="@+id/rl_top"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/top_layout_height" >
+
+        <ImageView
+            android:id="@+id/iv_finish"
+            style="@style/iv_click_commom"
+            android:layout_centerVertical="true"
+            android:src="@drawable/polyv_btn_back" />
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_toRightOf="@id/iv_finish"
+            android:layout_toLeftOf="@+id/iv_share"
+            android:singleLine="true"
+            android:text=""
+            android:textColor="@color/top_text_color_black"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:gravity="center_horizontal"
+            android:ellipsize="marquee"
+            android:textSize="@dimen/top_text_size" />
+
+        <ImageView
+            android:id="@+id/iv_share"
+            style="@style/iv_click_commom"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/polyv_btn_share" />
+    </RelativeLayout>
+
+</LinearLayout>

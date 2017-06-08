@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/center_layout_color_gray" >
+
+    <RelativeLayout
+        android:id="@+id/rl_top"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/top_layout_height"
+        android:background="@color/top_layout_color_white">
+
+        <ImageView
+            android:id="@+id/iv_finish"
+            style="@style/iv_click_commom"
+            android:layout_centerVertical="true"
+            android:src="@drawable/polyv_btn_back" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="在线视频"
+            android:textColor="@color/top_text_color_black"
+            android:textSize="@dimen/top_text_size" />
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/v_line"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/common_sline_height"
+        android:layout_below="@id/rl_top"
+        android:background="@color/commom_sline_color_gray" />
+
+    <ListView
+        android:id="@+id/lv_online"
+        style="@style/lv_commom"
+        android:layout_above="@id/rl_bot"
+        android:layout_below="@id/v_line"
+        android:dividerHeight="@dimen/common_margin_tb"
+        android:listSelector="@android:color/transparent">
+    </ListView>
+
+</RelativeLayout>

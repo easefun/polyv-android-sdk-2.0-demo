@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/activity_color_translucence" >
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/commom_click_color_gray"
+        android:clickable="true" >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/talk_common_margin"
+            android:layout_marginLeft="@dimen/talk_common_margin"
+            android:layout_marginRight="@dimen/talk_common_margin"
+            android:layout_marginTop="@dimen/talk_common_margin"
+            android:background="@color/commom_click_color_gray" >
+
+            <TextView
+                android:id="@+id/tv_send"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/polyv_tv_corners"
+                android:padding="@dimen/talk_common_margin"
+                android:text="发送"
+                android:textColor="@color/top_layout_color_white"
+                android:textSize="@dimen/bottom_text_size" />
+
+            <EditText
+                android:id="@+id/et_talk"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="@dimen/talk_et_margin_right"
+                android:layout_toLeftOf="@id/tv_send"
+                android:background="@drawable/polyv_et_corners"
+                android:hint="说点什么"
+                android:padding="@dimen/talk_common_margin"
+                android:textColor="@color/top_text_color_black"
+                android:textCursorDrawable="@drawable/polyv_et_cursor_color"
+                android:textSize="@dimen/bottom_text_size" />
+        </RelativeLayout>
+    </FrameLayout>
+
+</RelativeLayout>

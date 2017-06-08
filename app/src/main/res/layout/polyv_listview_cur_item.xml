@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/polyv_white_click_to_gray" >
+
+    <ImageView
+        android:id="@+id/iv_sel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="@dimen/common_margin_lr_reverse"
+        android:src="@drawable/polyv_select_pic"
+        android:visibility="gone" />
+
+    <com.easefun.polyvsdk.view.PolyvGrayImageView
+        android:id="@+id/iv_demo"
+        android:layout_width="@dimen/center_top_iv_width_s"
+        android:layout_height="@dimen/center_top_iv_height_s"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/common_margin_lr"
+        android:layout_toRightOf="@id/iv_sel"
+        android:scaleType="fitXY"
+        android:src="@drawable/polyv_pic_demo" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginBottom="@dimen/center_bottom_margin_top_s"
+        android:layout_marginLeft="@dimen/common_margin_lr"
+        android:layout_marginRight="@dimen/common_margin_lr"
+        android:layout_marginTop="@dimen/center_bottom_margin_top_m"
+        android:layout_toRightOf="@id/iv_demo"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/tv_seri"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="第一节"
+            android:textColor="@color/top_text_color_black"
+            android:textSize="@dimen/center_right_text_size_l" />
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/center_bottom_margin_top_s"
+            android:ellipsize="end"
+            android:lines="2"
+            android:text="这是一行测试文本这是一行测试文本这是一行测试文本这是一行测试文本这是一行测试文本这是一行测试文本"
+            android:textColor="@color/top_text_color_black"
+            android:textSize="@dimen/center_right_text_size_l" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/common_sline_height"
+            android:layout_marginTop="@dimen/center_bottom_margin_top_s"
+            android:background="@color/commom_sline_color_gray" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/center_bottom_margin_top_s"
+            android:gravity="center_vertical"
+            android:orientation="horizontal" >
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/polyv_time" />
+
+            <TextView
+                android:id="@+id/tv_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/center_right_tv_margin_left"
+                android:text="20:03"
+                android:textColor="@color/center_right_text_color_green"
+                android:textSize="@dimen/center_right_text_size" />
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>

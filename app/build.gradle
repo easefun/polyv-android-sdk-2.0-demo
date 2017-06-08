@@ -1,0 +1,53 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.3"
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 23
+        versionCode 1
+        versionName "2.0.1"
+        //64K 引用限制
+        multiDexEnabled true
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    android.applicationVariants.all {variant->
+        variant.outputs.each { output->
+            def outputFile = output.outputFile;
+            if (outputFile != null && outputFile.name.endsWith(".apk")) {
+                //这里修改apk文件名
+                def fileName = "polyv-${versionName}-${releaseTime()}.apk";
+                output.outputFile = new File(outputFile.parent, fileName);
+            }
+        }
+    }
+}
+
+def releaseTime() {
+    return new Date().format("yyyy-MM-dd", TimeZone.getTimeZone("UTC"))
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    testCompile 'junit:junit:4.12'
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+
+    compile 'com.android.support:support-annotations:23+'
+    compile 'com.android.support:appcompat-v7:23+'
+    compile 'com.android.support:support-v4:23+'
+	//64K 引用限制
+    compile 'com.android.support:multidex:1.0.1'
+	
+    compile project(':polyvAndroidSDKGif1.0')
+}

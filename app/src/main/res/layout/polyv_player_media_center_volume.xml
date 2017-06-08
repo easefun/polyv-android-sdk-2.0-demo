@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rl_center_volume"
+    android:layout_width="@dimen/center_layout_width_l"
+    android:layout_height="@dimen/center_layout_height_l"
+    android:alpha="0.7"
+    android:background="@drawable/polyv_rl_corners"
+    android:layout_centerInParent="true"
+    android:visibility="gone" >
+
+    <!-- relativelayout下的linearlayout可以在任意方向居中 -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical" >
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/polyv_ic_volume" />
+
+        <TextView
+            android:id="@+id/tv_volume"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginTop="@dimen/center_view_height"
+            android:text="40%"
+            android:textColor="@color/top_layout_color_white"
+            android:textSize="@dimen/top_text_size" />
+    </LinearLayout>
+
+</RelativeLayout>

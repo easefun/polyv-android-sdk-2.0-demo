@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/ll_shareqq"
+        android:layout_width="@dimen/share_layout_width"
+        android:layout_height="@dimen/selbit_text_height"
+        android:background="@drawable/polyv_white_click_to_gray"
+        android:gravity="center_horizontal" >
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="@dimen/talk_common_margin"
+            android:layout_marginRight="@dimen/talk_common_margin"
+            android:scaleType="center"
+            android:src="@drawable/polyv_qq_s" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:ems="5"
+            android:text="分享至QQ" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_sharewechat"
+        android:layout_width="@dimen/share_layout_width"
+        android:layout_height="@dimen/selbit_text_height"
+        android:background="@drawable/polyv_white_click_to_gray"
+        android:gravity="center_horizontal" >
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="@dimen/talk_common_margin"
+            android:layout_marginRight="@dimen/talk_common_margin"
+            android:scaleType="center"
+            android:src="@drawable/polyv_wechat_s" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:ems="5"
+            android:text="分享至微信" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_shareweibo"
+        android:layout_width="@dimen/share_layout_width"
+        android:layout_height="@dimen/selbit_text_height"
+        android:background="@drawable/polyv_white_click_to_gray"
+        android:gravity="center_horizontal" >
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="@dimen/talk_common_margin"
+            android:layout_marginRight="@dimen/talk_common_margin"
+            android:scaleType="center"
+            android:src="@drawable/polyv_weibo_s" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:ems="5"
+            android:text="分享至微博" />
+    </LinearLayout>
+
+</LinearLayout>

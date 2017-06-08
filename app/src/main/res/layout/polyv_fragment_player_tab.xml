@@ -1,0 +1,64 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/top_layout_color_white"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/id_switch_tab_ll"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/center_layout_height"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:id="@+id/tv_cur"
+            style="@style/lo_click_commom"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="课程目录"
+            android:textColor="@color/polyv_tab_text_color"
+            android:textSize="@dimen/center_text_size" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/tv_sum"
+            style="@style/lo_click_commom"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="课程介绍"
+            android:textColor="@color/polyv_tab_text_color"
+            android:textSize="@dimen/center_text_size" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/tv_talk"
+            style="@style/lo_click_commom"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="讨论区"
+            android:textColor="@color/polyv_tab_text_color"
+            android:textSize="@dimen/center_text_size" >
+        </TextView>
+    </LinearLayout>
+
+    <View
+        android:id="@+id/v_line"
+        android:layout_width="@dimen/center_tab_view_width"
+        android:layout_height="@dimen/center_view_width"
+        android:background="@color/center_view_color_blue" >
+    </View>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/common_sline_height"
+        android:background="@color/commom_sline_color_gray" >
+    </View>
+
+</LinearLayout>
