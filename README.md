@@ -44,7 +44,7 @@ SDK2.0demo是SDK2.0的demo示例Android studio项目工程，其中包含了最�
 * 下载
 * 上传
 ***
-### 如果未接触过_[polyv-android-sdk-demo（1.0）](https://github.com/easefun/polyv-android-sdk-demo)_（以下简称**SDK1.0demo**）和_polyv-android-sdk(1.0)_（以下称**SDK1.0**）可以跳过SDK1.0相关部分。
+### 如果未接触过[polyv-android-sdk-demo（1.0）](https://github.com/easefun/polyv-android-sdk-demo)（以下简称**SDK1.0demo**）和polyv-android-sdk(1.0)（以下称**SDK1.0**）可以跳过SDK1.0相关部分。
 
 #### SDK2.0和SDK1.0是什么关系？
 SDK2.0是SDK1.0的升级版，在SDK1.0的基础上，进行升级，重构，优化。
@@ -72,4 +72,6 @@ SDK1.0demo和SDK1.0不再进行功能更新，只维护bug。
 更多细节请在SDK2.0demo中查看。
 
 ***
-#### 更多关于SDK2.0demo和SDK2.0的详细介绍请看[Wiki](https://github.com/easefun/polyv-android-sdk-demo/wiki)。
+#### 更多关于SDK2.0demo和SDK2.0的详细介绍请看[Wiki](https://github.com/easefun/polyv-android-sdk-2.0-demo/wiki)。
+
+2.0.1版API文档请看[v2.0.1 API](http://demo.polyv.net/polyv/android/sdk/2.0.1/api/index.html)
