@@ -87,3 +87,6 @@
 -dontshrink
 #保护泛型
 -keepattributes Signature
+
+-keep class com.easefun.polyvsdk.**{*;}
+-keep class tv.danmaku.ijk.media.**{*;}
