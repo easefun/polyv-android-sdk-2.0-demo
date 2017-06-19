@@ -258,63 +258,66 @@ public class PolyvDownloadListViewAdapter extends BaseAdapter {
                 showPauseSpeeView(downloadInfo, viewHolder.get().tv_speed);
                 switch (errorReason.getType()) {
                     case VID_IS_NULL:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频id不正确，请设置正确的视频id进行播放(error code " + VID_IS_NULL + ")", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频id不正确，请设置正确的视频id进行播放(error code " + PolyvDownloaderErrorReason.ErrorType.VID_IS_NULL.getCode() + ")", Toast.LENGTH_SHORT).show();
                         break;
                     case NOT_PERMISSION:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务非法下载(error code " + PolyvDownloaderErrorReason.ErrorType.NOT_PERMISSION + ")", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(appContext, "第" + (position + 1) + "个任务非法下载(error code " + PolyvDownloaderErrorReason.ErrorType.NOT_PERMISSION.getCode() + ")", Toast.LENGTH_SHORT).show();
                         break;
                     case RUNTIME_EXCEPTION:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务下载中异常，请重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.RUNTIME_EXCEPTION + ")", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(appContext, "第" + (position + 1) + "个任务下载中异常，请重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.RUNTIME_EXCEPTION.getCode() + ")", Toast.LENGTH_SHORT).show();
                         break;
                     case VIDEO_STATUS_ERROR:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频状态异常，无法下载(error code " + PolyvDownloaderErrorReason.ErrorType.VIDEO_STATUS_ERROR + ")", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频状态异常，无法下载(error code " + PolyvDownloaderErrorReason.ErrorType.VIDEO_STATUS_ERROR.getCode() + ")", Toast.LENGTH_SHORT).show();
                         break;
                     case M3U8_NOT_DATA:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频信息加载失败，请重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.M3U8_NOT_DATA + ")", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频信息加载失败，请重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.M3U8_NOT_DATA.getCode() + ")", Toast.LENGTH_SHORT).show();
                         break;
                     case QUESTION_NOT_DATA:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频问答数据加载失败，请重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.QUESTION_NOT_DATA + ")", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频问答数据加载失败，请重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.QUESTION_NOT_DATA.getCode() + ")", Toast.LENGTH_SHORT).show();
                         break;
                     case MULTIMEDIA_LIST_EMPTY:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频文件数据加载失败，请重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.MULTIMEDIA_LIST_EMPTY + ")", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频文件数据加载失败，请重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.MULTIMEDIA_LIST_EMPTY.getCode() + ")", Toast.LENGTH_SHORT).show();
                         break;
                     case CAN_NOT_MKDIR:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频存储目录创建失败(error code " + PolyvDownloaderErrorReason.ErrorType.CAN_NOT_MKDIR + ")", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频存储目录创建失败(error code " + PolyvDownloaderErrorReason.ErrorType.CAN_NOT_MKDIR.getCode() + ")", Toast.LENGTH_SHORT).show();
                         break;
                     case DOWNLOAD_TS_ERROR:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频文件下载失败，请重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.DOWNLOAD_TS_ERROR + ")", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频文件下载失败，请重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.DOWNLOAD_TS_ERROR.getCode() + ")", Toast.LENGTH_SHORT).show();
                         break;
                     case MULTIMEDIA_EMPTY:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频下载失败，请重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.MULTIMEDIA_EMPTY + ")", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频下载失败，请重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.MULTIMEDIA_EMPTY.getCode() + ")", Toast.LENGTH_SHORT).show();
                         break;
                     case NOT_CREATE_DIR:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频存储目录创建失败，请重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.NOT_CREATE_DIR + ")", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频存储目录创建失败，请重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.NOT_CREATE_DIR.getCode() + ")", Toast.LENGTH_SHORT).show();
                         break;
                     case VIDEO_LOAD_FAILURE:
                         break;
                     case VIDEO_NULL:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频信息加载失败，请重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.VIDEO_NULL + ")", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频信息加载失败，请重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.VIDEO_NULL.getCode() + ")", Toast.LENGTH_SHORT).show();
                         break;
                     case DIR_SPACE_LACK:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务检测到移动设备存储空间不足，请清除存储空间再重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.DIR_SPACE_LACK + ")", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(appContext, "第" + (position + 1) + "个任务检测到移动设备存储空间不足，请清除存储空间再重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.DIR_SPACE_LACK.getCode() + ")", Toast.LENGTH_SHORT).show();
                         break;
                     case DOWNLOAD_DIR_IS_NUll:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务检测到存储目录未设置，请先设置存储目录再重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.DOWNLOAD_DIR_IS_NUll + ")", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(appContext, "第" + (position + 1) + "个任务检测到存储目录未设置，请先设置存储目录再重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.DOWNLOAD_DIR_IS_NUll.getCode() + ")", Toast.LENGTH_SHORT).show();
                         break;
                     case HLS_15X_URL_ERROR:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频下载地址异常，请重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.HLS_15X_URL_ERROR + ")", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频下载地址异常，请重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.HLS_15X_URL_ERROR.getCode()+ ")", Toast.LENGTH_SHORT).show();
                         break;
                     case HLS_SPEED_TYPE_IS_NULL:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频速度类型错误，请设置了速度类型后重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.HLS_SPEED_TYPE_IS_NULL + ")", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频速度类型错误，请设置了速度类型后重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.HLS_SPEED_TYPE_IS_NULL.getCode() + ")", Toast.LENGTH_SHORT).show();
                         break;
                     case HLS_15X_ERROR:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频不支持1.5倍速，无法下载(error code " + PolyvDownloaderErrorReason.ErrorType.HLS_15X_ERROR + ")", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频不支持1.5倍速，无法下载(error code " + PolyvDownloaderErrorReason.ErrorType.HLS_15X_ERROR.getCode() + ")", Toast.LENGTH_SHORT).show();
                         break;
                     case GET_VIDEO_INFO_ERROR:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频信息加载异常，请重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.GET_VIDEO_INFO_ERROR + ")", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频信息加载异常，请重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.GET_VIDEO_INFO_ERROR.getCode() + ")", Toast.LENGTH_SHORT).show();
                         break;
                     case WRITE_EXTERNAL_STORAGE_DENIED:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务检测到拒绝写入SD卡，请先为应用程序分配权限，再重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.WRITE_EXTERNAL_STORAGE_DENIED + ")", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(appContext, "第" + (position + 1) + "个任务检测到拒绝写入SD卡，请先为应用程序分配权限，再重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.WRITE_EXTERNAL_STORAGE_DENIED.getCode() + ")", Toast.LENGTH_SHORT).show();
+                        break;
+                    case VID_ERROR:
+                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频id不正确，无法播放视频(error code " + PolyvDownloaderErrorReason.ErrorType.VID_ERROR.getCode() + ")", Toast.LENGTH_SHORT).show();
                         break;
                     default:
                         break;
