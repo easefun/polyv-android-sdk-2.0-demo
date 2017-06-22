@@ -11,7 +11,7 @@ import com.easefun.polyvsdk.server.AndroidService;
 @Deprecated
 public class PolyvPlayService extends AndroidService {
 
-	private static final String TAG = "PolyvDemoService";
+	private static final String TAG = PolyvPlayService.class.getSimpleName();
 
 	// 无参数构造函数，调用父类的super(String name)
 	public PolyvPlayService() {
