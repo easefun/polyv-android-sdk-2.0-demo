@@ -51,27 +51,34 @@ public class PolyvApplication extends MultiDexApplication {
 
 			@Override
 			public void callback() {
+				//是否有可移除的存储介质（例如 SD 卡）或内部（不可移除）存储可供使用。
 				if (!PolyvDevMountInfo.getInstance().isSDCardAvaiable()) {
-					// TODO 没有可用的存储设备
-					Log.e(TAG, "没有可用的存储设备");
+					// TODO 没有可用的存储设备,后续不能使用视频缓存功能
+					Log.e(TAG, "没有可用的存储设备,后续不能使用视频缓存功能");
 					return;
 				}
 
-				StringBuilder dirPath = new StringBuilder();
-				dirPath.append(PolyvDevMountInfo.getInstance().getSDCardPath()).append(File.separator).append("polyvdownload");
-				File saveDir = new File(dirPath.toString());
-				if (!saveDir.exists()) {
-					saveDir.mkdirs();
+				//可移除的存储介质（例如 SD 卡），需要写入特定目录/storage/sdcard1/Android/data/包名/。
+				String externalSDCardPath = PolyvDevMountInfo.getInstance().getExternalSDCardPath();
+				if (!TextUtils.isEmpty(externalSDCardPath)) {
+					StringBuilder dirPath = new StringBuilder();
+					dirPath.append(externalSDCardPath).append(File.separator).append("Android").append(File.separator).append("data")
+							.append(File.separator).append(getPackageName()).append(File.separator).append("polyvdownload");
+					File saveDir = new File(dirPath.toString());
+					if (!saveDir.exists()) {
+						getExternalFilesDir(null); // 生成包名目录
+						saveDir.mkdirs();//创建下载目录
+					}
+
+					//设置下载存储目录
+					PolyvSDKClient.getInstance().setDownloadDir(saveDir);
+					return;
 				}
 
-				//如果生成不了文件夹，可能是外部SD卡需要写入特定目录/storage/sdcard1/Android/data/包名/
+				//如果没有可移除的存储介质（例如 SD 卡），那么一定有内部（不可移除）存储介质可用，都不可用的情况在前面判断过了。
+				File saveDir = new File(PolyvDevMountInfo.getInstance().getInternalSDCardPath() + File.separator + "polyvdownload");
 				if (!saveDir.exists()) {
-					dirPath.delete(0, dirPath.length());
-					dirPath.append(PolyvDevMountInfo.getInstance().getSDCardPath()).append(File.separator).append("Android").append(File.separator).append("data")
-							.append(File.separator).append(getPackageName()).append(File.separator).append("polyvdownload");
-					saveDir = new File(dirPath.toString());
-					getExternalFilesDir(null); // 生成包名目录
-					saveDir.mkdirs();
+					saveDir.mkdirs();//创建下载目录
 				}
 
 				//设置下载存储目录
@@ -84,7 +91,7 @@ public class PolyvApplication extends MultiDexApplication {
 
 		@Override
 		protected String doInBackground(String... params) {
-			String config = PolyvSDKUtil.getUrl2String("http://demo.polyv.net/demo/appkey.php", false);
+			String config = PolyvSDKUtil.getUrl2String("http://demo.polyv.net/demo/appkey.php");
 			if (TextUtils.isEmpty(config)) {
 				try {
 					throw new Exception("没有取到数据");

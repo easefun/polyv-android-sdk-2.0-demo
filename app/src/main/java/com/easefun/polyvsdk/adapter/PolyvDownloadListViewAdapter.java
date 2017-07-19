@@ -1,6 +1,8 @@
 package com.easefun.polyvsdk.adapter;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.text.format.Formatter;
@@ -30,8 +32,6 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.easefun.polyvsdk.PolyvDownloaderErrorReason.ErrorType.VID_IS_NULL;
-
 public class PolyvDownloadListViewAdapter extends BaseAdapter {
     private static final String TAG = PolyvDownloadListViewAdapter.class.getSimpleName();
     private static final String DOWNLOADED = "已下载";
@@ -48,10 +48,10 @@ public class PolyvDownloadListViewAdapter extends BaseAdapter {
     public PolyvDownloadListViewAdapter(List<PolyvDownloadInfo> lists, Context context, ListView lv_download) {
         this.lists = lists;
         this.context = context;
-        this.appContext = context.getApplicationContext();
+        appContext = context.getApplicationContext();
         this.inflater = LayoutInflater.from(this.context);
         this.lv_download = lv_download;
-        this.downloadSQLiteHelper = PolyvDownloadSQLiteHelper.getInstance(this.context);
+        downloadSQLiteHelper = PolyvDownloadSQLiteHelper.getInstance(this.context);
     }
 
     /**
@@ -71,7 +71,7 @@ public class PolyvDownloadListViewAdapter extends BaseAdapter {
                 finishKey.add(PolyvDownloaderManager.getKey(downloadInfo.getVid(), downloadInfo.getBitrate()));
         }
         updateButtonStatus(false);
-        PolyvDownloaderManager.startUnfinished(finishKey);
+        PolyvDownloaderManager.startUnfinished(finishKey, context);
     }
 
     /**
@@ -201,15 +201,17 @@ public class PolyvDownloadListViewAdapter extends BaseAdapter {
     }
 
     private static class MyDownloadListener implements IPolyvDownloaderProgressListener {
+        private WeakReference<Context> contextWeakReference;
         private WeakReference<ListView> wr_lv_download;
         private WeakReference<ViewHolder> viewHolder;
         private PolyvDownloadInfo downloadInfo;
         private int position;
         private long total;
 
-        public MyDownloadListener(ListView lv_download, ViewHolder viewHolder, PolyvDownloadInfo downloadInfo, int position) {
-            this.wr_lv_download = new WeakReference<ListView>(lv_download);
-            this.viewHolder = new WeakReference<ViewHolder>(viewHolder);
+        MyDownloadListener(Context context, ListView lv_download, ViewHolder viewHolder, PolyvDownloadInfo downloadInfo, int position) {
+            this.contextWeakReference = new WeakReference<>(context);
+            this.wr_lv_download = new WeakReference<>(lv_download);
+            this.viewHolder = new WeakReference<>(viewHolder);
             this.downloadInfo = downloadInfo;
             this.position = position;
         }
@@ -256,72 +258,92 @@ public class PolyvDownloadListViewAdapter extends BaseAdapter {
                 viewHolder.get().tv_status.setSelected(true);
                 viewHolder.get().iv_start.setImageResource(R.drawable.polyv_btn_download);
                 showPauseSpeeView(downloadInfo, viewHolder.get().tv_speed);
+                String message = "第" + (position + 1) + "个任务";
                 switch (errorReason.getType()) {
                     case VID_IS_NULL:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频id不正确，请设置正确的视频id进行播放(error code " + PolyvDownloaderErrorReason.ErrorType.VID_IS_NULL.getCode() + ")", Toast.LENGTH_SHORT).show();
+                        message += "视频id不正确，请设置正确的视频id进行播放";
                         break;
                     case NOT_PERMISSION:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务非法下载(error code " + PolyvDownloaderErrorReason.ErrorType.NOT_PERMISSION.getCode() + ")", Toast.LENGTH_SHORT).show();
+                        message += "非法下载";
                         break;
                     case RUNTIME_EXCEPTION:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务下载中异常，请重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.RUNTIME_EXCEPTION.getCode() + ")", Toast.LENGTH_SHORT).show();
+                        message += "下载中异常，请重新下载";
                         break;
                     case VIDEO_STATUS_ERROR:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频状态异常，无法下载(error code " + PolyvDownloaderErrorReason.ErrorType.VIDEO_STATUS_ERROR.getCode() + ")", Toast.LENGTH_SHORT).show();
+                        message += "视频状态异常，无法下载";
                         break;
                     case M3U8_NOT_DATA:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频信息加载失败，请重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.M3U8_NOT_DATA.getCode() + ")", Toast.LENGTH_SHORT).show();
+                        message += "视频信息加载失败，请重新下载";
                         break;
                     case QUESTION_NOT_DATA:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频问答数据加载失败，请重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.QUESTION_NOT_DATA.getCode() + ")", Toast.LENGTH_SHORT).show();
+                        message += "视频问答数据加载失败，请重新下载";
                         break;
                     case MULTIMEDIA_LIST_EMPTY:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频文件数据加载失败，请重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.MULTIMEDIA_LIST_EMPTY.getCode() + ")", Toast.LENGTH_SHORT).show();
+                        message += "视频文件数据加载失败，请重新下载";
                         break;
                     case CAN_NOT_MKDIR:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频存储目录创建失败(error code " + PolyvDownloaderErrorReason.ErrorType.CAN_NOT_MKDIR.getCode() + ")", Toast.LENGTH_SHORT).show();
+                        message += "视频存储目录创建失败";
                         break;
                     case DOWNLOAD_TS_ERROR:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频文件下载失败，请重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.DOWNLOAD_TS_ERROR.getCode() + ")", Toast.LENGTH_SHORT).show();
+                        message += "视频文件下载失败，请重新下载";
                         break;
                     case MULTIMEDIA_EMPTY:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频下载失败，请重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.MULTIMEDIA_EMPTY.getCode() + ")", Toast.LENGTH_SHORT).show();
+                        message += "视频下载失败，请重新下载";
                         break;
                     case NOT_CREATE_DIR:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频存储目录创建失败，请重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.NOT_CREATE_DIR.getCode() + ")", Toast.LENGTH_SHORT).show();
+                        message += "视频存储目录创建失败，无法下载";
                         break;
                     case VIDEO_LOAD_FAILURE:
                         break;
                     case VIDEO_NULL:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频信息加载失败，请重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.VIDEO_NULL.getCode() + ")", Toast.LENGTH_SHORT).show();
+                        message += "视频信息加载失败，请重新下载";
                         break;
                     case DIR_SPACE_LACK:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务检测到移动设备存储空间不足，请清除存储空间再重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.DIR_SPACE_LACK.getCode() + ")", Toast.LENGTH_SHORT).show();
+                        message += "检测到移动设备存储空间不足，请清除存储空间再重新下载";
                         break;
                     case DOWNLOAD_DIR_IS_NUll:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务检测到存储目录未设置，请先设置存储目录再重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.DOWNLOAD_DIR_IS_NUll.getCode() + ")", Toast.LENGTH_SHORT).show();
+                        message += "检测到存储目录未设置，请先设置存储目录再重新下载";
                         break;
                     case HLS_15X_URL_ERROR:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频下载地址异常，请重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.HLS_15X_URL_ERROR.getCode()+ ")", Toast.LENGTH_SHORT).show();
+                        message += "视频下载地址异常，请重新下载";
                         break;
                     case HLS_SPEED_TYPE_IS_NULL:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频速度类型错误，请设置了速度类型后重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.HLS_SPEED_TYPE_IS_NULL.getCode() + ")", Toast.LENGTH_SHORT).show();
+                        message += "视频速度类型错误，请设置了速度类型后重新下载";
                         break;
                     case HLS_15X_ERROR:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频不支持1.5倍速，无法下载(error code " + PolyvDownloaderErrorReason.ErrorType.HLS_15X_ERROR.getCode() + ")", Toast.LENGTH_SHORT).show();
+                        message += "视频不支持1.5倍速，无法下载";
                         break;
                     case GET_VIDEO_INFO_ERROR:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频信息加载异常，请重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.GET_VIDEO_INFO_ERROR.getCode() + ")", Toast.LENGTH_SHORT).show();
+                        message += "视频信息加载异常，请重新下载";
                         break;
                     case WRITE_EXTERNAL_STORAGE_DENIED:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务检测到拒绝写入SD卡，请先为应用程序分配权限，再重新下载(error code " + PolyvDownloaderErrorReason.ErrorType.WRITE_EXTERNAL_STORAGE_DENIED.getCode() + ")", Toast.LENGTH_SHORT).show();
+                        message += "检测到拒绝写入存储设备，请先为应用程序分配权限，再重新下载";
                         break;
                     case VID_ERROR:
-                        Toast.makeText(appContext, "第" + (position + 1) + "个任务视频id不正确，无法播放视频(error code " + PolyvDownloaderErrorReason.ErrorType.VID_ERROR.getCode() + ")", Toast.LENGTH_SHORT).show();
+                        message += "视频id不正确，无法播放视频";
+                        break;
+                    case EXTRA_DIR_IS_NUll:
+                        message += "检测到资源目录未设置，请先设置存储目录再重新下载";
+                        break;
+                    case NOT_CREATE_EXTRA_DIR:
+                        message += "资源目录创建失败，无法下载";
                         break;
                     default:
+                        message += "下载异常，请联系管理员或者客服";
                         break;
                 }
+
+                message += "(error code " + errorReason.getType().getCode() + ")";
+                AlertDialog.Builder builder = new AlertDialog.Builder(contextWeakReference.get());
+                builder.setTitle("错误");
+                builder.setMessage(message);
+                builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        dialog.dismiss();
+                    }
+                });
+
+                builder.show();
             }
         }
     }
@@ -371,7 +393,7 @@ public class PolyvDownloadListViewAdapter extends BaseAdapter {
 
         public void setDownloadListener(PolyvDownloader downloader, final PolyvDownloadInfo downloadInfo, final int position) {
             downloader.setPolyvDownloadSpeedListener(new MyDownloadSpeedListener(lv_download, this, downloader, position));
-            downloader.setPolyvDownloadProressListener(new MyDownloadListener(lv_download, this, downloadInfo, position));
+            downloader.setPolyvDownloadProressListener(new MyDownloadListener(context, lv_download, this, downloadInfo, position));
         }
     }
 
@@ -394,7 +416,7 @@ public class PolyvDownloadListViewAdapter extends BaseAdapter {
             int bitrate = downloadInfo.getBitrate();
             final PolyvDownloader downloader = PolyvDownloaderManager.getPolyvDownloader(vid, bitrate);
             if (tv_status.getText().equals(DOWNLOADED)) {
-                Intent intent = PolyvPlayerActivity.newIntent(context, PolyvPlayerActivity.PlayMode.portrait, vid, bitrate, true);
+                Intent intent = PolyvPlayerActivity.newIntent(context, PolyvPlayerActivity.PlayMode.portrait, vid, bitrate, true, true);
                 // 在线视频和下载的视频播放的时候只显示播放器窗口，用该参数来控制
                 intent.putExtra(PolyvMainActivity.IS_VLMS_ONLINE, false);
                 context.startActivity(intent);
@@ -408,7 +430,7 @@ public class PolyvDownloadListViewAdapter extends BaseAdapter {
                 tv_status.setText(DOWNLOADING);
                 tv_status.setSelected(false);
                 iv_start.setImageResource(R.drawable.polyv_btn_dlpause);
-                downloader.start();
+                downloader.start(context);
             }
         }
     }

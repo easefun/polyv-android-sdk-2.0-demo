@@ -1,6 +1,8 @@
 package com.easefun.polyvsdk.activity;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -269,96 +271,117 @@ public class PolyvPlayerActivity extends FragmentActivity {
         videoView.setOnVideoPlayErrorListener(new IPolyvOnVideoPlayErrorListener2() {
             @Override
             public boolean onVideoPlayError(@PolyvPlayErrorReason.PlayErrorReason int playErrorReason) {
+                String message = "";
                 switch (playErrorReason) {
                     case PolyvPlayErrorReason.NETWORK_DENIED:
-                        Toast.makeText(PolyvPlayerActivity.this, "无法连接网络，请连接网络后播放", Toast.LENGTH_LONG).show();
+                        message = "无法连接网络，请连接网络后播放";
                         break;
                     case PolyvPlayErrorReason.OUT_FLOW:
-                        Toast.makeText(PolyvPlayerActivity.this, "流量超标(error code " + PolyvPlayErrorReason.OUT_FLOW + ")", Toast.LENGTH_LONG).show();
+                        message = "流量超标";
                         break;
                     case PolyvPlayErrorReason.TIMEOUT_FLOW:
-                        Toast.makeText(PolyvPlayerActivity.this, "账号过期(error code " + PolyvPlayErrorReason.TIMEOUT_FLOW + ")", Toast.LENGTH_LONG).show();
+                        message = "账号过期";
                         break;
                     case PolyvPlayErrorReason.LOCAL_VIEWO_ERROR:
-                        Toast.makeText(PolyvPlayerActivity.this, "本地视频文件损坏，请重新下载(error code " + PolyvPlayErrorReason.LOCAL_VIEWO_ERROR + ")", Toast.LENGTH_LONG).show();
+                        message = "本地视频文件损坏，请重新下载";
                         break;
                     case PolyvPlayErrorReason.START_ERROR:
-                        Toast.makeText(PolyvPlayerActivity.this, "播放异常，请重新播放(error code " + PolyvPlayErrorReason.START_ERROR + ")", Toast.LENGTH_LONG).show();
+                        message = "播放异常，请重新播放";
                         break;
                     case PolyvPlayErrorReason.NOT_PERMISSION:
-                        Toast.makeText(PolyvPlayerActivity.this, "非法播放(error code " + PolyvPlayErrorReason.NOT_PERMISSION + ")", Toast.LENGTH_LONG).show();
+                        message = "非法播放";
                         break;
                     case PolyvPlayErrorReason.USER_TOKEN_ERROR:
-                        Toast.makeText(PolyvPlayerActivity.this, "请先设置播放凭证，再进行播放(error code " + PolyvPlayErrorReason.USER_TOKEN_ERROR + ")", Toast.LENGTH_LONG).show();
+                        message = "请先设置播放凭证，再进行播放";
                         break;
                     case PolyvPlayErrorReason.VIDEO_STATUS_ERROR:
-                        Toast.makeText(PolyvPlayerActivity.this, "视频状态异常，无法播放(error code " + PolyvPlayErrorReason.VIDEO_STATUS_ERROR + ")", Toast.LENGTH_LONG).show();
+                        message = "视频状态异常，无法播放";
                         break;
                     case PolyvPlayErrorReason.VID_ERROR:
-                        Toast.makeText(PolyvPlayerActivity.this, "视频id不正确，请设置正确的视频id进行播放(error code " + PolyvPlayErrorReason.VID_ERROR + ")", Toast.LENGTH_LONG).show();
+                        message = "视频id不正确，请设置正确的视频id进行播放";
                         break;
                     case PolyvPlayErrorReason.BITRATE_ERROR:
-                        Toast.makeText(PolyvPlayerActivity.this, "清晰度不正确，请设置正确的清晰度进行播放(error code " + PolyvPlayErrorReason.BITRATE_ERROR + ")", Toast.LENGTH_LONG).show();
+                        message = "清晰度不正确，请设置正确的清晰度进行播放";
                         break;
                     case PolyvPlayErrorReason.VIDEO_NULL:
-                        Toast.makeText(PolyvPlayerActivity.this, "视频信息加载失败，请重新播放(error code " + PolyvPlayErrorReason.VIDEO_NULL + ")", Toast.LENGTH_LONG).show();
+                        message = "视频信息加载失败，请重新播放";
                         break;
                     case PolyvPlayErrorReason.MP4_LINK_NUM_ERROR:
-                        Toast.makeText(PolyvPlayerActivity.this, "MP4 播放地址服务器数据错误(error code " + PolyvPlayErrorReason.MP4_LINK_NUM_ERROR + ")", Toast.LENGTH_LONG).show();
+                        message = "MP4 播放地址服务器数据错误";
                         break;
                     case PolyvPlayErrorReason.M3U8_LINK_NUM_ERROR:
-                        Toast.makeText(PolyvPlayerActivity.this, "HLS 播放地址服务器数据错误(error code " + PolyvPlayErrorReason.M3U8_LINK_NUM_ERROR + ")", Toast.LENGTH_LONG).show();
+                        message = "HLS 播放地址服务器数据错误";
                         break;
                     case PolyvPlayErrorReason.HLS_SPEED_TYPE_NULL:
-                        Toast.makeText(PolyvPlayerActivity.this, "请设置播放速度(error code " + PolyvPlayErrorReason.HLS_SPEED_TYPE_NULL + ")", Toast.LENGTH_LONG).show();
+                        message = "请设置播放速度";
                         break;
                     case PolyvPlayErrorReason.NOT_LOCAL_VIDEO:
-                        Toast.makeText(PolyvPlayerActivity.this, "找不到本地下载的视频文件，请连网后重新下载(error code " + PolyvPlayErrorReason.NOT_LOCAL_VIDEO + ")", Toast.LENGTH_LONG).show();
+                        message = "找不到本地下载的视频文件，请连网后重新下载";
                         break;
                     case PolyvPlayErrorReason.HLS_15X_INDEX_EMPTY:
-                        Toast.makeText(PolyvPlayerActivity.this, "视频不支持1.5倍自动清晰度播放(error code " + PolyvPlayErrorReason.HLS_15X_INDEX_EMPTY + ")", Toast.LENGTH_LONG).show();
+                        message = "视频不支持1.5倍自动清晰度播放";
                         break;
                     case PolyvPlayErrorReason.HLS_15X_ERROR:
-                        Toast.makeText(PolyvPlayerActivity.this, "视频不支持1.5倍当前清晰度播放(error code " + PolyvPlayErrorReason.HLS_15X_ERROR + ")", Toast.LENGTH_LONG).show();
+                        message = "视频不支持1.5倍当前清晰度播放";
                         break;
                     case PolyvPlayErrorReason.HLS_15X_URL_ERROR:
-                        Toast.makeText(PolyvPlayerActivity.this, "1.5倍当前清晰度视频正在编码中(error code " + PolyvPlayErrorReason.HLS_15X_URL_ERROR + ")", Toast.LENGTH_LONG).show();
+                        message = "1.5倍当前清晰度视频正在编码中";
                         break;
                     case PolyvPlayErrorReason.M3U8_15X_LINK_NUM_ERROR:
-                        Toast.makeText(PolyvPlayerActivity.this, "HLS 1.5倍播放地址服务器数据错误(error code " + PolyvPlayErrorReason.M3U8_15X_LINK_NUM_ERROR + ")", Toast.LENGTH_LONG).show();
+                        message = "HLS 1.5倍播放地址服务器数据错误";
                         break;
                     case PolyvPlayErrorReason.CHANGE_EQUAL_BITRATE:
-                        Toast.makeText(PolyvPlayerActivity.this, "切换清晰度相同，请选择其它清晰度(error code " + PolyvPlayErrorReason.CHANGE_EQUAL_BITRATE + ")", Toast.LENGTH_LONG).show();
+                        message = "切换清晰度相同，请选择其它清晰度";
                         break;
                     case PolyvPlayErrorReason.CHANGE_EQUAL_HLS_SPEED:
-                        Toast.makeText(PolyvPlayerActivity.this, "切换播放速度相同，请选择其它播放速度(error code " + PolyvPlayErrorReason.CHANGE_EQUAL_HLS_SPEED + ")", Toast.LENGTH_LONG).show();
+                        message = "切换播放速度相同，请选择其它播放速度";
                         break;
                     case PolyvPlayErrorReason.CAN_NOT_CHANGE_BITRATE:
-                        Toast.makeText(PolyvPlayerActivity.this, "未开始播放视频不能切换清晰度，请先播放视频(error code " + PolyvPlayErrorReason.CAN_NOT_CHANGE_BITRATE + ")", Toast.LENGTH_LONG).show();
+                        message = "未开始播放视频不能切换清晰度，请先播放视频";
                         break;
                     case PolyvPlayErrorReason.CAN_NOT_CHANGE_HLS_SPEED:
-                        Toast.makeText(PolyvPlayerActivity.this, "未开始播放视频不能切换播放速度，请先播放视频(error code " + PolyvPlayErrorReason.CAN_NOT_CHANGE_HLS_SPEED + ")", Toast.LENGTH_LONG).show();
+                        message = "未开始播放视频不能切换播放速度，请先播放视频";
                         break;
                     case PolyvPlayErrorReason.QUESTION_ERROR:
-                        Toast.makeText(PolyvPlayerActivity.this, "视频问答数据加载失败，请重新播放(error code " + PolyvPlayErrorReason.QUESTION_ERROR + ")", Toast.LENGTH_LONG).show();
+                        message = "视频问答数据加载失败，请重新播放";
                         break;
                     case PolyvPlayErrorReason.CHANGE_BITRATE_NOT_EXIST:
-                        Toast.makeText(PolyvPlayerActivity.this, "视频没有这个清晰度，请切换其它清晰度(error code " + PolyvPlayErrorReason.CHANGE_BITRATE_NOT_EXIST + ")", Toast.LENGTH_LONG).show();
+                        message = "视频没有这个清晰度，请切换其它清晰度";
                         break;
                     case PolyvPlayErrorReason.HLS_URL_ERROR:
-                        Toast.makeText(PolyvPlayerActivity.this, "播放地址异常，无法播放(error code " + PolyvPlayErrorReason.HLS_URL_ERROR + ")", Toast.LENGTH_LONG).show();
+                        message = "播放地址异常，无法播放";
                         break;
                     case PolyvPlayErrorReason.LOADING_VIDEO_ERROR:
-                        Toast.makeText(PolyvPlayerActivity.this, "视频信息加载中出现异常，请重新播放(error code " + PolyvPlayErrorReason.LOADING_VIDEO_ERROR + ")", Toast.LENGTH_LONG).show();
+                        message = "视频信息加载中出现异常，请重新播放";
                         break;
                     case PolyvPlayErrorReason.HLS2_URL_ERROR:
-                        Toast.makeText(PolyvPlayerActivity.this, "播放地址异常，无法播放(error code " + PolyvPlayErrorReason.HLS2_URL_ERROR + ")", Toast.LENGTH_LONG).show();
+                        message = "播放地址异常，无法播放";
                         break;
                     case PolyvPlayErrorReason.TOKEN_NULL:
-                        Toast.makeText(PolyvPlayerActivity.this, "播放授权获取失败，请重新播放(error code " + PolyvPlayErrorReason.TOKEN_NULL + ")", Toast.LENGTH_LONG).show();
+                        message = "播放授权获取失败，请重新播放";
+                        break;
+                    case PolyvPlayErrorReason.EXCEPTION_COMPLETION:
+                        message = "视频异常结束，请重新播放";
+                        break;
+                    case PolyvPlayErrorReason.WRITE_EXTERNAL_STORAGE_DENIED:
+                        message = "检测到拒绝读取存储设备，请先为应用程序分配权限，再重新播放";
+                        break;
+                    default:
+                        message = "播放异常，请联系管理员或者客服";
                         break;
                 }
 
+                message += "(error code " + playErrorReason + ")";
+                AlertDialog.Builder builder = new AlertDialog.Builder(PolyvPlayerActivity.this);
+                builder.setTitle("错误");
+                builder.setMessage(message);
+                builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        dialog.dismiss();
+                    }
+                });
+
+                builder.show();
                 return true;
             }
         });

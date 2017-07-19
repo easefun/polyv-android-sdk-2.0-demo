@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -18,7 +19,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.easefun.polyvsdk.PolyvBitRate;
 import com.easefun.polyvsdk.PolyvSDKClient;
 import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.adapter.PolyvHotCoursesGridViewAdapter;
@@ -171,8 +171,8 @@ public class PolyvMainActivity extends Activity implements OnClickListener {
         polyvPermission = new PolyvPermission();
         polyvPermission.setResponseCallback(new PolyvPermission.ResponseCallback() {
             @Override
-            public void callback() {
-                requestPermissionWriteSettings();
+            public void callback(@NonNull PolyvPermission.OperationType type) {
+                requestPermissionWriteSettings(type.getNum());
             }
         });
     }
@@ -195,28 +195,42 @@ public class PolyvMainActivity extends Activity implements OnClickListener {
                 polyvPermission.applyPermission(this, PolyvPermission.OperationType.play);
                 break;
             case R.id.iv_download:
-                startActivity(new Intent(PolyvMainActivity.this, PolyvDownloadActivity.class));
+                polyvPermission.applyPermission(this, PolyvPermission.OperationType.download);
                 break;
             case R.id.iv_upload:
+                polyvPermission.applyPermission(this, PolyvPermission.OperationType.upload);
+                break;
+        }
+    }
+
+    private void gotoActivity(int type) {
+        PolyvPermission.OperationType OperationType = PolyvPermission.OperationType.getOperationType(type);
+        switch (OperationType) {
+            case play:
+                startActivity(new Intent(PolyvMainActivity.this, PolyvOnlineVideoActivity.class));
+                break;
+            case download:
+                startActivity(new Intent(PolyvMainActivity.this, PolyvDownloadActivity.class));
+                break;
+            case upload:
                 startActivity(new Intent(PolyvMainActivity.this, PolyvUploadActivity.class));
                 break;
         }
     }
 
-    private void gotoOnlineVideo() {
-        startActivity(new Intent(PolyvMainActivity.this, PolyvOnlineVideoActivity.class));
-    }
+    private int actionType;
 
     /**
      * 请求写入设置的权限
      */
     @SuppressLint("InlinedApi")
-    private void requestPermissionWriteSettings() {
+    private void requestPermissionWriteSettings(int type) {
         if (!PolyvPermission.canMakeSmores()) {
-            gotoOnlineVideo();
+            gotoActivity(type);
         } else if (Settings.System.canWrite(this)) {
-            gotoOnlineVideo();
+            gotoActivity(type);
         } else {
+            actionType = type;
             Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, Uri.parse("package:" + this.getPackageName()));
             startActivityForResult(intent, SETTING);
         }
@@ -227,7 +241,7 @@ public class PolyvMainActivity extends Activity implements OnClickListener {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == SETTING) {
             if (Settings.System.canWrite(this)) {
-                gotoOnlineVideo();
+                gotoActivity(actionType);
             } else {
                 new AlertDialog.Builder(this)
                         .setTitle("showPermissionInternet")
@@ -251,7 +265,7 @@ public class PolyvMainActivity extends Activity implements OnClickListener {
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (polyvPermission.operationHasPermission(requestCode)) {
-            requestPermissionWriteSettings();
+            requestPermissionWriteSettings(requestCode);
         } else {
             polyvPermission.makePostRequestSnack();
         }

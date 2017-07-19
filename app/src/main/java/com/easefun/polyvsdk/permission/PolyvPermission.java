@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
 
@@ -49,7 +50,7 @@ public class PolyvPermission {
                 return upload;
             }
 
-            return null;
+            return play;
         }
     }
 
@@ -58,7 +59,7 @@ public class PolyvPermission {
         this.activity = activity;
         if (!canMakeSmores()) {
             if (responseCallback != null) {
-                responseCallback.callback();
+                responseCallback.callback(type);
             }
 
             return;
@@ -122,7 +123,7 @@ public class PolyvPermission {
                 builder.show();
             } else {
                 if (responseCallback != null) {
-                    responseCallback.callback();
+                    responseCallback.callback(type);
                 }
             }
         }
@@ -262,6 +263,6 @@ public class PolyvPermission {
     }
 
     public interface ResponseCallback {
-        void callback();
+        void callback(@NonNull OperationType type);
     }
 }

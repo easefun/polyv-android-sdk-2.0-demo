@@ -7,6 +7,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -194,7 +195,7 @@ public class PolyvCurriculumFragment extends Fragment implements OnClickListener
             polyvPermission = new PolyvPermission();
             polyvPermission.setResponseCallback(new PolyvPermission.ResponseCallback() {
                 @Override
-                public void callback() {
+                public void callback(@NonNull PolyvPermission.OperationType type) {
                     requestPermissionWriteSettings();
                 }
             });
