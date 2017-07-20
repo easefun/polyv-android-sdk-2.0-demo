@@ -70,6 +70,9 @@ SDK1.0demo和SDK1.0不再进行功能更新，只维护bug。
 * 第三点是广告视频和点播视频使用不同的播放器进行播放，从而为实现视频预加载提供可能，因此增加了PolyvAuxiliaryVideoView，用于播放广告视频，片头视频。逻辑已全部由播放器控制。
 
 更多细节请在SDK2.0demo中查看。
+#### 如何从SDK1.0升级到SDK2.0
+* 删除SDK1.0中的so库，使用SDK2.0中的so库。
+* 删除SDK1.0中的jar包，使用SDK2.0中的jar包。
 
 ***
 #### 更多关于SDK2.0demo和SDK2.0的详细介绍请看[Wiki](https://github.com/easefun/polyv-android-sdk-2.0-demo/wiki)。
