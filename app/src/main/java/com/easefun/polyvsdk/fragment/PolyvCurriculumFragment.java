@@ -1,13 +1,8 @@
 package com.easefun.polyvsdk.fragment;
 
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -30,7 +25,6 @@ import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.activity.PolyvDownloadActivity;
 import com.easefun.polyvsdk.activity.PolyvPlayerActivity;
 import com.easefun.polyvsdk.adapter.PolyvCurriculumListViewAdapter;
-import com.easefun.polyvsdk.permission.PolyvPermission;
 import com.easefun.polyvsdk.sub.vlms.entity.PolyvCoursesInfo;
 import com.easefun.polyvsdk.util.PolyvVlmsHelper;
 
@@ -67,23 +61,12 @@ public class PolyvCurriculumFragment extends Fragment implements OnClickListener
     private int currentSelcetBitrate = 3;
     private PolyvVlmsHelper vlmsHelper;
 
-    private PolyvPermission polyvPermission = null;
-    private String videoId = "";
-    private static final int SETTING = 1;
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         if (view == null)
             view = inflater.inflate(R.layout.polyv_fragment_tab_cur, container, false);
         return view;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (adapter != null)
-            adapter.initSelect(currentSelcetBitrate);
     }
 
     private void findIdAndNew() {
@@ -143,10 +126,11 @@ public class PolyvCurriculumFragment extends Fragment implements OnClickListener
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (!adapter.getSideIconVisible()) {
-                    videoId = lists.get(position).lecture.vid;
-                    polyvPermission.applyPermission(getActivity(), PolyvPermission.OperationType.play);
+                    String videoId = lists.get(position).lecture.vid;
+                    ((PolyvPlayerActivity) getActivity()).play(videoId, PolyvBitRate.ziDong.getNum(), true, false);
                 } else {
-                    adapter.setSelect(position, currentSelcetBitrate);
+                    adapter.putSideIconStatus(currentSelcetBitrate, position, !adapter.getSideIconStatus(currentSelcetBitrate, position, true));
+                    resetTv_allText();
                 }
             }
         });
@@ -159,8 +143,6 @@ public class PolyvCurriculumFragment extends Fragment implements OnClickListener
                     ll_center.setVisibility(View.GONE);
                     ll_download.setVisibility(View.VISIBLE);
                     adapter.setSideIconVisible(true);
-                } else {
-                    startActivity(new Intent(getContext(), PolyvDownloadActivity.class));
                 }
                 return true;
             }
@@ -192,13 +174,6 @@ public class PolyvCurriculumFragment extends Fragment implements OnClickListener
         if (course == null) {
             findIdAndNew();
             initView();
-            polyvPermission = new PolyvPermission();
-            polyvPermission.setResponseCallback(new PolyvPermission.ResponseCallback() {
-                @Override
-                public void callback(@NonNull PolyvPermission.OperationType type) {
-                    requestPermissionWriteSettings();
-                }
-            });
         }
     }
 
@@ -213,6 +188,13 @@ public class PolyvCurriculumFragment extends Fragment implements OnClickListener
     public void onDestroy() {
         super.onDestroy();
         vlmsHelper.destroy();
+    }
+
+    private void resetTv_allText() {
+        if (adapter.isHasSelected(true))
+            tv_all.setText("确定缓存");
+        else
+            tv_all.setText("全部缓存");
     }
 
     // 改变选择的清晰度
@@ -255,6 +237,9 @@ public class PolyvCurriculumFragment extends Fragment implements OnClickListener
         ll_download.setVisibility(View.VISIBLE);
         ll_center.setVisibility(View.GONE);
         adapter.setSideIconVisible(true);
+        adapter.cancelSideIconSelected();
+        adapter.initSelect(currentSelcetBitrate);
+        resetTv_allText();
     }
 
     private void sideIconGone() {
@@ -283,8 +268,14 @@ public class PolyvCurriculumFragment extends Fragment implements OnClickListener
                 sideIconGone();
                 break;
             case R.id.tv_all:
-                for (int i = 0; i < lists.size(); i++)
-                    adapter.setSelect(i, currentSelcetBitrate);
+                if (tv_all.getText().toString().equals("全部缓存")) {
+                    adapter.putCurBitSideIconSelected(currentSelcetBitrate);
+                    resetTv_allText();
+                } else {
+                    startActivity(new Intent(getContext(), PolyvDownloadActivity.class));
+                    adapter.downloadSelected();
+                    sideIconGone();
+                }
                 break;
             case R.id.tv_reload:
                 pb_loading.setVisibility(View.VISIBLE);
@@ -301,56 +292,4 @@ public class PolyvCurriculumFragment extends Fragment implements OnClickListener
                 break;
         }
     }
-
-    /**
-     * 请求写入设置的权限
-     */
-    @SuppressLint("InlinedApi")
-    private void requestPermissionWriteSettings() {
-        if (!PolyvPermission.canMakeSmores()) {
-            ((PolyvPlayerActivity) getActivity()).play(videoId, PolyvBitRate.ziDong.getNum(), true, false);
-        } else if (Settings.System.canWrite(this.getActivity())) {
-            ((PolyvPlayerActivity) getActivity()).play(videoId, PolyvBitRate.ziDong.getNum(), true, false);
-        } else {
-            Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, Uri.parse("package:" + this.getActivity().getPackageName()));
-            startActivityForResult(intent, SETTING);
-        }
-    }
-
-    @Override
-    @SuppressLint("InlinedApi")
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == SETTING) {
-            if (Settings.System.canWrite(this.getActivity())) {
-                ((PolyvPlayerActivity) getActivity()).play(videoId, PolyvBitRate.ziDong.getNum(), false, false);
-            } else {
-                new AlertDialog.Builder(this.getActivity())
-                        .setTitle("showPermissionInternet")
-                        .setMessage(Settings.ACTION_MANAGE_WRITE_SETTINGS + " not granted")
-                        .setPositiveButton(android.R.string.ok, null)
-                        .show();
-            }
-        }
-    }
-
-    /**
-     * This is the method that is hit after the user accepts/declines the
-     * permission you requested. For the purpose of this example I am showing a "success" header
-     * when the user accepts the permission and a snackbar when the user declines it.  In your application
-     * you will want to handle the accept/decline in a way that makes sense.
-     *
-     * @param requestCode
-     * @param permissions
-     * @param grantResults
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (polyvPermission.operationHasPermission(requestCode)) {
-            requestPermissionWriteSettings();
-        } else {
-            polyvPermission.makePostRequestSnack();
-        }
-    }
-
-
 }

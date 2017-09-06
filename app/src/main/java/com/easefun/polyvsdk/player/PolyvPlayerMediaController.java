@@ -420,6 +420,8 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     @Override
     public void hide() {
         if (isShowing) {
+            handler.removeMessages(HIDE);
+            handler.removeMessages(SHOW_PROGRESS);
             resetSetLayout(View.GONE);
             resetDanmuLayout(View.GONE);
             resetShareLayout(View.GONE);
@@ -499,10 +501,8 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     }
 
     private void initLandScapeWH() {
-        // 获取横屏下的屏幕宽高
-        int[] wh = PolyvScreenUtils.getNormalWH(videoActivity);
         //这里的LayoutParams为parentView的父类的LayoutParams
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(wh[0], wh[1]);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         parentView.setLayoutParams(lp);
         rl_land.setVisibility(View.VISIBLE);
         rl_port.setVisibility(View.GONE);
@@ -577,7 +577,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                     break;
                 case R.id.sb_light:
                     if (videoView != null)
-                        videoView.setBrightness(i);
+                        videoView.setBrightness(videoActivity, i);
                     break;
                 case R.id.sb_volume:
                     if (videoView != null)
@@ -656,7 +656,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             resetTopBottomLayout(View.GONE);
             resetSideLayout(View.GONE);
             if (videoView != null) {
-                sb_light.setProgress(videoView.getBrightness());
+                sb_light.setProgress(videoView.getBrightness(videoActivity));
                 sb_volume.setProgress(videoView.getVolume());
             }
         }

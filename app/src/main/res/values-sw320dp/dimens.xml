@@ -101,6 +101,7 @@
     <dimen name="bottom_pb_margin_bottom_l">36.2dp</dimen>
     <dimen name="common_margin_lr">11.8dp</dimen>
     <dimen name="common_margin_lr_reverse">-11.8dp</dimen>
+    <dimen name="common_margin_tb_reverse">-10dp</dimen>
     <dimen name="common_margin_tb">10dp</dimen>
     <dimen name="common_sline_height">0.3dp</dimen>
     <!-- talk custom -->

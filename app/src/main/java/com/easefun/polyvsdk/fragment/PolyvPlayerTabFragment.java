@@ -55,12 +55,12 @@ public class PolyvPlayerTabFragment extends Fragment implements View.OnClickList
     }
 
     private void initLineSetting() {
-        final DisplayMetrics dm = new DisplayMetrics();
-        getActivity().getWindow().getWindowManager().getDefaultDisplay().getMetrics(dm);
         lp = (LinearLayout.LayoutParams) v_line.getLayoutParams();
         v_line.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
+                final DisplayMetrics dm = new DisplayMetrics();
+                getActivity().getWindow().getWindowManager().getDefaultDisplay().getMetrics(dm);
                 if(PolyvScreenUtils.isLandscape(getContext()))
                     screenWidth = dm.heightPixels;
                 else

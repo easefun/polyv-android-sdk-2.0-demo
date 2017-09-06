@@ -2,7 +2,15 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/center_layout_color_gray" >
+    android:background="@color/center_layout_color_gray">
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/lv_online"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/v_line"
+        android:layout_marginTop="@dimen/common_margin_tb_reverse"
+        android:overScrollMode="never" />
 
     <RelativeLayout
         android:id="@+id/rl_top"
@@ -31,14 +39,5 @@
         android:layout_height="@dimen/common_sline_height"
         android:layout_below="@id/rl_top"
         android:background="@color/commom_sline_color_gray" />
-
-    <ListView
-        android:id="@+id/lv_online"
-        style="@style/lv_commom"
-        android:layout_above="@id/rl_bot"
-        android:layout_below="@id/v_line"
-        android:dividerHeight="@dimen/common_margin_tb"
-        android:listSelector="@android:color/transparent">
-    </ListView>
 
 </RelativeLayout>

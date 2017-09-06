@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -14,6 +15,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -35,6 +37,8 @@ import com.easefun.polyvsdk.player.PolyvPlayerProgressView;
 import com.easefun.polyvsdk.player.PolyvPlayerQuestionView;
 import com.easefun.polyvsdk.player.PolyvPlayerVolumeView;
 import com.easefun.polyvsdk.srt.PolyvSRTItemVO;
+import com.easefun.polyvsdk.sub.vlms.entity.PolyvCoursesInfo;
+import com.easefun.polyvsdk.util.PolyvErrorMessageUtils;
 import com.easefun.polyvsdk.util.PolyvScreenUtils;
 import com.easefun.polyvsdk.video.PolyvMediaInfoType;
 import com.easefun.polyvsdk.video.PolyvPlayErrorReason;
@@ -64,6 +68,8 @@ import com.easefun.polyvsdk.video.listener.IPolyvOnVideoSRTListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnVideoStatusListener;
 import com.easefun.polyvsdk.vo.PolyvADMatterVO;
 import com.easefun.polyvsdk.vo.PolyvQuestionVO;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -74,6 +80,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
     private PolyvPlayerTabFragment tabFragment;
     private PolyvPlayerViewPagerFragment viewPagerFragment;
     private PolyvPlayerDanmuFragment danmuFragment;
+    private ImageView iv_vlms_cover;
     /**
      * 播放器的parentView
      */
@@ -140,6 +147,8 @@ public class PolyvPlayerActivity extends FragmentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if (savedInstanceState != null)
+            savedInstanceState.putParcelable("android:support:fragments", null);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.polyv_activity_player);
         addFragment();
@@ -176,6 +185,9 @@ public class PolyvPlayerActivity extends FragmentActivity {
             ft.commit();
             return;
         }
+        ImageLoader.getInstance().displayImage(((PolyvCoursesInfo.Course) getIntent().getExtras().getParcelable("course")).cover_image, iv_vlms_cover = ((ImageView) findViewById(R.id.iv_vlms_cover)),
+                new DisplayImageOptions.Builder().showImageOnLoading(R.drawable.polyv_demo).showImageForEmptyUri(R.drawable.polyv_demo).showImageOnFail(R.drawable.polyv_demo)
+                        .bitmapConfig(Bitmap.Config.RGB_565).cacheInMemory(true).cacheOnDisk(true).build());
         topFragment = new PolyvPlayerTopFragment();
         topFragment.setArguments(getIntent().getExtras());
         tabFragment = new PolyvPlayerTabFragment();
@@ -261,7 +273,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
             @Override
             public void onStatus(int status) {
                 if (status < 60) {
-                    Toast.makeText(PolyvPlayerActivity.this, String.format("状态错误 %d", status), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PolyvPlayerActivity.this, "状态错误 " + status, Toast.LENGTH_SHORT).show();
                 } else {
                     Log.d(TAG, String.format("状态正常 %d", status));
                 }
@@ -271,107 +283,10 @@ public class PolyvPlayerActivity extends FragmentActivity {
         videoView.setOnVideoPlayErrorListener(new IPolyvOnVideoPlayErrorListener2() {
             @Override
             public boolean onVideoPlayError(@PolyvPlayErrorReason.PlayErrorReason int playErrorReason) {
-                String message = "";
-                switch (playErrorReason) {
-                    case PolyvPlayErrorReason.NETWORK_DENIED:
-                        message = "无法连接网络，请连接网络后播放";
-                        break;
-                    case PolyvPlayErrorReason.OUT_FLOW:
-                        message = "流量超标";
-                        break;
-                    case PolyvPlayErrorReason.TIMEOUT_FLOW:
-                        message = "账号过期";
-                        break;
-                    case PolyvPlayErrorReason.LOCAL_VIEWO_ERROR:
-                        message = "本地视频文件损坏，请重新下载";
-                        break;
-                    case PolyvPlayErrorReason.START_ERROR:
-                        message = "播放异常，请重新播放";
-                        break;
-                    case PolyvPlayErrorReason.NOT_PERMISSION:
-                        message = "非法播放";
-                        break;
-                    case PolyvPlayErrorReason.USER_TOKEN_ERROR:
-                        message = "请先设置播放凭证，再进行播放";
-                        break;
-                    case PolyvPlayErrorReason.VIDEO_STATUS_ERROR:
-                        message = "视频状态异常，无法播放";
-                        break;
-                    case PolyvPlayErrorReason.VID_ERROR:
-                        message = "视频id不正确，请设置正确的视频id进行播放";
-                        break;
-                    case PolyvPlayErrorReason.BITRATE_ERROR:
-                        message = "清晰度不正确，请设置正确的清晰度进行播放";
-                        break;
-                    case PolyvPlayErrorReason.VIDEO_NULL:
-                        message = "视频信息加载失败，请重新播放";
-                        break;
-                    case PolyvPlayErrorReason.MP4_LINK_NUM_ERROR:
-                        message = "MP4 播放地址服务器数据错误";
-                        break;
-                    case PolyvPlayErrorReason.M3U8_LINK_NUM_ERROR:
-                        message = "HLS 播放地址服务器数据错误";
-                        break;
-                    case PolyvPlayErrorReason.HLS_SPEED_TYPE_NULL:
-                        message = "请设置播放速度";
-                        break;
-                    case PolyvPlayErrorReason.NOT_LOCAL_VIDEO:
-                        message = "找不到本地下载的视频文件，请连网后重新下载";
-                        break;
-                    case PolyvPlayErrorReason.HLS_15X_INDEX_EMPTY:
-                        message = "视频不支持1.5倍自动清晰度播放";
-                        break;
-                    case PolyvPlayErrorReason.HLS_15X_ERROR:
-                        message = "视频不支持1.5倍当前清晰度播放";
-                        break;
-                    case PolyvPlayErrorReason.HLS_15X_URL_ERROR:
-                        message = "1.5倍当前清晰度视频正在编码中";
-                        break;
-                    case PolyvPlayErrorReason.M3U8_15X_LINK_NUM_ERROR:
-                        message = "HLS 1.5倍播放地址服务器数据错误";
-                        break;
-                    case PolyvPlayErrorReason.CHANGE_EQUAL_BITRATE:
-                        message = "切换清晰度相同，请选择其它清晰度";
-                        break;
-                    case PolyvPlayErrorReason.CHANGE_EQUAL_HLS_SPEED:
-                        message = "切换播放速度相同，请选择其它播放速度";
-                        break;
-                    case PolyvPlayErrorReason.CAN_NOT_CHANGE_BITRATE:
-                        message = "未开始播放视频不能切换清晰度，请先播放视频";
-                        break;
-                    case PolyvPlayErrorReason.CAN_NOT_CHANGE_HLS_SPEED:
-                        message = "未开始播放视频不能切换播放速度，请先播放视频";
-                        break;
-                    case PolyvPlayErrorReason.QUESTION_ERROR:
-                        message = "视频问答数据加载失败，请重新播放";
-                        break;
-                    case PolyvPlayErrorReason.CHANGE_BITRATE_NOT_EXIST:
-                        message = "视频没有这个清晰度，请切换其它清晰度";
-                        break;
-                    case PolyvPlayErrorReason.HLS_URL_ERROR:
-                        message = "播放地址异常，无法播放";
-                        break;
-                    case PolyvPlayErrorReason.LOADING_VIDEO_ERROR:
-                        message = "视频信息加载中出现异常，请重新播放";
-                        break;
-                    case PolyvPlayErrorReason.HLS2_URL_ERROR:
-                        message = "播放地址异常，无法播放";
-                        break;
-                    case PolyvPlayErrorReason.TOKEN_NULL:
-                        message = "播放授权获取失败，请重新播放";
-                        break;
-                    case PolyvPlayErrorReason.EXCEPTION_COMPLETION:
-                        message = "视频异常结束，请重新播放";
-                        break;
-                    case PolyvPlayErrorReason.WRITE_EXTERNAL_STORAGE_DENIED:
-                        message = "检测到拒绝读取存储设备，请先为应用程序分配权限，再重新播放";
-                        break;
-                    default:
-                        message = "播放异常，请联系管理员或者客服";
-                        break;
-                }
-
+                String message = PolyvErrorMessageUtils.getPlayErrorMessage(playErrorReason);
                 message += "(error code " + playErrorReason + ")";
+
+//                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
                 AlertDialog.Builder builder = new AlertDialog.Builder(PolyvPlayerActivity.this);
                 builder.setTitle("错误");
                 builder.setMessage(message);
@@ -389,7 +304,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
         videoView.setOnErrorListener(new IPolyvOnErrorListener2() {
             @Override
             public boolean onError() {
-                Toast.makeText(PolyvPlayerActivity.this, "视频异常，请重新播放", Toast.LENGTH_SHORT).show();
+                Toast.makeText(PolyvPlayerActivity.this, "当前视频无法播放，请向管理员反馈(error code " + PolyvPlayErrorReason.VIDEO_ERROR + ")", Toast.LENGTH_SHORT).show();
                 return true;
             }
         });
@@ -404,7 +319,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
         videoView.setOnAdvertisementCountDownListener(new IPolyvOnAdvertisementCountDownListener() {
             @Override
             public void onCountDown(int num) {
-                advertCountDown.setText(String.format("广告也精彩：%d秒", num));
+                advertCountDown.setText("广告也精彩：" + num + "秒");
                 advertCountDown.setVisibility(View.VISIBLE);
             }
 
@@ -499,13 +414,13 @@ public class PolyvPlayerActivity extends FragmentActivity {
 
             @Override
             public void callback(boolean start, boolean end) {
-                Log.d(TAG, String.format("LeftUp %b %b brightness %d", start, end, videoView.getBrightness()));
-                int brightness = videoView.getBrightness() + 5;
+                Log.d(TAG, String.format("LeftUp %b %b brightness %d", start, end, videoView.getBrightness(PolyvPlayerActivity.this)));
+                int brightness = videoView.getBrightness(PolyvPlayerActivity.this) + 5;
                 if (brightness > 100) {
                     brightness = 100;
                 }
 
-                videoView.setBrightness(brightness);
+                videoView.setBrightness(PolyvPlayerActivity.this, brightness);
                 lightView.setViewLightValue(brightness, end);
             }
         });
@@ -514,13 +429,13 @@ public class PolyvPlayerActivity extends FragmentActivity {
 
             @Override
             public void callback(boolean start, boolean end) {
-                Log.d(TAG, String.format("LeftDown %b %b brightness %d", start, end, videoView.getBrightness()));
-                int brightness = videoView.getBrightness() - 5;
+                Log.d(TAG, String.format("LeftDown %b %b brightness %d", start, end, videoView.getBrightness(PolyvPlayerActivity.this)));
+                int brightness = videoView.getBrightness(PolyvPlayerActivity.this) - 5;
                 if (brightness < 0) {
                     brightness = 0;
                 }
 
-                videoView.setBrightness(brightness);
+                videoView.setBrightness(PolyvPlayerActivity.this, brightness);
                 lightView.setViewLightValue(brightness, end);
             }
         });
@@ -627,8 +542,17 @@ public class PolyvPlayerActivity extends FragmentActivity {
         });
     }
 
+    /**
+     * 播放视频
+     * @param vid 视频id
+     * @param bitrate 码率（清晰度）
+     * @param startNow 是否现在开始播放视频
+     * @param isMustFromLocal 是否必须从本地（本地缓存的视频）播放
+     */
     public void play(final String vid, final int bitrate, boolean startNow, final boolean isMustFromLocal) {
         if (TextUtils.isEmpty(vid)) return;
+        if (iv_vlms_cover != null && iv_vlms_cover.getVisibility() == View.VISIBLE)
+            iv_vlms_cover.setVisibility(View.GONE);
 
         videoView.release();
         srtTextView.setVisibility(View.GONE);
@@ -644,18 +568,28 @@ public class PolyvPlayerActivity extends FragmentActivity {
 
         danmuFragment.setVid(vid,videoView);
         if (startNow) {
+            //调用setVid方法视频会自动播放
             videoView.setVid(vid, bitrate, isMustFromLocal);
         } else {
+            //视频不播放，先显示一张缩略图
             firstStartView.setCallback(new PolyvPlayerPreviewView.Callback() {
 
                 @Override
                 public void onClickStart() {
+                    //调用setVid方法视频会自动播放
                     videoView.setVid(vid, bitrate, isMustFromLocal);
                 }
             });
 
             firstStartView.show(vid);
         }
+    }
+
+    private void clearGestureInfo(){
+        videoView.clearGestureInfo();
+        progressView.hide();
+        volumeView.hide();
+        lightView.hide();
     }
 
     @Override
@@ -681,10 +615,8 @@ public class PolyvPlayerActivity extends FragmentActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        clearGestureInfo();
         mediaController.pause();
-        progressView.hide();
-        volumeView.hide();
-        lightView.hide();
     }
 
     @Override

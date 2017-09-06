@@ -27,6 +27,8 @@ import com.easefun.polyvsdk.bean.PolyvDownloadInfo;
 import com.easefun.polyvsdk.database.PolyvDownloadSQLiteHelper;
 import com.easefun.polyvsdk.download.listener.IPolyvDownloaderProgressListener;
 import com.easefun.polyvsdk.download.listener.IPolyvDownloaderSpeedListener;
+import com.easefun.polyvsdk.download.listener.IPolyvDownloaderStartListener;
+import com.easefun.polyvsdk.util.PolyvErrorMessageUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -37,6 +39,7 @@ public class PolyvDownloadListViewAdapter extends BaseAdapter {
     private static final String DOWNLOADED = "已下载";
     private static final String DOWNLOADING = "正在下载";
     private static final String PAUSEED = "暂停下载";
+    private static final String WAITED = "等待下载";
     private static PolyvDownloadSQLiteHelper downloadSQLiteHelper;
     private static Context appContext;
     private Context context;
@@ -52,6 +55,16 @@ public class PolyvDownloadListViewAdapter extends BaseAdapter {
         this.inflater = LayoutInflater.from(this.context);
         this.lv_download = lv_download;
         downloadSQLiteHelper = PolyvDownloadSQLiteHelper.getInstance(this.context);
+        init();
+    }
+
+    private void init() {
+        for (int i = 0; i < lists.size(); i++) {
+            PolyvDownloadInfo downloadInfo = lists.get(i);
+            String vid = downloadInfo.getVid();
+            int bitrate = downloadInfo.getBitrate();
+            PolyvDownloaderManager.getPolyvDownloader(vid, bitrate);
+        }
     }
 
     /**
@@ -118,9 +131,11 @@ public class PolyvDownloadListViewAdapter extends BaseAdapter {
                     tv_status.setSelected(true);
                     iv_start.setImageResource(R.drawable.polyv_btn_download);
                 } else {
-                    tv_status.setText(DOWNLOADING);
-                    tv_status.setSelected(false);
-                    iv_start.setImageResource(R.drawable.polyv_btn_dlpause);
+                    if (!tv_status.getText().equals(DOWNLOADING)) {
+                        tv_status.setText(WAITED);
+                        tv_status.setSelected(true);
+                        iv_start.setImageResource(R.drawable.polyv_btn_download);
+                    }
                 }
             }
         }
@@ -182,6 +197,11 @@ public class PolyvDownloadListViewAdapter extends BaseAdapter {
             viewHolder.iv_start.setImageResource(R.drawable.polyv_btn_dlpause);
             viewHolder.tv_status.setText(DOWNLOADING);
             viewHolder.tv_speed.setText("0.00B/S");
+        } else if (PolyvDownloaderManager.isWaitingDownload(vid, bitrate)) {
+            viewHolder.iv_start.setImageResource(R.drawable.polyv_btn_download);
+            viewHolder.tv_status.setText(WAITED);
+            viewHolder.tv_status.setSelected(true);
+            viewHolder.tv_speed.setText(Formatter.formatFileSize(context, filesize * progress / 100));
         } else {
             viewHolder.iv_start.setImageResource(R.drawable.polyv_btn_download);
             viewHolder.tv_status.setText(PAUSEED);
@@ -259,81 +279,10 @@ public class PolyvDownloadListViewAdapter extends BaseAdapter {
                 viewHolder.get().iv_start.setImageResource(R.drawable.polyv_btn_download);
                 showPauseSpeeView(downloadInfo, viewHolder.get().tv_speed);
                 String message = "第" + (position + 1) + "个任务";
-                switch (errorReason.getType()) {
-                    case VID_IS_NULL:
-                        message += "视频id不正确，请设置正确的视频id进行播放";
-                        break;
-                    case NOT_PERMISSION:
-                        message += "非法下载";
-                        break;
-                    case RUNTIME_EXCEPTION:
-                        message += "下载中异常，请重新下载";
-                        break;
-                    case VIDEO_STATUS_ERROR:
-                        message += "视频状态异常，无法下载";
-                        break;
-                    case M3U8_NOT_DATA:
-                        message += "视频信息加载失败，请重新下载";
-                        break;
-                    case QUESTION_NOT_DATA:
-                        message += "视频问答数据加载失败，请重新下载";
-                        break;
-                    case MULTIMEDIA_LIST_EMPTY:
-                        message += "视频文件数据加载失败，请重新下载";
-                        break;
-                    case CAN_NOT_MKDIR:
-                        message += "视频存储目录创建失败";
-                        break;
-                    case DOWNLOAD_TS_ERROR:
-                        message += "视频文件下载失败，请重新下载";
-                        break;
-                    case MULTIMEDIA_EMPTY:
-                        message += "视频下载失败，请重新下载";
-                        break;
-                    case NOT_CREATE_DIR:
-                        message += "视频存储目录创建失败，无法下载";
-                        break;
-                    case VIDEO_LOAD_FAILURE:
-                        break;
-                    case VIDEO_NULL:
-                        message += "视频信息加载失败，请重新下载";
-                        break;
-                    case DIR_SPACE_LACK:
-                        message += "检测到移动设备存储空间不足，请清除存储空间再重新下载";
-                        break;
-                    case DOWNLOAD_DIR_IS_NUll:
-                        message += "检测到存储目录未设置，请先设置存储目录再重新下载";
-                        break;
-                    case HLS_15X_URL_ERROR:
-                        message += "视频下载地址异常，请重新下载";
-                        break;
-                    case HLS_SPEED_TYPE_IS_NULL:
-                        message += "视频速度类型错误，请设置了速度类型后重新下载";
-                        break;
-                    case HLS_15X_ERROR:
-                        message += "视频不支持1.5倍速，无法下载";
-                        break;
-                    case GET_VIDEO_INFO_ERROR:
-                        message += "视频信息加载异常，请重新下载";
-                        break;
-                    case WRITE_EXTERNAL_STORAGE_DENIED:
-                        message += "检测到拒绝写入存储设备，请先为应用程序分配权限，再重新下载";
-                        break;
-                    case VID_ERROR:
-                        message += "视频id不正确，无法播放视频";
-                        break;
-                    case EXTRA_DIR_IS_NUll:
-                        message += "检测到资源目录未设置，请先设置存储目录再重新下载";
-                        break;
-                    case NOT_CREATE_EXTRA_DIR:
-                        message += "资源目录创建失败，无法下载";
-                        break;
-                    default:
-                        message += "下载异常，请联系管理员或者客服";
-                        break;
-                }
-
+                message += PolyvErrorMessageUtils.getDownloaderErrorMessage(errorReason.getType());
                 message += "(error code " + errorReason.getType().getCode() + ")";
+
+//                Toast.makeText(appContext, message, Toast.LENGTH_LONG).show();
                 AlertDialog.Builder builder = new AlertDialog.Builder(contextWeakReference.get());
                 builder.setTitle("错误");
                 builder.setMessage(message);
@@ -374,6 +323,32 @@ public class PolyvDownloadListViewAdapter extends BaseAdapter {
         }
     }
 
+    private static class MyDownloaderStartListener implements IPolyvDownloaderStartListener {
+        private WeakReference<ListView> wr_lv_download;
+        private WeakReference<ViewHolder> viewHolder;
+        private int position;
+
+        public MyDownloaderStartListener(ListView lv_download, ViewHolder viewHolder, int position) {
+            this.wr_lv_download = new WeakReference<ListView>(lv_download);
+            this.viewHolder = new WeakReference<ViewHolder>(viewHolder);
+            this.position = position;
+        }
+
+        private boolean canUpdateView() {
+            ListView lv_download = wr_lv_download.get();
+            return lv_download != null && viewHolder.get() != null && lv_download.getChildAt(position - lv_download.getFirstVisiblePosition()) != null;
+        }
+
+        @Override
+        public void onStart() {
+            if (canUpdateView()) {
+                viewHolder.get().iv_start.setImageResource(R.drawable.polyv_btn_dlpause);
+                viewHolder.get().tv_status.setText(DOWNLOADING);
+                viewHolder.get().tv_status.setSelected(false);
+            }
+        }
+    }
+
     private static void showPauseSpeeView(PolyvDownloadInfo downloadInfo, TextView tv_speed) {
         long percent = downloadInfo.getPercent();
         long total = downloadInfo.getTotal();
@@ -394,6 +369,7 @@ public class PolyvDownloadListViewAdapter extends BaseAdapter {
         public void setDownloadListener(PolyvDownloader downloader, final PolyvDownloadInfo downloadInfo, final int position) {
             downloader.setPolyvDownloadSpeedListener(new MyDownloadSpeedListener(lv_download, this, downloader, position));
             downloader.setPolyvDownloadProressListener(new MyDownloadListener(context, lv_download, this, downloadInfo, position));
+            downloader.setPolyvDownloadStartListener(new MyDownloaderStartListener(lv_download, this, position));
         }
     }
 
@@ -420,7 +396,7 @@ public class PolyvDownloadListViewAdapter extends BaseAdapter {
                 // 在线视频和下载的视频播放的时候只显示播放器窗口，用该参数来控制
                 intent.putExtra(PolyvMainActivity.IS_VLMS_ONLINE, false);
                 context.startActivity(intent);
-            } else if (tv_status.getText().equals(DOWNLOADING)) {
+            } else if (tv_status.getText().equals(DOWNLOADING) || tv_status.getText().equals(WAITED)) {
                 tv_status.setText(PAUSEED);
                 tv_status.setSelected(true);
                 iv_start.setImageResource(R.drawable.polyv_btn_download);
@@ -431,6 +407,11 @@ public class PolyvDownloadListViewAdapter extends BaseAdapter {
                 tv_status.setSelected(false);
                 iv_start.setImageResource(R.drawable.polyv_btn_dlpause);
                 downloader.start(context);
+                if (!downloader.isDownloading() && PolyvDownloaderManager.isWaitingDownload(vid, bitrate)) {
+                    iv_start.setImageResource(R.drawable.polyv_btn_download);
+                    tv_status.setText(WAITED);
+                    tv_status.setSelected(true);
+                }
             }
         }
     }

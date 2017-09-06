@@ -10,7 +10,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import java.io.File;
 
-//集成的类是为了解决64K 引用限制
+//继承的类是为了解决64K 引用限制
 public class PolyvApplication extends MultiDexApplication {
 
 	public static final String TAG = PolyvApplication.class.getSimpleName();
@@ -85,6 +85,9 @@ public class PolyvApplication extends MultiDexApplication {
 				PolyvSDKClient.getInstance().setDownloadDir(saveDir);
 			}
 		});
+
+		// 设置下载队列总数，多少个视频能同时下载。(默认是1，设置负数和0是没有限制)
+		PolyvDownloaderManager.setDownloadQueueCount(1);
 	}
 
 	private class LoadConfigTask extends AsyncTask<String, String, String> {

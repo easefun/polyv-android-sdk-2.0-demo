@@ -6,8 +6,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 4
-        versionName "2.0.4"
+        versionCode 5
+        versionName "2.0.5"
         //64K 引用限制
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -46,6 +46,7 @@ dependencies {
     compile 'com.android.support:support-annotations:23+'
     compile 'com.android.support:appcompat-v7:23+'
     compile 'com.android.support:support-v4:23+'
+    compile 'com.android.support:design:23+'
 	//64K 引用限制
     compile 'com.android.support:multidex:1.0.1'
 	

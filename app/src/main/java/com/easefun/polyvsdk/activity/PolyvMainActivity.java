@@ -1,13 +1,15 @@
 package com.easefun.polyvsdk.activity;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -50,7 +52,7 @@ public class PolyvMainActivity extends Activity implements OnClickListener {
     private TextView tv_guide;
     private PolyvVlmsHelper vlmsHelper;
     private PolyvPermission polyvPermission = null;
-    private static final int SETTING = 1;
+    private PolyvCoursesInfo.Course course = null;
 
     private void findIdAndNew() {
         gv_hc = (GridView) findViewById(R.id.gv_hc);
@@ -134,14 +136,8 @@ public class PolyvMainActivity extends Activity implements OnClickListener {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-                // 为免费的课程添加订单
-                addOrder(lists.get(position).course.course_id);
-                Intent intent = new Intent(PolyvMainActivity.this, PolyvPlayerActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putBoolean(PolyvMainActivity.IS_VLMS_ONLINE, true);
-                bundle.putParcelable("course", lists.get(position).course);
-                intent.putExtras(bundle);
-                startActivity(intent);
+                course = lists.get(position).course;
+                polyvPermission.applyPermission(PolyvMainActivity.this, PolyvPermission.OperationType.playAndDownload);
             }
         });
         srl_bot.setColorSchemeResources(android.R.color.holo_blue_light, android.R.color.holo_red_light,
@@ -172,7 +168,7 @@ public class PolyvMainActivity extends Activity implements OnClickListener {
         polyvPermission.setResponseCallback(new PolyvPermission.ResponseCallback() {
             @Override
             public void callback(@NonNull PolyvPermission.OperationType type) {
-                requestPermissionWriteSettings(type.getNum());
+                gotoActivity(type.getNum());
             }
         });
     }
@@ -215,40 +211,16 @@ public class PolyvMainActivity extends Activity implements OnClickListener {
             case upload:
                 startActivity(new Intent(PolyvMainActivity.this, PolyvUploadActivity.class));
                 break;
-        }
-    }
-
-    private int actionType;
-
-    /**
-     * 请求写入设置的权限
-     */
-    @SuppressLint("InlinedApi")
-    private void requestPermissionWriteSettings(int type) {
-        if (!PolyvPermission.canMakeSmores()) {
-            gotoActivity(type);
-        } else if (Settings.System.canWrite(this)) {
-            gotoActivity(type);
-        } else {
-            actionType = type;
-            Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, Uri.parse("package:" + this.getPackageName()));
-            startActivityForResult(intent, SETTING);
-        }
-    }
-
-    @Override
-    @SuppressLint("InlinedApi")
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == SETTING) {
-            if (Settings.System.canWrite(this)) {
-                gotoActivity(actionType);
-            } else {
-                new AlertDialog.Builder(this)
-                        .setTitle("showPermissionInternet")
-                        .setMessage(Settings.ACTION_MANAGE_WRITE_SETTINGS + " not granted")
-                        .setPositiveButton(android.R.string.ok, null)
-                        .show();
-            }
+            case playAndDownload:
+                // 为免费的课程添加订单
+                addOrder(course.course_id);
+                Intent intent = new Intent(PolyvMainActivity.this, PolyvPlayerActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putBoolean(PolyvMainActivity.IS_VLMS_ONLINE, true);
+                bundle.putParcelable("course", course);
+                intent.putExtras(bundle);
+                startActivity(intent);
+                break;
         }
     }
 
@@ -263,11 +235,52 @@ public class PolyvMainActivity extends Activity implements OnClickListener {
      * @param grantResults
      */
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(final int requestCode, String[] permissions, int[] grantResults) {
         if (polyvPermission.operationHasPermission(requestCode)) {
-            requestPermissionWriteSettings(requestCode);
+            gotoActivity(requestCode);
         } else {
-            polyvPermission.makePostRequestSnack();
+            for (int i = 0; i < grantResults.length; i++) {
+                if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                    if (!ActivityCompat.shouldShowRequestPermissionRationale(this, permissions[i])) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                        builder.setTitle("提示");
+                        builder.setMessage("需要权限被拒绝，是否跳转到权限设置？");
+                        builder.setPositiveButton("是", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                Toast.makeText(PolyvMainActivity.this, "点击权限，并打开全部权限", Toast.LENGTH_LONG).show();
+                                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                intent.setData(Uri.fromParts("package", getPackageName(), null));
+                                startActivityForResult(intent, requestCode);
+                                dialog.dismiss();
+                            }
+                        });
+
+                        builder.setNegativeButton("取消", null);
+                        builder.setCancelable(true);
+                        builder.show();
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (polyvPermission.operationHasPermission(requestCode)) {
+            gotoActivity(requestCode);
+        } else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("提示");
+            builder.setMessage("请开启功能需要的权限，再使用该功能。");
+            builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    dialog.dismiss();
+                }
+            });
+
+            builder.setCancelable(true);
+            builder.show();
         }
     }
 }

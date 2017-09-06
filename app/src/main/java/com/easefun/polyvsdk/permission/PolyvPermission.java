@@ -5,11 +5,16 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -19,18 +24,13 @@ import java.util.ArrayList;
  */
 public class PolyvPermission {
     private ResponseCallback responseCallback = null;
-    private SharedPreferences sharedPreferences = null;
     private Activity activity = null;
-
-    /** 请求的权限列表 */
-    private ArrayList<String> permissionsToRequest = null;
-    /** 拒绝的权限列表 */
-    private ArrayList<String> permissionsRejected = null;
 
     public enum OperationType {
         play(100),
         download(101),
-        upload(102);
+        upload(102),
+        playAndDownload(103);
 
         private final int num;
         private OperationType(int num) {
@@ -48,6 +48,8 @@ public class PolyvPermission {
                 return download;
             } else if (num == upload.getNum()) {
                 return upload;
+            } else if (num == playAndDownload.getNum()) {
+                return playAndDownload;
             }
 
             return play;
@@ -65,7 +67,7 @@ public class PolyvPermission {
             return;
         }
 
-        ArrayList<String> permissions = new ArrayList<String>();
+        ArrayList<String> permissions = new ArrayList<>();
         int resultCode = 0;
         switch (type) {
             case play:
@@ -86,41 +88,36 @@ public class PolyvPermission {
                 permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
                 resultCode = OperationType.upload.getNum();
                 break;
+            case playAndDownload:
+                //播放视频和下载需要的权限
+                permissions.add(Manifest.permission.READ_PHONE_STATE);
+                permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                resultCode = OperationType.playAndDownload.getNum();
+                break;
         }
 
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity);
         //筛选出我们已经接受的权限
-        permissionsToRequest = findUnAskedPermissions(permissions);
+        /* 请求的权限列表 */
+        ArrayList<String> permissionsToRequest = findUnAskedPermissions(permissions);
         //get the permissions we have asked for before but are not granted..
         //we will store this in a global list to access later.
-        permissionsRejected = findRejectedPermissions(permissions);
+        /* 拒绝的权限列表 */
+        ArrayList<String> permissionsRejected = findRejectedPermissions(permissions);
 
         if(permissionsToRequest.size()>0){//we need to ask for permissions
             //but have we already asked for them?
             activity.requestPermissions(permissionsToRequest.toArray(new String[permissionsToRequest.size()]), resultCode);
-            //mark all these as asked..
-            for(String perm : permissionsToRequest){
-                markAsAsked(perm);
-            }
         }else{
             if(permissionsRejected.size()>0){
-                //we have none to request but some previously rejected..tell the user.
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                builder.setTitle("提示");
-                builder.setMessage("需要权限被拒绝，是否允许再次提示权限申请？");
-                builder.setPositiveButton("允许", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        for(String perm: permissionsRejected){
-                            clearMarkAsAsked(perm);
-                        }
-
-                        dialog.dismiss();
+                for (int i = 0; i < permissionsRejected.size() ; i++) {
+                    if (!ActivityCompat.shouldShowRequestPermissionRationale(activity, permissionsRejected.get(i))) {
+                        Toast.makeText(activity, "点击权限，并打开全部权限", Toast.LENGTH_LONG).show();
+                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                        intent.setData(Uri.fromParts("package", activity.getPackageName(), null));
+                        activity.startActivityForResult(intent, type.getNum());
+                        return;
                     }
-                });
-
-                builder.setNegativeButton("取消", null);
-                builder.setCancelable(true);
-                builder.show();
+                }
             } else {
                 if (responseCallback != null) {
                     responseCallback.callback(type);
@@ -140,6 +137,9 @@ public class PolyvPermission {
                 return hasPermission(Manifest.permission.READ_PHONE_STATE)
                         && hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
             case upload:
+                return hasPermission(Manifest.permission.READ_PHONE_STATE)
+                        && hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            case playAndDownload:
                 return hasPermission(Manifest.permission.READ_PHONE_STATE)
                         && hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
@@ -162,45 +162,15 @@ public class PolyvPermission {
     }
 
     /**
-     * method to determine whether we have asked
-     * for this permission before.. if we have, we do not want to ask again.
-     * They either rejected us or later removed the permission.
-     * @param permission
-     * @return
-     */
-    private boolean shouldWeAsk(String permission) {
-        return(sharedPreferences.getBoolean(permission, true));
-    }
-
-    /**
-     * we will save that we have already asked the user
-     * @param permission
-     */
-    private void markAsAsked(String permission) {
-        sharedPreferences.edit().putBoolean(permission, false).apply();
-    }
-
-    /**
-     * We may want to ask the user again at their request.. Let's clear the
-     * marked as seen preference for that permission.
-     * @param permission
-     */
-    private void clearMarkAsAsked(String permission) {
-        sharedPreferences.edit().putBoolean(permission, true).apply();
-    }
-
-
-    /**
      * This method is used to determine the permissions we do not have accepted yet and ones that we have not already
      * bugged the user about.  This comes in handle when you are asking for multiple permissions at once.
      * @param wanted
      * @return
      */
     private ArrayList<String> findUnAskedPermissions(ArrayList<String> wanted) {
-        ArrayList<String> result = new ArrayList<String>();
-
+        ArrayList<String> result = new ArrayList<>();
         for (String perm : wanted) {
-            if (!hasPermission(perm) && shouldWeAsk(perm)) {
+            if (!hasPermission(perm)) {
                 result.add(perm);
             }
         }
@@ -217,10 +187,9 @@ public class PolyvPermission {
      * @return
      */
     private ArrayList<String> findRejectedPermissions(ArrayList<String> wanted) {
-        ArrayList<String> result = new ArrayList<String>();
-
+        ArrayList<String> result = new ArrayList<>();
         for (String perm : wanted) {
-            if (!hasPermission(perm) && !shouldWeAsk(perm)) {
+            if (!hasPermission(perm)) {
                 result.add(perm);
             }
         }
@@ -234,28 +203,6 @@ public class PolyvPermission {
      */
     public static boolean canMakeSmores() {
         return(Build.VERSION.SDK_INT>Build.VERSION_CODES.LOLLIPOP_MR1);
-    }
-
-    /**
-     * a method that will centralize the showing of a snackbar
-     */
-    public void makePostRequestSnack() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle("提示");
-        builder.setMessage("需要权限被拒绝，是否允许再次提示权限申请？");
-        builder.setPositiveButton("允许", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                for(String perm: permissionsRejected){
-                    clearMarkAsAsked(perm);
-                }
-
-                dialog.dismiss();
-            }
-        });
-
-        builder.setNegativeButton("取消", null);
-        builder.setCancelable(true);
-        builder.show();
     }
 
     public void setResponseCallback(ResponseCallback responseCallback) {

@@ -127,17 +127,6 @@ public class PolyvPlayerPreviewView extends RelativeLayout {
      * 隐藏
      */
     public void hide() {
-    	Drawable drawable = mPreviewImage.getDrawable();
-    	if (drawable != null && drawable instanceof BitmapDrawable) {
-    		Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
-    		if (bitmap != null && !bitmap.isRecycled()) {
-    			bitmap.recycle();
-    			bitmap = null;
-    		}
-    	}
-
-		mPreviewImage.setImageBitmap(null);
-    	System.gc();
         setVisibility(View.GONE);
     }
     
