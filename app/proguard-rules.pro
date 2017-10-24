@@ -89,6 +89,4 @@
 -keepattributes Signature
 
 -keep class com.easefun.polyvsdk.**{*;}
--keep class com.chinanetcenter.wcs.**{*;}
--keep class org.apache.http.**{*;}
 -keep class tv.danmaku.ijk.media.**{*;}

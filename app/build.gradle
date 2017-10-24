@@ -6,8 +6,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 6
-        versionName "2.0.6"
+        versionCode 5
+        versionName "2.0.5"
         //64K 引用限制
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -20,7 +20,6 @@ android {
         }
     }
 
-    //修改输出apk的名称
     android.applicationVariants.all {variant->
         variant.outputs.each { output->
             def outputFile = output.outputFile;
