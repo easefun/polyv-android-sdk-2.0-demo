@@ -6,10 +6,18 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 6
-        versionName "2.0.6"
+        versionCode 22100
+        versionName "2.2.1"
+
         //64K 引用限制
         multiDexEnabled true
+
+        //依赖的包可能支持很多类型的ABI
+        //为了避免打包了我们没有支持的ABI，指定需要打包的ABI目录
+        ndk {
+            abiFilters 'arm64-v8a', 'armeabi-v7a', 'armeabi', 'x86_64', 'x86'
+        }
+
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
@@ -18,6 +26,10 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+
+    lintOptions {
+        abortOnError false
     }
 
     //修改输出apk的名称
@@ -33,7 +45,7 @@ android {
     }
 }
 
-def releaseTime() {
+static def releaseTime() {
     return new Date().format("yyyy-MM-dd", TimeZone.getTimeZone("UTC"))
 }
 
@@ -48,8 +60,12 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23+'
     compile 'com.android.support:support-v4:23+'
     compile 'com.android.support:design:23+'
-	//64K 引用限制
-    compile 'com.android.support:multidex:1.0.1'
-	
-    compile project(':polyvAndroidSDKGif1.0')
+    compile 'com.android.support:multidex:1.0.1'//64K 引用限制
+    compile 'com.easefun.polyv:polyvPlayer:2.2.1'//SDK核心包
+    compile 'com.easefun.polyv:polyvPlayerABI:1.3.0'//SDK核心包
+    compile 'com.easefun.polyv:polyvDownload:2.2.1'//SDK下载功能
+    compile 'com.easefun.polyv:polyvUpload:2.2.1'//SDK上传功能
+    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'//demo中图片使用
+    compile 'com.easefun.polyv:polyvGif:2.2.1'//demo中课程讨论区显示的内容里用到的包。
+    compile 'com.easefun.polyv:polyvSub:2.2.1'//弹幕、截图功能中使用
 }

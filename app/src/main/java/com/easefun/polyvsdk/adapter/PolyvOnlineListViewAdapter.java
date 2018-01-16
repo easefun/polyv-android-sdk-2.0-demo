@@ -163,6 +163,7 @@ public class PolyvOnlineListViewAdapter extends AbsRecyclerViewAdapter {
             Video.loadVideo(vid, new Video.OnVideoLoaded() {
                 public void onloaded(final Video v) {
                     if (v == null) {
+                        Toast.makeText(context, "获取下载信息失败，请重试", Toast.LENGTH_SHORT).show();
                         return;
                     }
 

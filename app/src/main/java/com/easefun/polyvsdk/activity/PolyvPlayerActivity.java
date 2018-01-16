@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -28,6 +29,8 @@ import com.easefun.polyvsdk.fragment.PolyvPlayerDanmuFragment;
 import com.easefun.polyvsdk.fragment.PolyvPlayerTabFragment;
 import com.easefun.polyvsdk.fragment.PolyvPlayerTopFragment;
 import com.easefun.polyvsdk.fragment.PolyvPlayerViewPagerFragment;
+import com.easefun.polyvsdk.marquee.PolyvMarqueeItem;
+import com.easefun.polyvsdk.marquee.PolyvMarqueeView;
 import com.easefun.polyvsdk.player.PolyvPlayerAuditionView;
 import com.easefun.polyvsdk.player.PolyvPlayerAuxiliaryView;
 import com.easefun.polyvsdk.player.PolyvPlayerLightView;
@@ -89,6 +92,11 @@ public class PolyvPlayerActivity extends FragmentActivity {
      * 播放主视频播放器
      */
     private PolyvVideoView videoView = null;
+    /**
+     * 跑马灯控件
+     */
+    private PolyvMarqueeView marqueeView = null;
+    private PolyvMarqueeItem marqueeItem = null;
     /**
      * 视频控制栏
      */
@@ -155,6 +163,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
         findIdAndNew();
         initView();
 
+        PolyvScreenUtils.generateHeight16_9(this);
         int playModeCode = getIntent().getIntExtra("playMode", PlayMode.portrait.getCode());
         PlayMode playMode = PlayMode.getPlayMode(playModeCode);
         if (playMode == null)
@@ -179,7 +188,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
     private void addFragment() {
         danmuFragment = new PolyvPlayerDanmuFragment();
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.add(R.id.fl_danmu,danmuFragment,"danmuFragment");
+        ft.add(R.id.fl_danmu, danmuFragment, "danmuFragment");
         // 网校的在线视频才添加下面的控件
         if (!getIntent().getBooleanExtra(PolyvMainActivity.IS_VLMS_ONLINE, false)) {
             ft.commit();
@@ -201,6 +210,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
     private void findIdAndNew() {
         viewLayout = (RelativeLayout) findViewById(R.id.view_layout);
         videoView = (PolyvVideoView) findViewById(R.id.polyv_video_view);
+        marqueeView = (PolyvMarqueeView) findViewById(R.id.polyv_marquee_view);
         mediaController = (PolyvPlayerMediaController) findViewById(R.id.polyv_player_media_controller);
         srtTextView = (TextView) findViewById(R.id.srt);
         questionView = (PolyvPlayerQuestionView) findViewById(R.id.polyv_player_question_view);
@@ -225,6 +235,22 @@ public class PolyvPlayerActivity extends FragmentActivity {
         videoView.setMediaController(mediaController);
         videoView.setAuxiliaryVideoView(auxiliaryVideoView);
         videoView.setPlayerBufferingIndicator(loadingProgress);
+        // 设置跑马灯
+        videoView.setMarqueeView(marqueeView, marqueeItem = new PolyvMarqueeItem()
+                .setStyle(PolyvMarqueeItem.STYLE_ROLL_FLICK) //样式
+                .setDuration(10000) //时长
+                .setText("POLYV Android SDK") //文本
+                .setSize(16) //字体大小
+                .setColor(Color.YELLOW) //字体颜色
+                .setTextAlpha(70) //字体透明度
+                .setInterval(1000) //隐藏时间
+                .setLifeTime(1000) //显示时间
+                .setTweenTime(1000) //渐隐渐现时间
+                .setHasStroke(true) //是否有描边
+                .setBlurStroke(true) //是否模糊描边
+                .setStrokeWidth(3) //描边宽度
+                .setStrokeColor(Color.MAGENTA) //描边颜色
+                .setStrokeAlpha(70)); //描边透明度
     }
 
     private void initView() {
@@ -233,6 +259,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
         videoView.setOpenQuestion(true);
         videoView.setOpenSRT(true);
         videoView.setOpenPreload(true, 2);
+        videoView.setOpenMarquee(true);
         videoView.setAutoContinue(true);
         videoView.setNeedGestureDetector(true);
 
@@ -240,6 +267,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
             @Override
             public void onPrepared() {
                 mediaController.preparedView();
+                progressView.setViewMaxValue(videoView.getDuration());
                 // 没开预加载在这里开始弹幕
                 // danmuFragment.start();
             }
@@ -256,7 +284,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
         videoView.setOnInfoListener(new IPolyvOnInfoListener2() {
             @Override
             public boolean onInfo(int what, int extra) {
-                switch (what){
+                switch (what) {
                     case PolyvMediaInfoType.MEDIA_INFO_BUFFERING_START:
                         danmuFragment.pause(false);
                         break;
@@ -296,7 +324,8 @@ public class PolyvPlayerActivity extends FragmentActivity {
                     }
                 });
 
-                builder.show();
+                if (videoView.getWindowToken() != null)
+                    builder.show();
                 return true;
             }
         });
@@ -487,7 +516,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
                         fastForwardPos = 0;
                     videoView.seekTo(fastForwardPos);
                     danmuFragment.seekTo();
-                    if (videoView.isCompletedState()){
+                    if (videoView.isCompletedState()) {
                         videoView.start();
                         danmuFragment.resume();
                     }
@@ -514,9 +543,12 @@ public class PolyvPlayerActivity extends FragmentActivity {
                 if (end) {
                     if (fastForwardPos > videoView.getDuration())
                         fastForwardPos = videoView.getDuration();
-                    videoView.seekTo(fastForwardPos);
-                    danmuFragment.seekTo();
-                    if (videoView.isCompletedState()) {
+                    if (!videoView.isCompletedState()) {
+                        videoView.seekTo(fastForwardPos);
+                        danmuFragment.seekTo();
+                    } else if (videoView.isCompletedState() && fastForwardPos != videoView.getDuration()) {
+                        videoView.seekTo(fastForwardPos);
+                        danmuFragment.seekTo();
                         videoView.start();
                         danmuFragment.resume();
                     }
@@ -565,8 +597,9 @@ public class PolyvPlayerActivity extends FragmentActivity {
         auxiliaryView.hide();
         advertCountDown.setVisibility(View.GONE);
         firstStartView.hide();
+        progressView.resetMaxValue();
 
-        danmuFragment.setVid(vid,videoView);
+        danmuFragment.setVid(vid, videoView);
         if (startNow) {
             //调用setVid方法视频会自动播放
             videoView.setVid(vid, bitrate, isMustFromLocal);
@@ -585,7 +618,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
         }
     }
 
-    private void clearGestureInfo(){
+    private void clearGestureInfo() {
         videoView.clearGestureInfo();
         progressView.hide();
         volumeView.hide();

@@ -46,6 +46,14 @@ public class PolyvPlayerProgressView extends FrameLayout {
             rl_center_progress.setVisibility(View.GONE);
     }
 
+    public void resetMaxValue() {
+        setViewMaxValue(0);
+    }
+
+    public void setViewMaxValue(int totaltime) {
+        tv_tottime.setText(PolyvTimeUtils.generateTime(totaltime));
+    }
+
     public void setViewProgressValue(int fastForwardPos, int totaltime, boolean end, boolean isRightSwipe) {
         if (end)
             rl_center_progress.setVisibility(View.GONE);
@@ -63,6 +71,5 @@ public class PolyvPlayerProgressView extends FrameLayout {
         if (fastForwardPos > totaltime)
             fastForwardPos = totaltime;
         tv_curtime.setText(PolyvTimeUtils.generateTime(fastForwardPos));
-        tv_tottime.setText(PolyvTimeUtils.generateTime(totaltime));
     }
 }

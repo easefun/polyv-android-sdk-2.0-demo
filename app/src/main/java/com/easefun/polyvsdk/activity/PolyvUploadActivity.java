@@ -98,7 +98,10 @@ public class PolyvUploadActivity extends Activity {
             String desc = title;
             // 大小
             long filesize = file.length();
-            PolyvUploadInfo uploadInfo = new PolyvUploadInfo(title, desc, filesize, filepath);
+            // 分类id，默认为0
+            // 注：如果一个视频使用uploader.start()上传了数据，之后再改变为其他的cataid上传，也会上传到之前有数据的那个cataid目录下。
+            String cataid = "0";
+            PolyvUploadInfo uploadInfo = new PolyvUploadInfo(title, desc, filesize, filepath, cataid);
             if (!uploadSQLiteHelper.isAdd(uploadInfo)) {
                 uploadSQLiteHelper.insert(uploadInfo);
                 lists.add(uploadInfo);

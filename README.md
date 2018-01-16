@@ -24,6 +24,7 @@ SDK2.0demo是SDK2.0的demo示例Android studio项目工程，其中包含了最�
 * 设置播放速度
 * 设置屏幕比例，例：比例缩放，充满父窗，匹配内容，16:9比例缩放，4:3比例缩放
 * 设置播放缓存视图，在视频加载中显示的loading视图
+* 跑马灯
 * 全屏
 * 广告（只在线播放支持）
 * 片头（只在线播放支持）
@@ -75,16 +76,21 @@ SDK1.0demo和SDK1.0不再进行功能更新。
 * 第三点是广告视频和点播视频使用不同的播放器进行播放，从而为实现视频预加载提供可能，因此增加了PolyvAuxiliaryVideoView，用于播放广告视频，片头视频。逻辑已全部由播放器控制。
 
 更多细节请在SDK2.0demo中查看。
-#### 如何从SDK1.0升级到SDK2.0
+#### 如何从SDK1.0升级到SDK2.0.6和更早版本
 * 删除SDK1.0中的so库，使用SDK2.0中的so库。
 * 删除SDK1.0中的jar包，使用SDK2.0中的jar包。
+#### 如何从SDK1.0升级到SDK2.2.1和更新版本
+* 删除SDK1.0中的so库。
+* 删除SDK1.0中的jar包。
+* 增加2.2.1和更高版本中的依赖。
 
 ***
 #### 更多关于SDK2.0demo和SDK2.0的详细介绍请看[Wiki](https://github.com/easefun/polyv-android-sdk-2.0-demo/wiki)。
 
-2.0.1版API文档请看[v2.0.1 API](http://demo.polyv.net/polyv/android/sdk/2.0.1/api/index.html)<br/>
-2.0.2版API文档请看[v2.0.2 API](http://demo.polyv.net/polyv/android/sdk/2.0.2/api/index.html)<br/>
-2.0.3版API文档请看[v2.0.3 API](http://demo.polyv.net/polyv/android/sdk/2.0.3/api/index.html)<br/>
-2.0.4版API文档请看[v2.0.4 API](http://demo.polyv.net/polyv/android/sdk/2.0.4/api/index.html)<br/>
-2.0.5版API文档请看[v2.0.5 API](http://demo.polyv.net/polyv/android/sdk/2.0.5/api/index.html)<br/>
-2.0.6版API文档请看[v2.0.6 API](http://demo.polyv.net/polyv/android/sdk/2.0.6/api/index.html)
+2.0.1版API文档请看[v2.0.1 API](http://repo.polyv.net/android/sdk/2.0.1/api/index.html)<br/>
+2.0.2版API文档请看[v2.0.2 API](http://repo.polyv.net/android/sdk/2.0.2/api/index.html)<br/>
+2.0.3版API文档请看[v2.0.3 API](http://repo.polyv.net/android/sdk/2.0.3/api/index.html)<br/>
+2.0.4版API文档请看[v2.0.4 API](http://repo.polyv.net/android/sdk/2.0.4/api/index.html)<br/>
+2.0.5版API文档请看[v2.0.5 API](http://repo.polyv.net/android/sdk/2.0.5/api/index.html)<br/>
+2.0.6版API文档请看[v2.0.6 API](http://repo.polyv.net/android/sdk/2.0.6/api/index.html)<br/>
+2.2.1版API文档请看[v2.2.1 API](http://repo.polyv.net/android/sdk/2.2.1/api/index.html)

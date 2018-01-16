@@ -12,7 +12,7 @@ import java.util.LinkedList;
 public class PolyvUploadSQLiteHelper extends SQLiteOpenHelper{
     private static PolyvUploadSQLiteHelper sqLiteHelper;
     private static final String DATABASENAME = "uploadlist.db";
-    private static final int VERSION = 5;
+    private static final int VERSION = 6;
 
     public static PolyvUploadSQLiteHelper getInstance(Context context) {
         if (sqLiteHelper == null) {
@@ -31,7 +31,7 @@ public class PolyvUploadSQLiteHelper extends SQLiteOpenHelper{
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(
-                "create table if not exists uploadlist(title varchar(100),filepath varchar(120),desc varchar(20),filesize int,percent int default 0,total int default 0,primary key (filepath))");
+                "create table if not exists uploadlist(title varchar(100),filepath varchar(120),desc varchar(20),filesize int,percent int default 0,total int default 0,cataid varchar(20),primary key (filepath))");
     }
 
     @Override
@@ -46,9 +46,9 @@ public class PolyvUploadSQLiteHelper extends SQLiteOpenHelper{
      */
     public void insert(PolyvUploadInfo info) {
         SQLiteDatabase db = getWritableDatabase();
-        String sql = "insert into uploadlist(title,desc,filesize,filepath) values(?,?,?,?)";
+        String sql = "insert into uploadlist(title,desc,filesize,filepath,cataid) values(?,?,?,?,?)";
         db.execSQL(sql, new Object[] {info.getTitle(), info.getDesc(), info.getFilesize(),
-                info.getFilepath() });
+                info.getFilepath(),info.getCataid() });
     }
 
     /**
@@ -59,6 +59,16 @@ public class PolyvUploadSQLiteHelper extends SQLiteOpenHelper{
         SQLiteDatabase db = getWritableDatabase();
         String sql = "delete from uploadlist where filepath=?";
         db.execSQL(sql, new Object[] { info.getFilepath() });
+    }
+
+    /**
+     * 更新上传的分类id至数据库
+     * @param info
+     */
+    public void updateCataid(PolyvUploadInfo info) {
+        SQLiteDatabase db = getWritableDatabase();
+        String sql = "update uploadlist set cataid=? where filepath=?";
+        db.execSQL(sql, new Object[]{ info.getCataid(), info.getFilepath() });
     }
 
     /**
@@ -98,7 +108,7 @@ public class PolyvUploadSQLiteHelper extends SQLiteOpenHelper{
     public LinkedList<PolyvUploadInfo> getAll() {
         LinkedList<PolyvUploadInfo> infos = new LinkedList<PolyvUploadInfo>();
         SQLiteDatabase db = getWritableDatabase();
-        String sql = "select title,filepath,desc,filesize,percent,total from uploadlist";
+        String sql = "select title,filepath,desc,filesize,percent,total,cataid from uploadlist";
         Cursor cursor = null;
         try {
             cursor = db.rawQuery(sql, null);
@@ -109,7 +119,8 @@ public class PolyvUploadSQLiteHelper extends SQLiteOpenHelper{
                 long filesize = cursor.getLong(cursor.getColumnIndex("filesize"));
                 long percent = cursor.getInt(cursor.getColumnIndex("percent"));
                 long total = cursor.getInt(cursor.getColumnIndex("total"));
-                PolyvUploadInfo info = new PolyvUploadInfo(title, desc, filesize, filepath);
+                String cataid = cursor.getString(cursor.getColumnIndex("cataid"));
+                PolyvUploadInfo info = new PolyvUploadInfo(title, desc, filesize, filepath, cataid);
                 info.setPercent(percent);
                 info.setTotal(total);
                 infos.addLast(info);

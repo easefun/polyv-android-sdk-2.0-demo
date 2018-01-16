@@ -9,6 +9,8 @@ public class PolyvUploadInfo {
     private long filesize;
     // 描述
     private String desc;
+    // 分类id
+    private String cataid;
     // 已上传的文件大小
     private long percent;
     // 需上传的总文件大小
@@ -17,10 +19,24 @@ public class PolyvUploadInfo {
     public PolyvUploadInfo(){}
 
     public PolyvUploadInfo(String title, String desc, long filesize, String filepath) {
+        // cataid默认为0
+        this(title, desc, filesize, filepath, "0");
+    }
+
+    public PolyvUploadInfo(String title, String desc, long filesize, String filepath, String cataid) {
         this.title = title;
         this.desc = desc;
         this.filesize = filesize;
         this.filepath = filepath;
+        this.cataid = cataid;
+    }
+
+    public String getCataid() {
+        return cataid;
+    }
+
+    public void setCataid(String cataid) {
+        this.cataid = cataid;
     }
 
     public String getTitle() {
@@ -78,6 +94,7 @@ public class PolyvUploadInfo {
                 ", filepath='" + filepath + '\'' +
                 ", filesize=" + filesize +
                 ", desc='" + desc + '\'' +
+                ", cataid='" + cataid + '\'' +
                 ", percent=" + percent +
                 ", total=" + total +
                 '}';

@@ -501,9 +501,9 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     }
 
     private void initLandScapeWH() {
-        //这里的LayoutParams为parentView的父类的LayoutParams
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-        parentView.setLayoutParams(lp);
+        ViewGroup.LayoutParams vlp = parentView.getLayoutParams();
+        vlp.width = ViewGroup.LayoutParams.MATCH_PARENT;
+        vlp.height = ViewGroup.LayoutParams.MATCH_PARENT;
         rl_land.setVisibility(View.VISIBLE);
         rl_port.setVisibility(View.GONE);
     }
@@ -513,6 +513,15 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
      */
     public void changeToPortrait() {
         PolyvScreenUtils.setPortrait(videoActivity);
+        initPortraitWH();
+    }
+
+    private void initPortraitWH() {
+        ViewGroup.LayoutParams vlp = parentView.getLayoutParams();
+        vlp.width = ViewGroup.LayoutParams.MATCH_PARENT;
+        vlp.height = PolyvScreenUtils.getHeight16_9();
+        rl_port.setVisibility(View.VISIBLE);
+        rl_land.setVisibility(View.GONE);
     }
 
     @Override
@@ -532,11 +541,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         } else {
             // 竖屏下开启自动切换横竖屏
             sensorHelper.toggle(true, false);
-            //这里宽高设置是polyv_fragment_player.xml布局文件中parentView的初始值
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (int) mContext.getResources().getDimension(R.dimen.top_center_player_height));
-            parentView.setLayoutParams(lp);
-            rl_port.setVisibility(View.VISIBLE);
-            rl_land.setVisibility(View.GONE);
+            initPortraitWH();
         }
     }
 
@@ -600,9 +605,13 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                 case R.id.sb_play:
                 case R.id.sb_play_land:
                     if (videoView != null) {
-                        videoView.seekTo((int) (videoView.getDuration() * (long) seekBar.getProgress() / seekBar.getMax()));
-                        danmuFragment.seekTo();
-                        if (videoView.isCompletedState()) {
+                        int seekToPosition = (int) (videoView.getDuration() * (long) seekBar.getProgress() / seekBar.getMax());
+                        if (!videoView.isCompletedState()) {
+                            videoView.seekTo(seekToPosition);
+                            danmuFragment.seekTo();
+                        } else if (videoView.isCompletedState() && seekToPosition / 1000 * 1000 < videoView.getDuration() / 1000 * 1000) {
+                            videoView.seekTo(seekToPosition);
+                            danmuFragment.seekTo();
                             videoView.start();
                             danmuFragment.resume();
                         }
@@ -1040,10 +1049,13 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
 
     //重置选择码率的控件
     private void resetBitRateView(int bitRate) {
-        initBitRateView(bitRate);
+        boolean isChangeSuccess = false;
         if (videoView != null)
-            videoView.changeBitRate(bitRate);
-        hide();
+            isChangeSuccess = videoView.changeBitRate(bitRate);
+        if (isChangeSuccess) {
+            initBitRateView(bitRate);
+            hide();
+        }
     }
 
     //重置显示/隐藏弹幕的控件

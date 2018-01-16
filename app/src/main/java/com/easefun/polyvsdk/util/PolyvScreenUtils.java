@@ -14,6 +14,18 @@ import android.view.WindowManager;
  * 与屏幕相关的工具类
  */
 public class PolyvScreenUtils {
+	private static int height16_9;
+
+	// 生成竖屏下w:h=16:9的高
+	public static int generateHeight16_9(Activity activity) {
+		return height16_9 != 0 ? height16_9 : (height16_9 = getNormalWH(activity)[isPortrait(activity) ? 0 : 1] * 9 / 16);
+	}
+
+	// 获取竖屏下w:h=16:9的高
+	public static int getHeight16_9() {
+		return height16_9;
+	}
+
 
 	// 是否竖屏
 	public static boolean isPortrait(Context context) {

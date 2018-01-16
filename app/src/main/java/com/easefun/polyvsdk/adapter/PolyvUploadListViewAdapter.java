@@ -100,6 +100,10 @@ public class PolyvUploadListViewAdapter extends BaseAdapter {
                             case PolyvUploader.NETEXCEPTION:
                                 Toast.makeText(context, "第" + (position + 1) + "个任务网络异常，请重试", Toast.LENGTH_SHORT).show();
                                 break;
+                            case PolyvUploader.SPACE_FULL:
+                                // 使用uploader.start(sign, ptime)方法才能监听到。当账号空间满时，上传到服务器的视频是不合规的。
+                                Toast.makeText(context, "账号空间已满，请清理后重试", Toast.LENGTH_SHORT).show();
+                                break;
                         }
                         break;
                 }
@@ -187,7 +191,8 @@ public class PolyvUploadListViewAdapter extends BaseAdapter {
             String filepath = uploadInfo.getFilepath();
             String title = uploadInfo.getTitle();
             String desc = uploadInfo.getDesc();
-            IPolyvUploader uploader = PolyvUploaderManager.getPolyvUploader(filepath, title, desc);
+            String cataid = uploadInfo.getCataid();
+            IPolyvUploader uploader = PolyvUploaderManager.getPolyvUploader(filepath, title, desc, cataid);
             uploader.setUploadListener(new MyUploadListener(handler, uploadInfo, i));
         }
     }
@@ -220,7 +225,7 @@ public class PolyvUploadListViewAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.polyv_listview_upload_item, null);
             viewHolder = new ViewHolder();
@@ -236,18 +241,19 @@ public class PolyvUploadListViewAdapter extends BaseAdapter {
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-        PolyvUploadInfo uploadInfo = lists.get(position);
+        final PolyvUploadInfo uploadInfo = lists.get(position);
         long percent = uploadInfo.getPercent();
         long total = uploadInfo.getTotal();
         String title = uploadInfo.getTitle();
         String filepath = uploadInfo.getFilepath();
         String desc = uploadInfo.getDesc();
+        String cataid = uploadInfo.getCataid();
         long filesize = uploadInfo.getFilesize();
         // 已上传的百分比
         int progress = 0;
         if (total != 0)
             progress = (int) (percent * 100 / total);
-        IPolyvUploader uploader = PolyvUploaderManager.getPolyvUploader(filepath, title, desc);
+        IPolyvUploader uploader = PolyvUploaderManager.getPolyvUploader(filepath, title, desc, cataid);
         viewHolder.pb_progress.setVisibility(View.VISIBLE);
         viewHolder.tv_speed.setVisibility(View.VISIBLE);
         viewHolder.tv_status.setSelected(false);
@@ -278,6 +284,15 @@ public class PolyvUploadListViewAdapter extends BaseAdapter {
         return convertView;
     }
 
+    // 注：如果一个视频使用uploader.start()上传了数据，之后再改变为其他的cataid上传，也会上传到之前有数据的那个cataid目录下。
+    private void updateCataid(String cataid, int position){
+        PolyvUploadInfo info = lists.get(position);
+        info.setCataid(cataid);
+        uploadSQLiteHelper.updateCataid(info);
+        PolyvUploader uploader = PolyvUploaderManager.getPolyvUploader(info.getFilepath(), info.getTitle(), info.getDesc(), info.getCataid());
+        uploader.setUploadListener(new MyUploadListener(handler, info, position));
+    }
+
     private class UploadOnClickListener implements View.OnClickListener {
         private PolyvUploadInfo uploadInfo;
         private ImageView iv_start;
@@ -294,7 +309,8 @@ public class PolyvUploadListViewAdapter extends BaseAdapter {
             String filepath = uploadInfo.getFilepath();
             String title = uploadInfo.getTitle();
             String desc = uploadInfo.getDesc();
-            IPolyvUploader uploader = PolyvUploaderManager.getPolyvUploader(filepath, title, desc);
+            String cataid = uploadInfo.getCataid();
+            IPolyvUploader uploader = PolyvUploaderManager.getPolyvUploader(filepath, title, desc, cataid);
             if (tv_status.getText().equals(UPLOADED)) {
                 //...
             } else if (tv_status.getText().equals(UPLOADING)) {
