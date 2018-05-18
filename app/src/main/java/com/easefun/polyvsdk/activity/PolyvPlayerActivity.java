@@ -333,7 +333,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
         videoView.setOnErrorListener(new IPolyvOnErrorListener2() {
             @Override
             public boolean onError() {
-                Toast.makeText(PolyvPlayerActivity.this, "当前视频无法播放，请向管理员反馈(error code " + PolyvPlayErrorReason.VIDEO_ERROR + ")", Toast.LENGTH_SHORT).show();
+                Toast.makeText(PolyvPlayerActivity.this, "当前视频无法播放，请尝试切换网络重新播放或者向管理员反馈(error code " + PolyvPlayErrorReason.VIDEO_ERROR + ")", Toast.LENGTH_SHORT).show();
                 return true;
             }
         });

@@ -121,7 +121,7 @@ public class PolyvErrorMessageUtils {
                 return "当前视频无法下载，请重新下载或者切换网络重新下载或者向管理员反馈";
 
             case VIDEO_DOWNLOAD_ERROR:
-                return "当前视频无法下载，请重新下载或者切换网络重新下载或者向管理员反馈";
+                return "当前视频无法下载，请删除后重新下载或者切换网络重新下载或者向管理员反馈";
 
             case VIDEO_RENAME_ERROR:
                 return "当前视频无法下载，请重启手机再次下载或者向管理员反馈";
@@ -142,13 +142,43 @@ public class PolyvErrorMessageUtils {
                 return "当前视频无法下载，请重新下载或者切换网络重新下载或者向管理员反馈";
 
             case ZIP_DOWNLOAD_ERROR:
-                return "当前视频下载出错，请重新下载或者切换网络重新下载或者向管理员反馈";
+                return "当前视频下载出错，请删除后重新下载或者切换网络重新下载或者向管理员反馈";
 
             case ZIP_RENAME_ERROR:
                 return "当前视频无法下载，请重启手机再次下载或者向管理员反馈";
 
             case NETWORK_DENIED:
                 return "无法连接网络，请连接网络后下载";
+
+            case MEDIA_UNKNOWN:
+                return "SD卡不可用，请重启手机或者更换SD卡或者向管理员反馈";
+
+            case MEDIA_REMOVED:
+                return "SD卡被移除，请重启手机或者向管理员反馈";
+
+            case MEDIA_UNMOUNTED:
+                return "SD卡存在但未安装，请重新安装SD卡或者向管理员反馈";
+
+            case MEDIA_CHECKING:
+                return "SD卡正在进行磁盘检查中，请稍后下载或者重启手机或者向管理员反馈";
+
+            case MEDIA_NOFS:
+                return "SD卡空白或正在使用不受支持的文件系统，请重启手机或者更换SD卡或者向管理员反馈";
+
+            case MEDIA_MOUNTED_READ_ONLY:
+                return "SD卡不能写入，请重启手机或者向管理员反馈";
+
+            case MEDIA_SHARED:
+                return "SD卡不可用，请重启手机或者更换SD卡或者向管理员反馈";
+
+            case MEDIA_BAD_REMOVAL:
+                return "SD卡不可用，请重启手机或者更换SD卡或者向管理员反馈";
+
+            case MEDIA_UNMOUNTABLE:
+                return "SD卡不可用，请重启手机或者更换SD卡或者向管理员反馈";
+
+            case MEDIA_EJECTING:
+                return "SD卡不可用，请重启手机或者更换SD卡或者向管理员反馈";
 
             default:
                 return "当前视频无法下载，请向管理员反馈";

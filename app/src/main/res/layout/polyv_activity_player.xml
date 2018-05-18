@@ -69,7 +69,6 @@
         <!-- 跑马灯 -->
         <com.easefun.polyvsdk.marquee.PolyvMarqueeView
             android:id="@+id/polyv_marquee_view"
-            android:background="#00000000"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 

@@ -62,8 +62,7 @@ public class PolyvApplication extends MultiDexApplication {
 				String externalSDCardPath = PolyvDevMountInfo.getInstance().getExternalSDCardPath();
 				if (!TextUtils.isEmpty(externalSDCardPath)) {
 					StringBuilder dirPath = new StringBuilder();
-					dirPath.append(externalSDCardPath).append(File.separator).append("Android").append(File.separator).append("data")
-							.append(File.separator).append(getPackageName()).append(File.separator).append("polyvdownload");
+					dirPath.append(externalSDCardPath).append(File.separator).append("polyvdownload");
 					File saveDir = new File(dirPath.toString());
 					if (!saveDir.exists()) {
 						getExternalFilesDir(null); // 生成包名目录
@@ -84,7 +83,7 @@ public class PolyvApplication extends MultiDexApplication {
 				//设置下载存储目录
 				PolyvSDKClient.getInstance().setDownloadDir(saveDir);
 			}
-		});
+		}, true);
 
 		// 设置下载队列总数，多少个视频能同时下载。(默认是1，设置负数和0是没有限制)
 		PolyvDownloaderManager.setDownloadQueueCount(1);

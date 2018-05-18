@@ -13,10 +13,9 @@ import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -27,7 +26,7 @@ import android.widget.RelativeLayout;
 
 /**
  * 预览图视图
- * @author TanQu 2016-3-3
+ * @author Lion 2016-3-3
  */
 public class PolyvPlayerPreviewView extends RelativeLayout {
 	private static final String TAG = PolyvPlayerPreviewView.class.getSimpleName();
@@ -111,9 +110,21 @@ public class PolyvPlayerPreviewView extends RelativeLayout {
 		@Override
 		protected void onPostExecute(PolyvVideoVO v) {
 			super.onPostExecute(v);
-			if (v == null) return;
+			if (v == null) {
+				return;
+			}
+
+			if (TextUtils.isEmpty(v.getFirstImage())) {
+				return;
+			}
+
+			int index = 0;
+			if (v.getFirstImage().contains("/")) {
+				index = v.getFirstImage().lastIndexOf("/");
+			}
+
 			File dir = PolyvSDKClient.getInstance().getVideoDownloadExtraResourceDir(mVid);
-			String fileName = v.getFirstImage().substring(v.getFirstImage().lastIndexOf("/"));
+			String fileName = v.getFirstImage().substring(index);
 			File file = new File(dir, fileName);
 			if (file.exists()) {
 				mPreviewImage.setImageURI(Uri.parse(file.getAbsolutePath()));
