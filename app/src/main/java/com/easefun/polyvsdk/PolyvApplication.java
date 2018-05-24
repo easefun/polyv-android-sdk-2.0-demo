@@ -59,6 +59,7 @@ public class PolyvApplication extends MultiDexApplication {
 				}
 
 				//可移除的存储介质（例如 SD 卡），需要写入特定目录/storage/sdcard1/Android/data/包名/。
+				//2.3.1版本开始就不需要自己拼接/storage/sdcard1/Android/data/包名/这个地址了，接口中返回的就是这个地址。
 				String externalSDCardPath = PolyvDevMountInfo.getInstance().getExternalSDCardPath();
 				if (!TextUtils.isEmpty(externalSDCardPath)) {
 					StringBuilder dirPath = new StringBuilder();
