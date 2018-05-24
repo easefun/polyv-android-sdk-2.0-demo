@@ -6,8 +6,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 23110
-        versionName "2.3.1.1"
+        versionCode 23200
+        versionName "2.3.2"
 
         //64K 引用限制
         multiDexEnabled true
@@ -61,7 +61,7 @@ dependencies {
     compile 'com.android.support:support-v4:23+'
     compile 'com.android.support:design:23+'
     compile 'com.android.support:multidex:1.0.1'//64K 引用限制
-    compile 'com.easefun.polyv:polyvPlayer:2.3.1.1'//SDK核心包
+    compile 'com.easefun.polyv:polyvPlayer:2.3.2'//SDK核心包
     compile 'com.easefun.polyv:polyvPlayerABI:1.4.0'//SDK核心包
     compile 'com.easefun.polyv:polyvDownload:2.3.1'//SDK下载功能
     compile 'com.easefun.polyv:polyvUpload:2.2.1'//SDK上传功能
