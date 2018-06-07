@@ -19,6 +19,7 @@
     <color name="commom_sline_color_gray">#e9e9e9</color>
     <color name="commom_dialog_color_gray">#cacaca</color>
     <color name="bottom_layout_color_blue">#0000ff</color>
+    <color name="left_text_color_blue">#2196f3</color>
     <color name="center_bottom_sb_pg_color_blue">#14a2f4</color>
     <!-- b2->a2 -->
     <color name="center_bottom_sb_pg_color_blue_alpha">#a214a2f4</color>

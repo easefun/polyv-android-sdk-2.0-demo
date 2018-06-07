@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/rl_land"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@null"
-    android:visibility="gone">
+                android:id="@+id/rl_land"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@null"
+                android:visibility="gone">
 
     <RelativeLayout
         android:id="@+id/rl_top"
@@ -16,21 +16,21 @@
         <ImageView
             android:id="@+id/iv_finish"
             style="@style/iv_click_controller_land_top"
-            android:src="@drawable/polyv_btn_back_s" />
+            android:src="@drawable/polyv_btn_back_s"/>
 
         <ImageView
             android:id="@+id/iv_set"
             style="@style/iv_click_controller_land_top"
             android:layout_alignParentRight="true"
             android:layout_marginRight="@dimen/center_bottom_margin_left_s"
-            android:src="@drawable/polyv_btn_settings" />
+            android:src="@drawable/polyv_btn_settings"/>
 
         <ImageView
             android:id="@+id/iv_share"
             style="@style/iv_click_controller_land_top"
             android:layout_marginRight="@dimen/common_margin_lr"
             android:layout_toLeftOf="@id/iv_set"
-            android:src="@drawable/polyv_btn_share_s" />
+            android:src="@drawable/polyv_btn_share_s"/>
 
         <TextView
             android:id="@+id/tv_title"
@@ -48,7 +48,7 @@
             android:singleLine="true"
             android:text=""
             android:textColor="@color/top_layout_color_white"
-            android:textSize="@dimen/bottom_right_text_size" />
+            android:textSize="@dimen/bottom_right_text_size"/>
     </RelativeLayout>
 
     <!-- 中间选择清晰度布局 -->
@@ -57,35 +57,35 @@
         layout="@layout/polyv_controller_media_center_bit"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/rl_bot" />
+        android:layout_above="@id/rl_bot"/>
     <!-- 中间选择倍速布局 -->
 
     <include
         layout="@layout/polyv_controller_media_center_speed"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/rl_bot" />
+        android:layout_above="@id/rl_bot"/>
 
     <!-- 中间分享布局 -->
 
     <include
         layout="@layout/polyv_controller_media_center_share"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"/>
 
     <!-- 中间设置布局 -->
 
     <include
         layout="@layout/polyv_controller_media_center_set"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"/>
 
     <!-- 中间弹幕布局 -->
 
     <include
         layout="@layout/polyv_controller_media_center_danmu"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"/>
 
     <LinearLayout
         android:id="@+id/ll_side"
@@ -100,14 +100,73 @@
             android:id="@+id/iv_screens"
             style="@style/iv_click_controller_land_center"
             android:background="@drawable/polyv_iv_corners"
-            android:src="@drawable/polyv_btn_screenshot" />
+            android:src="@drawable/polyv_btn_screenshot"/>
 
         <ImageView
             android:id="@+id/iv_danmu"
             style="@style/iv_click_controller_land_center"
             android:layout_marginTop="@dimen/center_pb_width"
             android:background="@drawable/polyv_iv_corners"
-            android:src="@drawable/polyv_btn_senddm" />
+            android:src="@drawable/polyv_btn_senddm"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_left_side_land"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/corners_common"
+        android:background="@drawable/polyv_ll_corners"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/iv_video_land"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/corners_common_s"
+            android:src="@drawable/polyv_iv_video_selector"/>
+
+        <ImageView
+            android:id="@+id/iv_audio_land"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/corners_common_s"
+            android:src="@drawable/polyv_iv_mic_selector"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_left_side_t_land"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/ll_left_side_land"
+        android:layout_alignTop="@id/ll_left_side_land"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/corners_common"
+        android:layout_toRightOf="@id/ll_left_side_land"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tv_video_land"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="视频"
+            android:textColor="@color/polyv_left_text_color"
+            android:textSize="@dimen/center_bottom_text_size"/>
+
+        <TextView
+            android:id="@+id/tv_audio_land"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="音频"
+            android:textColor="@color/polyv_left_text_color"
+            android:textSize="@dimen/center_bottom_text_size"/>
     </LinearLayout>
 
     <RelativeLayout
@@ -121,7 +180,7 @@
         <ImageView
             android:id="@+id/iv_play_land"
             style="@style/iv_click_controller_land_bottom"
-            android:src="@drawable/polyv_play_bt_pic" />
+            android:src="@drawable/polyv_play_bt_pic"/>
 
         <TextView
             android:id="@+id/tv_curtime_land"
@@ -133,7 +192,7 @@
             android:text="00:00"
             android:textColor="@color/top_layout_color_white"
             android:textSize="@dimen/bottom_right_text_size"
-            android:textStyle="bold" />
+            android:textStyle="bold"/>
 
         <TextView
             android:id="@+id/tv_sp"
@@ -144,7 +203,7 @@
             android:text=" / "
             android:textColor="@color/top_layout_color_white"
             android:textSize="@dimen/bottom_right_text_size"
-            android:textStyle="bold" />
+            android:textStyle="bold"/>
 
         <TextView
             android:id="@+id/tv_tottime_land"
@@ -155,25 +214,25 @@
             android:text="00:00"
             android:textColor="@color/top_layout_color_white"
             android:textSize="@dimen/bottom_right_text_size"
-            android:textStyle="bold" />
+            android:textStyle="bold"/>
 
         <ImageView
             android:id="@+id/iv_port"
             style="@style/iv_click_controller_land_bottom"
             android:layout_alignParentRight="true"
-            android:src="@drawable/polyv_btn_exitfulls" />
+            android:src="@drawable/polyv_btn_exitfulls"/>
 
         <TextView
             android:id="@+id/tv_speed"
             style="@style/tv_click_controller_land_bottom"
             android:layout_toLeftOf="@id/iv_port"
-            android:text="1x" />
+            android:text="1x"/>
 
         <TextView
             android:id="@+id/tv_bit"
             style="@style/tv_click_controller_land_bottom"
             android:layout_toLeftOf="@id/tv_speed"
-            android:text="流畅" />
+            android:text="流畅"/>
 
         <ImageView
             android:id="@+id/iv_dmswitch"
@@ -182,7 +241,7 @@
             android:layout_marginRight="@dimen/center_bottom_margin_left_s"
             android:layout_toLeftOf="@id/tv_bit"
             android:background="@null"
-            android:src="@drawable/polyv_dm_switch" />
+            android:src="@drawable/polyv_dm_switch"/>
     </RelativeLayout>
 
     <SeekBar
@@ -200,6 +259,6 @@
         android:progressDrawable="@drawable/polyv_sb_pg_drawable"
         android:secondaryProgress="0"
         android:thumb="@drawable/polyv_sb_thumb"
-        android:thumbOffset="0dp" />
+        android:thumbOffset="0dp"/>
 
 </RelativeLayout>

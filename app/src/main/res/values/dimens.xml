@@ -127,4 +127,7 @@
     <dimen name="selbit_text_width">80dp</dimen>
     <!-- share layout custom -->
     <dimen name="share_layout_width">100dp</dimen>
+
+    <dimen name="dp_159">159dp</dimen>
+    <dimen name="dp_6">6dp</dimen>
 </resources>

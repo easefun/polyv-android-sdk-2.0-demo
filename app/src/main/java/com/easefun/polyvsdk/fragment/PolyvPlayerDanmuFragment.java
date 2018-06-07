@@ -234,7 +234,7 @@ public class PolyvPlayerDanmuFragment extends Fragment {
     public void resume(boolean fromuser) {
         if (status_pause_fromuser && fromuser || (!status_pause_fromuser && !fromuser)) {
             status_pause = false;
-            if (iDanmakuView != null && iDanmakuView.isPrepared() && iDanmakuView.isPaused()) {
+            if (iDanmakuView != null && iDanmakuView.isPrepared()) {/*iDanmakuView.isPaused() pause后获取可能为false*/
                 if (!status_pause_fromuser) {
                     status_pause_fromuser = true;
                     seekTo();

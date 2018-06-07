@@ -87,6 +87,14 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     //弹幕按钮，截图按钮
     private ImageView iv_danmu, iv_screens;
     /**
+     * 左侧边布局的view
+     */
+    //左侧边布局
+    private LinearLayout ll_left_side, ll_left_side_land, ll_left_side_t, ll_left_side_t_land;
+    //视频/音频切换按钮
+    private ImageView iv_video, iv_video_land, iv_audio, iv_audio_land;
+    private TextView tv_video, tv_video_land, tv_audio, tv_audio_land;
+    /**
      * 设置布局的view
      */
     //设置布局
@@ -94,6 +102,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     //调节亮度控件，调节音量控件
     private SeekBar sb_light, sb_volume;
     // 设置播放器银幕比率控件，设置字幕的控件
+    private LinearLayout ll_adaptive_mode, ll_subtitle, ll_subtitle_b;
     private TextView tv_full, tv_fit, tv_sixteennine, tv_fourthree, tv_srt1, tv_srt2, tv_srt3, tv_srtnone;
     // 关闭布局按钮
     private ImageView iv_close_set;
@@ -144,6 +153,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     // 播放器在显示弹幕布局前的状态
     private boolean status_isPlaying;
     private PolyvSensorHelper sensorHelper;
+    private PolyvPlayerAudioCoverView coverView;
 
     //用于处理控制栏的显示状态
     private Handler handler = new Handler() {
@@ -166,7 +176,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             // 单位：毫秒
             int position = videoView.getCurrentPosition();
             int totalTime = videoView.getDuration() / 1000 * 1000;
-            if (videoView.isCompletedState() || position > totalTime)
+            if (!videoView.isExceptionCompleted() && (videoView.isCompletedState() || position > totalTime))
                 position = totalTime;
             int bufPercent = videoView.getBufferPercentage();
             //在拖动进度条的时候，这里不更新
@@ -224,6 +234,10 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         this.danmuFragment = danmuFragment;
     }
 
+    public void setAudioCoverView(PolyvPlayerAudioCoverView coverView) {
+        this.coverView = coverView;
+    }
+
     private void findIdAndNew() {
         //竖屏的view
         rl_port = (RelativeLayout) view.findViewById(R.id.rl_port);
@@ -261,10 +275,26 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         tv_srt3 = (TextView) view.findViewById(R.id.tv_srt3);
         tv_srtnone = (TextView) view.findViewById(R.id.tv_srtnone);
         iv_close_set = (ImageView) view.findViewById(R.id.iv_close_set);
+        ll_adaptive_mode = (LinearLayout) findViewById(R.id.ll_adaptive_mode);
+        ll_subtitle = (LinearLayout) findViewById(R.id.ll_subtitle);
+        ll_subtitle_b = (LinearLayout) findViewById(R.id.ll_subtitle_b);
         //侧边布局的view
         ll_side = (LinearLayout) view.findViewById(R.id.ll_side);
         iv_danmu = (ImageView) view.findViewById(R.id.iv_danmu);
         iv_screens = (ImageView) view.findViewById(R.id.iv_screens);
+        //左侧边布局的view
+        ll_left_side = (LinearLayout) view.findViewById(R.id.ll_left_side);
+        ll_left_side_land = (LinearLayout) view.findViewById(R.id.ll_left_side_land);
+        ll_left_side_t = (LinearLayout) view.findViewById(R.id.ll_left_side_t);
+        ll_left_side_t_land = (LinearLayout) view.findViewById(R.id.ll_left_side_t_land);
+        iv_video = (ImageView) view.findViewById(R.id.iv_video);
+        iv_video_land = (ImageView) view.findViewById(R.id.iv_video_land);
+        iv_audio = (ImageView) view.findViewById(R.id.iv_audio);
+        iv_audio_land = (ImageView) view.findViewById(R.id.iv_audio_land);
+        tv_video = (TextView) view.findViewById(R.id.tv_video);
+        tv_video_land = (TextView) view.findViewById(R.id.tv_video_land);
+        tv_audio = (TextView) view.findViewById(R.id.tv_audio);
+        tv_audio_land = (TextView) view.findViewById(R.id.tv_audio_land);
         //弹幕布局的view
         rl_center_danmu = (RelativeLayout) view.findViewById(R.id.rl_center_danmu);
         rl_dmbot = (RelativeLayout) view.findViewById(R.id.rl_dmbot);
@@ -375,6 +405,16 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         sb_play_land.setOnSeekBarChangeListener(seekBarChangeListener);
         sb_light.setOnSeekBarChangeListener(seekBarChangeListener);
         sb_volume.setOnSeekBarChangeListener(seekBarChangeListener);
+        iv_video.setOnClickListener(this);
+        iv_video_land.setOnClickListener(this);
+        iv_audio.setOnClickListener(this);
+        iv_audio_land.setOnClickListener(this);
+    }
+
+    //是否显示左侧边的切换音视频的布局
+    private boolean canShowLeftSideView() {
+        //是否可以获取到音频的播放地址
+        return videoVO != null && videoVO.hasAudioPath();
     }
 
     public void preparedView() {
@@ -394,6 +434,26 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             //初始化码率控件及其可见性
             initBitRateView(videoView.getBitRate());
             initBitRateViewVisible(videoView.getBitRate());
+
+            //音频模式下，隐藏切换码率/填充模式/字幕/截图的按钮
+            int visibility = PolyvVideoVO.MODE_AUDIO.equals(videoView.getCurrentMode()) ? View.GONE : View.VISIBLE;
+            if (visibility == View.GONE)
+                rl_center_bit.setVisibility(visibility);
+            tv_bit.setVisibility(visibility);
+            ll_adaptive_mode.setVisibility(visibility);
+            ll_subtitle.setVisibility(visibility);
+            ll_subtitle_b.setVisibility(visibility);
+            iv_screens.setVisibility(visibility);
+
+            //如果可以获取到音频的播放地址，则显示切换到音频的按钮
+            if (canShowLeftSideView()) {
+                resetLeftSideView(View.VISIBLE);
+                if (PolyvVideoVO.MODE_VIDEO.equals(videoView.getCurrentMode())) {
+                    resetModeView(true);
+                } else {
+                    resetModeView(false);
+                }
+            }
         }
         // 视频准备完成后，开启随手势自动切换屏幕
         if (PolyvScreenUtils.isLandscape(mContext))
@@ -474,6 +534,9 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         if (!isShowing) {
             resetTopBottomLayout(View.VISIBLE);
             resetSideLayout(View.VISIBLE);
+            if (canShowLeftSideView()) {
+                resetLeftSideView(View.VISIBLE);
+            }
             //获取焦点
             requestFocus();
             handler.removeMessages(SHOW_PROGRESS);
@@ -664,6 +727,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             show(-1);
             resetTopBottomLayout(View.GONE);
             resetSideLayout(View.GONE);
+            resetLeftSideView(View.GONE);
             if (videoView != null) {
                 sb_light.setProgress(videoView.getBrightness(videoActivity));
                 sb_volume.setProgress(videoView.getVolume());
@@ -678,6 +742,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             show(-1);
             resetTopBottomLayout(View.GONE);
             resetSideLayout(View.GONE);
+            resetLeftSideView(View.GONE);
             resetBitRateLayout(View.GONE, false);
             resetSpeedLayout(View.GONE, false);
             et_dmedit.requestFocus();
@@ -719,6 +784,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             show(-1);
             resetTopBottomLayout(View.GONE);
             resetSideLayout(View.GONE);
+            resetLeftSideView(View.GONE);
         }
         rl_center_share.setVisibility(isVisible);
     }
@@ -1118,6 +1184,24 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
     }
 
+    private void resetLeftSideView(int visibility) {
+        ll_left_side.setVisibility(visibility);
+        ll_left_side_land.setVisibility(visibility);
+        ll_left_side_t.setVisibility(visibility);
+        ll_left_side_t_land.setVisibility(visibility);
+    }
+
+    private void resetModeView(boolean isVideo) {
+        iv_video.setSelected(isVideo);
+        iv_video_land.setSelected(isVideo);
+        iv_audio.setSelected(!isVideo);
+        iv_audio_land.setSelected(!isVideo);
+        tv_video.setSelected(isVideo);
+        tv_video_land.setSelected(isVideo);
+        tv_audio.setSelected(!isVideo);
+        tv_audio_land.setSelected(!isVideo);
+    }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -1286,6 +1370,24 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                 break;
             case R.id.iv_screens:
                 screenshot();
+                break;
+            case R.id.iv_video:
+            case R.id.iv_video_land:
+                //如果当前已经是优先视频模式，则不再切换
+                if (videoView != null && !PolyvVideoVO.MODE_VIDEO.equals(videoView.getPriorityMode())) {
+                    resetModeView(true);
+                    videoView.changeMode(PolyvVideoVO.MODE_VIDEO);
+                    if (coverView != null)
+                        coverView.hide();
+                }
+                break;
+            case R.id.iv_audio:
+            case R.id.iv_audio_land:
+                //如果当前已经是优先音频模式，则不再切换
+                if (videoView != null && !PolyvVideoVO.MODE_AUDIO.equals(videoView.getPriorityMode())) {
+                    resetModeView(false);
+                    videoView.changeMode(PolyvVideoVO.MODE_AUDIO);
+                }
                 break;
         }
         //如果控制栏不是处于一直显示的状态，那么重置控制栏隐藏的时间

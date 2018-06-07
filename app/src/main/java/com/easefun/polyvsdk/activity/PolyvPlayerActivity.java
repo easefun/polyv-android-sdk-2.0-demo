@@ -31,6 +31,7 @@ import com.easefun.polyvsdk.fragment.PolyvPlayerTopFragment;
 import com.easefun.polyvsdk.fragment.PolyvPlayerViewPagerFragment;
 import com.easefun.polyvsdk.marquee.PolyvMarqueeItem;
 import com.easefun.polyvsdk.marquee.PolyvMarqueeView;
+import com.easefun.polyvsdk.player.PolyvPlayerAudioCoverView;
 import com.easefun.polyvsdk.player.PolyvPlayerAuditionView;
 import com.easefun.polyvsdk.player.PolyvPlayerAuxiliaryView;
 import com.easefun.polyvsdk.player.PolyvPlayerLightView;
@@ -50,6 +51,7 @@ import com.easefun.polyvsdk.video.auxiliary.PolyvAuxiliaryVideoView;
 import com.easefun.polyvsdk.video.listener.IPolyvOnAdvertisementCountDownListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnAdvertisementEventListener2;
 import com.easefun.polyvsdk.video.listener.IPolyvOnAdvertisementOutListener2;
+import com.easefun.polyvsdk.video.listener.IPolyvOnChangeModeListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnCompletionListener2;
 import com.easefun.polyvsdk.video.listener.IPolyvOnErrorListener2;
 import com.easefun.polyvsdk.video.listener.IPolyvOnGestureClickListener;
@@ -60,6 +62,7 @@ import com.easefun.polyvsdk.video.listener.IPolyvOnGestureRightUpListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnGestureSwipeLeftListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnGestureSwipeRightListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnInfoListener2;
+import com.easefun.polyvsdk.video.listener.IPolyvOnPlayPauseListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnPreloadPlayListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnPreparedListener2;
 import com.easefun.polyvsdk.video.listener.IPolyvOnQuestionAnswerTipsListener;
@@ -146,6 +149,10 @@ public class PolyvPlayerActivity extends FragmentActivity {
      */
     private PolyvPlayerProgressView progressView = null;
     /**
+     * 音频模式下的封面
+     */
+    private PolyvPlayerAudioCoverView coverView = null;
+    /**
      * 视频加载缓冲视图
      */
     private ProgressBar loadingProgress = null;
@@ -224,8 +231,10 @@ public class PolyvPlayerActivity extends FragmentActivity {
         volumeView = (PolyvPlayerVolumeView) findViewById(R.id.polyv_player_volume_view);
         progressView = (PolyvPlayerProgressView) findViewById(R.id.polyv_player_progress_view);
         loadingProgress = (ProgressBar) findViewById(R.id.loading_progress);
+        coverView = (PolyvPlayerAudioCoverView) findViewById(R.id.polyv_cover_view);
 
         mediaController.initConfig(viewLayout);
+        mediaController.setAudioCoverView(coverView);
         mediaController.setDanmuFragment(danmuFragment);
         questionView.setPolyvVideoView(videoView);
         auditionView.setPolyvVideoView(videoView);
@@ -294,6 +303,30 @@ public class PolyvPlayerActivity extends FragmentActivity {
                 }
 
                 return true;
+            }
+        });
+
+        videoView.setOnPlayPauseListener(new IPolyvOnPlayPauseListener() {
+            @Override
+            public void onPause() {
+                coverView.stopAnimation();
+            }
+
+            @Override
+            public void onPlay() {
+                coverView.startAnimation();
+            }
+
+            @Override
+            public void onCompletion() {
+                coverView.stopAnimation();
+            }
+        });
+
+        videoView.setOnChangeModeListener(new IPolyvOnChangeModeListener() {
+            @Override
+            public void onChangeMode(String changedMode) {
+                coverView.changeModeFitCover(videoView, changedMode);
             }
         });
 
@@ -565,7 +598,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
         videoView.setOnGestureClickListener(new IPolyvOnGestureClickListener() {
             @Override
             public void callback(boolean start, boolean end) {
-                if (videoView.isInPlaybackState() && mediaController != null)
+                if (videoView.isInPlaybackState() || videoView.isExceptionCompleted() && mediaController != null)
                     if (mediaController.isShowing())
                         mediaController.hide();
                     else
@@ -576,9 +609,10 @@ public class PolyvPlayerActivity extends FragmentActivity {
 
     /**
      * 播放视频
-     * @param vid 视频id
-     * @param bitrate 码率（清晰度）
-     * @param startNow 是否现在开始播放视频
+     *
+     * @param vid             视频id
+     * @param bitrate         码率（清晰度）
+     * @param startNow        是否现在开始播放视频
      * @param isMustFromLocal 是否必须从本地（本地缓存的视频）播放
      */
     public void play(final String vid, final int bitrate, boolean startNow, final boolean isMustFromLocal) {
@@ -597,6 +631,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
         auxiliaryView.hide();
         advertCountDown.setVisibility(View.GONE);
         firstStartView.hide();
+        coverView.hide();
         progressView.resetMaxValue();
 
         danmuFragment.setVid(vid, videoView);
@@ -668,6 +703,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
         auditionView.hide();
         auxiliaryView.hide();
         firstStartView.hide();
+        coverView.hide();
         mediaController.disable();
     }
 
@@ -729,12 +765,17 @@ public class PolyvPlayerActivity extends FragmentActivity {
 
     /**
      * 播放模式
+     *
      * @author TanQu
      */
     public enum PlayMode {
-        /** 横屏 */
+        /**
+         * 横屏
+         */
         landScape(3),
-        /** 竖屏 */
+        /**
+         * 竖屏
+         */
         portrait(4);
 
         private final int code;
@@ -745,6 +786,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
 
         /**
          * 取得类型对应的code
+         *
          * @return
          */
         public int getCode() {

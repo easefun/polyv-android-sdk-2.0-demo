@@ -6,7 +6,7 @@
     android:alpha="0.7"
     android:background="@color/top_left_layout_color_black"
     android:clickable="true"
-    android:visibility="gone">
+    android:visibility="visible">
 
     <ImageView
         android:id="@+id/iv_close_set"
@@ -93,6 +93,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/ll_adaptive_mode"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/top_center_margin_top">
@@ -126,6 +127,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/ll_subtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/top_center_margin_top"
@@ -149,6 +151,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/ll_subtitle_b"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/top_center_margin_top_s">

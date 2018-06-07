@@ -288,6 +288,21 @@ public class PolyvErrorMessageUtils {
             case PolyvPlayErrorReason.SOURCE_URL_EMPTY:
                 return "当前视频无法播放，请向管理员反馈";
 
+            case PolyvPlayErrorReason.AUDIO_URL_EMPTY:
+                return "当前音频无法播放，请向管理员反馈";
+
+            case PolyvPlayErrorReason.NOT_LOCAL_AUDIO:
+                return "找不到缓存的音频文件，请连网后重新下载";
+
+            case PolyvPlayErrorReason.CAN_NOT_CHANGE_AUDIO:
+                return "未开始播放不能切换到音频，请先开始播放";
+
+            case PolyvPlayErrorReason.CAN_NOT_CHANGE_VIDEO:
+                return "未开始播放不能切换到视频，请先开始播放";
+
+            case PolyvPlayErrorReason.LOCAL_AUDIO_ERROR:
+                return "本地音频文件损坏，请重新下载";
+
             default:
                 return "当前视频无法播放，请向管理员反馈";
         }

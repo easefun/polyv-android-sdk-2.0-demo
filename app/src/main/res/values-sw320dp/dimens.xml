@@ -125,4 +125,6 @@
     <!-- share layout custom -->
     <dimen name="share_layout_width">100dp</dimen>
 
+    <dimen name="dp_159">141dp</dimen>
+    <dimen name="dp_6">5dp</dimen>
 </resources>

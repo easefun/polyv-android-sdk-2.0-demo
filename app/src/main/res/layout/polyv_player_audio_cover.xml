@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+    <!-- 音频模式下的封面图 -->
+    <ImageView
+        android:id="@+id/iv_audio_cover_m"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.4"
+        android:scaleType="centerCrop"
+        android:visibility="gone"/>
+
+    <FrameLayout
+        android:id="@+id/fl_cover"
+        android:layout_width="@dimen/dp_159"
+        android:layout_height="@dimen/dp_159"
+        android:layout_centerInParent="true"
+        android:background="@drawable/polyv_iv_frame"
+        android:visibility="gone">
+        <!-- 音频模式下可以旋转的封面图 -->
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/iv_audio_cover"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/dp_6"
+            app:civ_border_color="@color/top_layout_color_white"
+            app:civ_border_overlay="false"
+            app:civ_border_width="@dimen/dp_6"/>
+    </FrameLayout>
+</RelativeLayout>

@@ -1,13 +1,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
 
     <FrameLayout
         android:id="@+id/fl_top"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"/>
 
     <RelativeLayout
         android:id="@+id/view_layout"
@@ -18,7 +17,13 @@
         <com.easefun.polyvsdk.video.PolyvVideoView
             android:id="@+id/polyv_video_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"/>
+
+        <!-- 音频模式的封面图 -->
+        <com.easefun.polyvsdk.player.PolyvPlayerAudioCoverView
+            android:id="@+id/polyv_cover_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
 
         <!-- logo -->
         <ImageView
@@ -28,7 +33,7 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:background="@drawable/polyv_logo"
-            android:visibility="gone" />
+            android:visibility="gone"/>
 
         <FrameLayout
             android:id="@+id/fl_danmu"
@@ -43,40 +48,40 @@
             android:layout_alignParentBottom="true"
             android:gravity="bottom|center_horizontal"
             android:textColor="@android:color/white"
-            android:visibility="gone" />
+            android:visibility="gone"/>
 
         <com.easefun.polyvsdk.player.PolyvPlayerLightView
             android:id="@+id/polyv_player_light_view"
-            android:layout_centerInParent="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
             />
 
         <com.easefun.polyvsdk.player.PolyvPlayerVolumeView
             android:id="@+id/polyv_player_volume_view"
-            android:layout_centerInParent="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
             />
 
         <com.easefun.polyvsdk.player.PolyvPlayerProgressView
             android:id="@+id/polyv_player_progress_view"
-            android:layout_centerInParent="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
             />
 
         <!-- 跑马灯 -->
         <com.easefun.polyvsdk.marquee.PolyvMarqueeView
             android:id="@+id/polyv_marquee_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"/>
 
         <com.easefun.polyvsdk.player.PolyvPlayerMediaController
             android:id="@+id/polyv_player_media_controller"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone" />
+            android:visibility="gone"/>
 
         <!-- 视频在加载过程中显示的进度条 -->
         <ProgressBar
@@ -85,19 +90,19 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_centerInParent="true"
-            android:visibility="gone" />
+            android:visibility="gone"/>
 
         <com.easefun.polyvsdk.player.PolyvPlayerQuestionView
             android:id="@+id/polyv_player_question_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone" />
+            android:visibility="gone"/>
 
         <com.easefun.polyvsdk.player.PolyvPlayerAuditionView
             android:id="@+id/polyv_player_audition_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone" />
+            android:visibility="gone"/>
 
         <com.easefun.polyvsdk.video.auxiliary.PolyvAuxiliaryVideoView
             android:id="@+id/polyv_auxiliary_video_view"
@@ -112,13 +117,13 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_centerInParent="true"
-            android:visibility="gone" />
+            android:visibility="gone"/>
 
         <com.easefun.polyvsdk.player.PolyvPlayerAuxiliaryView
             android:id="@+id/polyv_player_auxiliary_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone" />
+            android:visibility="gone"/>
 
         <TextView
             android:id="@+id/count_down"
@@ -128,29 +133,29 @@
             android:layout_alignParentTop="true"
             android:text="广告也精彩：%d秒"
             android:textColor="@android:color/white"
-            android:visibility="gone" />
+            android:visibility="gone"/>
 
         <com.easefun.polyvsdk.player.PolyvPlayerPreviewView
             android:id="@+id/polyv_player_first_start_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone" />
+            android:visibility="gone"/>
 
         <!-- vlms cover -->
         <ImageView
             android:id="@+id/iv_vlms_cover"
-            android:scaleType="fitXY"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:scaleType="fitXY"/>
     </RelativeLayout>
 
     <FrameLayout
         android:id="@+id/fl_tab"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"/>
 
     <FrameLayout
         android:id="@+id/fl_viewpager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"/>
 </LinearLayout>
