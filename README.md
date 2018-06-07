@@ -98,4 +98,5 @@ SDK1.0demo和SDK1.0不再进行功能更新。
 2.2.1版API文档请看[v2.2.1 API](http://repo.polyv.net/android/sdk/2.2.1/api/index.html)<br/>
 2.2.2版API文档请看[v2.2.2 API](http://repo.polyv.net/android/sdk/2.2.2/api/index.html)<br/>
 2.3.1版API文档请看[v2.3.1 API](http://repo.polyv.net/android/sdk/2.3.1/api/index.html)<br/>
-2.3.2版API文档请看[v2.3.2 API](http://repo.polyv.net/android/sdk/2.3.2/api/index.html)
+2.3.2版API文档请看[v2.3.2 API](http://repo.polyv.net/android/sdk/2.3.2/api/index.html)<br/>
+2.3.3版API文档请看[v2.3.3 API](http://repo.polyv.net/android/sdk/2.3.3/api/index.html)
