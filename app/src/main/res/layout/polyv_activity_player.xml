@@ -92,7 +92,7 @@
             android:layout_centerInParent="true"
             android:visibility="gone"/>
 
-        <com.easefun.polyvsdk.player.PolyvPlayerQuestionView
+        <com.easefun.polyvsdk.player.PolyvPlayerAnswerView
             android:id="@+id/polyv_player_question_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

@@ -16,7 +16,7 @@ allprojects {
     repositories {
         jcenter()
         maven {url 'http://maven.aliyun.com/nexus/content/repositories/releases/'}
-        maven {url 'https://dl.bintray.com/polyv/android'}
+        maven {url 'https://dl.bintray.com/polyv/abn'}
     }
 }
 

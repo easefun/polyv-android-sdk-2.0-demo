@@ -61,12 +61,12 @@ dependencies {
     compile 'com.android.support:support-v4:23+'
     compile 'com.android.support:design:23+'
     compile 'com.android.support:multidex:1.0.1'//64K 引用限制
-    compile 'com.easefun.polyv:polyvPlayer:2.3.3'//SDK核心包
+    compile 'com.easefun.polyv:polyvPlayer:2.3.4'//SDK核心包
     compile 'com.easefun.polyv:polyvPlayerABI:1.4.0'//SDK核心包
-    compile 'com.easefun.polyv:polyvDownload:2.3.3'//SDK下载功能
+    compile 'com.easefun.polyv:polyvDownload:2.3.4'//SDK下载功能
     compile 'com.easefun.polyv:polyvUpload:2.2.1'//SDK上传功能
     compile 'de.hdodenhof:circleimageview:2.2.0'//圆形imageview，音频封面图使用
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'//demo中图片使用
     compile 'com.easefun.polyv:polyvGif:2.2.1'//demo中课程讨论区显示的内容里用到的包。
-    compile 'com.easefun.polyv:polyvSub:2.3.1'//弹幕、截图功能中使用
+    compile 'com.easefun.polyv:polyvSub:2.3.4'//弹幕、截图功能中使用
 }

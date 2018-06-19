@@ -39,7 +39,7 @@ public class PolyvApplication extends MultiDexApplication {
 //		new LoadConfigTask().execute();
 		PolyvSDKClient client = PolyvSDKClient.getInstance();
 		//使用SDK加密串来配置
-		client.setConfig("CMWht3MlpVkgpFzrLNAebYi4RdQDY/Nhvk3Kc+qWcck6chwHYKfl9o2aOVBvXVTRZD/14XFzVP7U5un43caq1FXwl0cYmTfimjTmNUYa1sZC1pkHE8gEsRpwpweQtEIiTGVEWrYVNo4/o5jI2/efzA==", aeskey, iv, getApplicationContext());
+		client.setConfig("mJz1qfi9seEokLWBwIQHiGrEq3H2luuuiRDgvCTtg1+Wz9EZQj+uMnPXoxgxKl+EsUF6BXWBftp0jmFte3KlGu+g25nG1tfagXjnHf6fZY6m2zBC/hOhfncuZ93jgLvfAoeIDMSK7CE5FE0pHNeb7Q==", aeskey, iv, getApplicationContext());
 		//初始化SDK设置
 		client.initSetting(getApplicationContext());
 		//启动Bugly

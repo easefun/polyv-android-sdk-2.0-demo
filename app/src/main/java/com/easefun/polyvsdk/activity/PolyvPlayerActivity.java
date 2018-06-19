@@ -31,6 +31,7 @@ import com.easefun.polyvsdk.fragment.PolyvPlayerTopFragment;
 import com.easefun.polyvsdk.fragment.PolyvPlayerViewPagerFragment;
 import com.easefun.polyvsdk.marquee.PolyvMarqueeItem;
 import com.easefun.polyvsdk.marquee.PolyvMarqueeView;
+import com.easefun.polyvsdk.player.PolyvPlayerAnswerView;
 import com.easefun.polyvsdk.player.PolyvPlayerAudioCoverView;
 import com.easefun.polyvsdk.player.PolyvPlayerAuditionView;
 import com.easefun.polyvsdk.player.PolyvPlayerAuxiliaryView;
@@ -111,7 +112,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
     /**
      * 普通问答界面
      */
-    private PolyvPlayerQuestionView questionView = null;
+    private PolyvPlayerAnswerView questionView = null;
     /**
      * 语音问答界面
      */
@@ -220,7 +221,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
         marqueeView = (PolyvMarqueeView) findViewById(R.id.polyv_marquee_view);
         mediaController = (PolyvPlayerMediaController) findViewById(R.id.polyv_player_media_controller);
         srtTextView = (TextView) findViewById(R.id.srt);
-        questionView = (PolyvPlayerQuestionView) findViewById(R.id.polyv_player_question_view);
+        questionView = (PolyvPlayerAnswerView) findViewById(R.id.polyv_player_question_view);
         auditionView = (PolyvPlayerAuditionView) findViewById(R.id.polyv_player_audition_view);
         auxiliaryVideoView = (PolyvAuxiliaryVideoView) findViewById(R.id.polyv_auxiliary_video_view);
         auxiliaryLoadingProgress = (ProgressBar) findViewById(R.id.auxiliary_loading_progress);
@@ -420,7 +421,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
             public void onOut(@NonNull PolyvQuestionVO questionVO) {
                 switch (questionVO.getType()) {
                     case PolyvQuestionVO.TYPE_QUESTION:
-                        questionView.show(questionVO);
+                        questionView.showAnswerContent(questionVO);
                         break;
 
                     case PolyvQuestionVO.TYPE_AUDITION:
@@ -449,6 +450,11 @@ public class PolyvPlayerActivity extends FragmentActivity {
             @Override
             public void onTips(@NonNull String msg) {
                 questionView.showAnswerTips(msg);
+            }
+
+            @Override
+            public void onTips(@NonNull String msg, int seek) {
+                questionView.showAnswerTips(msg,seek);
             }
         });
 
