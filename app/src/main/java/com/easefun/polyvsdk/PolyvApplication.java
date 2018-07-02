@@ -39,7 +39,7 @@ public class PolyvApplication extends MultiDexApplication {
 //		new LoadConfigTask().execute();
 		PolyvSDKClient client = PolyvSDKClient.getInstance();
 		//使用SDK加密串来配置
-		client.setConfig("mJz1qfi9seEokLWBwIQHiGrEq3H2luuuiRDgvCTtg1+Wz9EZQj+uMnPXoxgxKl+EsUF6BXWBftp0jmFte3KlGu+g25nG1tfagXjnHf6fZY6m2zBC/hOhfncuZ93jgLvfAoeIDMSK7CE5FE0pHNeb7Q==", aeskey, iv, getApplicationContext());
+		client.setConfig("CMWht3MlpVkgpFzrLNAebYi4RdQDY/Nhvk3Kc+qWcck6chwHYKfl9o2aOVBvXVTRZD/14XFzVP7U5un43caq1FXwl0cYmTfimjTmNUYa1sZC1pkHE8gEsRpwpweQtEIiTGVEWrYVNo4/o5jI2/efzA==", aeskey, iv, getApplicationContext());
 		//初始化SDK设置
 		client.initSetting(getApplicationContext());
 		//启动Bugly
@@ -59,6 +59,8 @@ public class PolyvApplication extends MultiDexApplication {
 				}
 
 				//可移除的存储介质（例如 SD 卡），需要写入特定目录/storage/sdcard1/Android/data/包名/。
+				//现在PolyvDevMountInfo.getInstance().getExternalSDCardPath()默认返回的目录路径就是/storage/sdcard1/Android/data/包名/。
+				//跟旧的接口有区别。
 				String externalSDCardPath = PolyvDevMountInfo.getInstance().getExternalSDCardPath();
 				if (!TextUtils.isEmpty(externalSDCardPath)) {
 					StringBuilder dirPath = new StringBuilder();

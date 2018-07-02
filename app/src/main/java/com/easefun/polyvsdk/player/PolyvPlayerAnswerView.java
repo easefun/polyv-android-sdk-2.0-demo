@@ -267,7 +267,13 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
         if(seek >0){
             seconds = seek;
         }
-        polyvVideoView.seekTo(seconds);
+        boolean answerRight = rightAnswers.isEmpty() && wrongAnserSelect.isEmpty();
+        if(!answerRight){
+             seconds =  polyvQuestionVO.getWrongTime() * 1000;
+        }
+        if(seconds >0){
+            polyvVideoView.seekTo(seconds);
+        }
         polyvVideoView.start();
     }
 

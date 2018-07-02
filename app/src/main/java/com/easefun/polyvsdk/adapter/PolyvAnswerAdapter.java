@@ -33,7 +33,7 @@ public class PolyvAnswerAdapter extends RecyclerView.Adapter<PolyvAnswerAdapter.
     @Override
     public void onBindViewHolder(PolyvAnswerAdapter.ViewHolder viewHolder, final int position) {
 
-        viewHolder.check.setSelected(questionChoicesVOs.get(position).isSelected());
+//        viewHolder.check.setSelected(questionChoicesVOs.get(position).isSelected());
         viewHolder.content.setText(questionChoicesVOs.get(position).getAnswer());
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

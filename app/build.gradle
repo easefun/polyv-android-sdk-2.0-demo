@@ -6,8 +6,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 23300
-        versionName "2.3.3"
+        versionCode 23400
+        versionName "2.3.4"
 
         //64K 引用限制
         multiDexEnabled true
@@ -61,8 +61,8 @@ dependencies {
     compile 'com.android.support:support-v4:23+'
     compile 'com.android.support:design:23+'
     compile 'com.android.support:multidex:1.0.1'//64K 引用限制
-    compile 'com.easefun.polyv:polyvPlayer:2.3.4'//SDK核心包
-    compile 'com.easefun.polyv:polyvPlayerABI:1.4.0'//SDK核心包
+    compile 'com.easefun.polyv:polyvPlayer:2.3.5'//SDK核心包
+    compile 'com.easefun.polyv:polyvPlayerABI:1.5.0'//SDK核心包
     compile 'com.easefun.polyv:polyvDownload:2.3.4'//SDK下载功能
     compile 'com.easefun.polyv:polyvUpload:2.2.1'//SDK上传功能
     compile 'de.hdodenhof:circleimageview:2.2.0'//圆形imageview，音频封面图使用
