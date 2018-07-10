@@ -2,9 +2,9 @@ package com.easefun.polyvsdk.player;
 
 import java.io.File;
 
-import com.easefun.polyvsdk.PolyvSDKClient;
 import com.easefun.polyvsdk.PolyvSDKUtil;
 import com.easefun.polyvsdk.R;
+import com.easefun.polyvsdk.util.PolyvDownloadDirUtil;
 import com.easefun.polyvsdk.vo.PolyvVideoVO;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -123,10 +123,9 @@ public class PolyvPlayerPreviewView extends RelativeLayout {
 				index = v.getFirstImage().lastIndexOf("/");
 			}
 
-			File dir = PolyvSDKClient.getInstance().getVideoDownloadExtraResourceDir(mVid);
 			String fileName = v.getFirstImage().substring(index);
-			File file = new File(dir, fileName);
-			if (file.exists()) {
+			File file = PolyvDownloadDirUtil.getFileFromExtraResourceDir(mVid, fileName);
+			if (file != null) {
 				mPreviewImage.setImageURI(Uri.parse(file.getAbsolutePath()));
 			} else {
 				ImageLoader.getInstance().displayImage(v.getFirstImage(), mPreviewImage, mOptions, new PolyvAnimateFirstDisplayListener());

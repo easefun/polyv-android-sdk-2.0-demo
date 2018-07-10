@@ -278,7 +278,6 @@ public class PolyvMainActivity extends Activity implements OnClickListener {
                     dialog.dismiss();
                 }
             });
-
             builder.setCancelable(true);
             builder.show();
         }
