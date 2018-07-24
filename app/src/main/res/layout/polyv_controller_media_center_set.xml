@@ -6,7 +6,7 @@
     android:alpha="0.7"
     android:background="@color/top_left_layout_color_black"
     android:clickable="true"
-    android:visibility="visible">
+    android:visibility="gone">
 
     <ImageView
         android:id="@+id/iv_close_set"

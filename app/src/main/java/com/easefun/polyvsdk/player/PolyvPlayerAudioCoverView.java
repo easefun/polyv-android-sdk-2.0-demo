@@ -13,8 +13,8 @@ import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import com.easefun.polyvsdk.PolyvSDKClient;
 import com.easefun.polyvsdk.R;
+import com.easefun.polyvsdk.util.PolyvDownloadDirUtil;
 import com.easefun.polyvsdk.video.PolyvVideoView;
 import com.easefun.polyvsdk.vo.PolyvVideoVO;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -69,10 +69,9 @@ public class PolyvPlayerAudioCoverView extends FrameLayout {
                 if (videoVO.getFirstImage().contains("/")) {
                     index = videoVO.getFirstImage().lastIndexOf("/");
                 }
-                File dir = PolyvSDKClient.getInstance().getVideoDownloadExtraResourceDir(videoVO.getVid());
                 String fileName = videoVO.getFirstImage().substring(index);
-                File file = new File(dir, fileName);
-                if (file.exists())
+                File file = PolyvDownloadDirUtil.getFileFromExtraResourceDir(videoVO.getVid(), fileName);
+                if (file != null)
                     imageView.setImageURI(Uri.parse(file.getAbsolutePath()));
                 else
                     imageView.setImageResource(isRotateView ? R.drawable.polyv_rotate_cover_default : R.drawable.polyv_bg_cover_default);//显示默认的图片

@@ -4,5 +4,9 @@
     <string name="app_name">POLYV点播助手</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="answer_skip">跳过</string>
+    <string name="answer_right">回答正确</string>
+    <string name="answer_wrong">回答错误</string>
+    <string name="no_choice">您还未选择任何答案</string>
 
 </resources>
