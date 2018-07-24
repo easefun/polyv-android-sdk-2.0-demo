@@ -92,3 +92,5 @@
 -keep class com.chinanetcenter.wcs.**{*;}
 -keep class org.apache.http.**{*;}
 -keep class tv.danmaku.ijk.media.**{*;}
+-keep class net.lingala.zip4j.**{*;}
+-keep class org.apache.commons.compress.**{*;}
