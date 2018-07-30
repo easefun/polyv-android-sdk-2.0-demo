@@ -37,9 +37,11 @@ public class PolyvStorageUtils {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             //判断存储设备可用性
             for (File file : files) {
-                String state = Environment.getExternalStorageState(file);
-                if (MOUNTED.equals(state)) {
-                    storageList.add(file);
+                if (file != null) {
+                    String state = Environment.getExternalStorageState(file);
+                    if (MOUNTED.equals(state)) {
+                        storageList.add(file);
+                    }
                 }
             }
         } else {
