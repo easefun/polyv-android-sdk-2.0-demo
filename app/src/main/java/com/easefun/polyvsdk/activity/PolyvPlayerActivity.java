@@ -1,8 +1,6 @@
 package com.easefun.polyvsdk.activity;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -24,7 +22,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.easefun.polyvsdk.PolyvBitRate;
-import com.easefun.polyvsdk.PolyvSDKClient;
 import com.easefun.polyvsdk.PolyvSDKUtil;
 import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.fragment.PolyvPlayerDanmuFragment;
@@ -41,7 +38,6 @@ import com.easefun.polyvsdk.player.PolyvPlayerLightView;
 import com.easefun.polyvsdk.player.PolyvPlayerMediaController;
 import com.easefun.polyvsdk.player.PolyvPlayerPreviewView;
 import com.easefun.polyvsdk.player.PolyvPlayerProgressView;
-import com.easefun.polyvsdk.player.PolyvPlayerQuestionView;
 import com.easefun.polyvsdk.player.PolyvPlayerVolumeView;
 import com.easefun.polyvsdk.srt.PolyvSRTItemVO;
 import com.easefun.polyvsdk.sub.vlms.entity.PolyvCoursesInfo;
@@ -77,6 +73,7 @@ import com.easefun.polyvsdk.video.listener.IPolyvOnVideoSRTListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnVideoStatusListener;
 import com.easefun.polyvsdk.vo.PolyvADMatterVO;
 import com.easefun.polyvsdk.vo.PolyvQuestionVO;
+import com.easefun.polyvsdk.vo.PolyvVideoVO;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -636,8 +633,9 @@ public class PolyvPlayerActivity extends FragmentActivity {
      */
     public void play(final String vid, final int bitrate, boolean startNow, final boolean isMustFromLocal) {
         if (TextUtils.isEmpty(vid)) return;
-        if (iv_vlms_cover != null && iv_vlms_cover.getVisibility() == View.VISIBLE)
+        if (iv_vlms_cover != null && iv_vlms_cover.getVisibility() == View.VISIBLE) {
             iv_vlms_cover.setVisibility(View.GONE);
+        }
 
         videoView.release();
         srtTextView.setVisibility(View.GONE);
@@ -650,7 +648,6 @@ public class PolyvPlayerActivity extends FragmentActivity {
         auxiliaryView.hide();
         advertCountDown.setVisibility(View.GONE);
         firstStartView.hide();
-        coverView.hide();
         progressView.resetMaxValue();
 
         danmuFragment.setVid(vid, videoView);
@@ -675,6 +672,9 @@ public class PolyvPlayerActivity extends FragmentActivity {
             });
 
             firstStartView.show(vid);
+        }
+        if (PolyvVideoVO.MODE_VIDEO.equals(videoView.getPriorityMode())) {
+            coverView.hide();
         }
     }
 

@@ -1,62 +1,83 @@
 package com.easefun.polyvsdk.activity;
 
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.ViewPager;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.easefun.polyvsdk.R;
+import com.easefun.polyvsdk.adapter.PolyvPlayerFragmentAdapter;
+import com.easefun.polyvsdk.fragment.PolyvDownloadFragment;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import com.easefun.polyvsdk.adapter.PolyvDownloadListViewAdapter;
-import com.easefun.polyvsdk.R;
-import com.easefun.polyvsdk.bean.PolyvDownloadInfo;
-import com.easefun.polyvsdk.database.PolyvDownloadSQLiteHelper;
-
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.os.Bundle;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-
-public class PolyvDownloadActivity extends Activity {
-    // 下载listView
-    private ListView lv_download;
-    private List<PolyvDownloadInfo> lists;
-    private PolyvDownloadListViewAdapter adapter;
+public class PolyvDownloadActivity extends FragmentActivity {
+    private ViewPager vp_download;
+    private List<Fragment> downloadFragments;
+    private PolyvPlayerFragmentAdapter downloadAdapter;
     // 返回按钮
     private ImageView iv_finish;
-    // 底部下载全部按钮
-    private RelativeLayout rl_bot;
-    // 下载全部的文本控件
-    private TextView tv_downloadall;
+    private TextView tv_downloaded, tv_downloading;
+    private View v_tabline;
+
+    private PolyvDownloadFragment downloadedFragment;
 
     private void findIdAndNew() {
-        lv_download = (ListView) findViewById(R.id.lv_download);
+        vp_download = (ViewPager) findViewById(R.id.vp_download);
         iv_finish = (ImageView) findViewById(R.id.iv_finish);
-        rl_bot = (RelativeLayout) findViewById(R.id.rl_bot);
-        tv_downloadall = (TextView) findViewById(R.id.tv_downloadall);
-        lists = new ArrayList<>();
+        tv_downloaded = (TextView) findViewById(R.id.tv_downloaded);
+        tv_downloading = (TextView) findViewById(R.id.tv_downloading);
+        v_tabline = findViewById(R.id.v_tabline);
+        downloadFragments = new ArrayList<>();
+    }
+
+    public PolyvDownloadFragment getDownloadedFragment() {
+        return downloadedFragment;
     }
 
     private void initView() {
-        lists.addAll(PolyvDownloadSQLiteHelper.getInstance(this).getAll());
-        adapter = new PolyvDownloadListViewAdapter(lists, this, lv_download);
-        lv_download.setAdapter(adapter);
-        lv_download.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        Bundle bundle = new Bundle();
+        downloadedFragment = new PolyvDownloadFragment();
+        bundle.putBoolean("isFinished", true);
+        downloadedFragment.setArguments(bundle);
+        PolyvDownloadFragment downloadingFragment = new PolyvDownloadFragment();
+        bundle = new Bundle();
+        bundle.putBoolean("isFinished", false);
+        downloadingFragment.setArguments(bundle);
+        downloadFragments.add(downloadedFragment);
+        downloadFragments.add(downloadingFragment);
+        downloadAdapter = new PolyvPlayerFragmentAdapter(getSupportFragmentManager(), downloadFragments);
+        vp_download.setAdapter(downloadAdapter);
+        vp_download.setOffscreenPageLimit(1);
+        vp_download.setPageMargin(30);
+        vp_download.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-                new AlertDialog.Builder(PolyvDownloadActivity.this).setTitle("提示").setMessage("是否删除该任务")
-                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                adapter.deleteTask(position);
-                            }
-                        }).setNegativeButton(android.R.string.cancel, null).show();
-                return true;
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                tv_downloading.setSelected(false);
+                tv_downloaded.setSelected(false);
+                if (position == 0) {
+                    tv_downloaded.setSelected(true);
+                } else if (position == 1) {
+                    tv_downloading.setSelected(true);
+                }
+                setLineLocation(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
             }
         });
+
         iv_finish.setOnClickListener(new OnClickListener() {
 
             @Override
@@ -64,21 +85,45 @@ public class PolyvDownloadActivity extends Activity {
                 finish();
             }
         });
-        rl_bot.setOnClickListener(new OnClickListener() {
-
+        tv_downloaded.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!rl_bot.isSelected()) {
-                    adapter.downloadAll();
-                    rl_bot.setSelected(true);
-                    tv_downloadall.setText("暂停全部");
-                } else {
-                    adapter.pauseAll();
-                    rl_bot.setSelected(false);
-                    tv_downloadall.setText("下载全部");
-                }
+                vp_download.setCurrentItem(0);
             }
         });
+        tv_downloading.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                vp_download.setCurrentItem(1);
+            }
+        });
+
+        final boolean isStarting = getIntent().getBooleanExtra("isStarting", false);
+        if (isStarting) {
+            tv_downloading.setSelected(true);
+        } else {
+            tv_downloaded.setSelected(true);
+        }
+        vp_download.setCurrentItem(isStarting ? 1 : 0);
+        v_tabline.post(new Runnable() {
+            @Override
+            public void run() {
+                setLineLocation(isStarting ? 1 : 0);
+            }
+        });
+    }
+
+    private void setLineLocation(int position) {
+        ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) v_tabline.getLayoutParams();
+        lp.width = tv_downloaded.getWidth();
+        int[] wh = new int[2];
+        if (position == 0) {
+            tv_downloaded.getLocationInWindow(wh);
+        } else if (position == 1) {
+            tv_downloading.getLocationInWindow(wh);
+        }
+        lp.leftMargin = wh[0];
+        v_tabline.setLayoutParams(lp);
     }
 
     @Override

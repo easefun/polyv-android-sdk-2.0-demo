@@ -2,13 +2,13 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/center_layout_color_gray" >
+    android:background="@color/center_layout_color_gray">
 
     <RelativeLayout
         android:id="@+id/rl_top"
         android:layout_width="match_parent"
         android:layout_height="@dimen/top_layout_height"
-        android:background="@color/top_layout_color_white" >
+        android:background="@color/top_layout_color_white">
 
         <ImageView
             android:id="@+id/iv_finish"
@@ -16,13 +16,44 @@
             android:layout_centerVertical="true"
             android:src="@drawable/polyv_btn_back" />
 
-        <TextView
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_centerInParent="true"
-            android:text="缓存"
-            android:textColor="@color/top_text_color_black"
-            android:textSize="@dimen/top_text_size" />
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_downloaded"
+                style="@style/lo_click_commom"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:paddingLeft="6dp"
+                android:paddingRight="6dp"
+                android:text="已下载"
+                android:textColor="@color/polyv_tab_text_color"
+                android:textSize="@dimen/top_text_size" />
+
+            <TextView
+                android:id="@+id/tv_downloading"
+                style="@style/lo_click_commom"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="30dp"
+                android:gravity="center"
+                android:paddingLeft="6dp"
+                android:paddingRight="6dp"
+                android:text="下载中"
+                android:textColor="@color/polyv_tab_text_color"
+                android:textSize="@dimen/top_text_size" />
+        </LinearLayout>
+
+        <View
+            android:id="@+id/v_tabline"
+            android:layout_width="30dp"
+            android:layout_height="3dp"
+            android:layout_alignParentBottom="true"
+            android:background="@color/center_view_color_blue" />
     </RelativeLayout>
 
     <View
@@ -32,44 +63,9 @@
         android:layout_below="@id/rl_top"
         android:background="@color/commom_sline_color_gray" />
 
-    <RelativeLayout
-        android:id="@+id/rl_bot"
+    <android.support.v4.view.ViewPager
+        android:id="@+id/vp_download"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/bottom_layout_height"
-        android:layout_alignParentBottom="true"
-        android:background="@drawable/polyv_blue_click_to_gray"
-        android:clickable="true" >
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true" >
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:src="@drawable/polyv_ic_download" />
-
-            <TextView
-                android:id="@+id/tv_downloadall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="@dimen/bottom_tv_margin_left"
-                android:text="下载全部"
-                android:textColor="@color/top_layout_color_white"
-                android:textSize="@dimen/bottom_text_size" />
-        </LinearLayout>
-    </RelativeLayout>
-
-    <ListView
-        android:id="@+id/lv_download"
-        style="@style/lv_commom"
-        android:layout_above="@id/rl_bot"
-        android:layout_below="@id/v_line"
-        android:dividerHeight="@dimen/common_margin_tb"
-        android:listSelector="@android:color/transparent" >
-    </ListView>
-
+        android:layout_height="match_parent"
+        android:layout_below="@id/v_line" />
 </RelativeLayout>

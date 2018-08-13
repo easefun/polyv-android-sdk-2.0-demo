@@ -272,7 +272,9 @@ public class PolyvCurriculumFragment extends Fragment implements OnClickListener
                     adapter.putCurBitSideIconSelected(currentSelcetBitrate);
                     resetTv_allText();
                 } else {
-                    startActivity(new Intent(getContext(), PolyvDownloadActivity.class));
+                    Intent intent = new Intent(getContext(), PolyvDownloadActivity.class);
+                    intent.putExtra("isStarting", true);
+                    startActivity(intent);
                     adapter.downloadSelected();
                     sideIconGone();
                 }
