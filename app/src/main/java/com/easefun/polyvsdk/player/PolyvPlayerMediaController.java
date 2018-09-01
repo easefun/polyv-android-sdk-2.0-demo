@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.fragment.PolyvPlayerDanmuFragment;
+import com.easefun.polyvsdk.fragment.PolyvPlayerTopFragment;
 import com.easefun.polyvsdk.ijk.PolyvPlayerScreenRatio;
 import com.easefun.polyvsdk.sub.danmaku.entity.PolyvDanmakuInfo;
 import com.easefun.polyvsdk.sub.screenshot.PolyvScreenShot;
@@ -1288,15 +1289,15 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                 iv_dmset.setSelected(false);
                 break;
             case R.id.iv_shareqq:
-                PolyvShareUtils.shareQQFriend(mContext, "", "test", PolyvShareUtils.TEXT, null);
+                PolyvShareUtils.shareQQFriend(mContext, "", PolyvPlayerTopFragment.SHARE_TEXT, PolyvShareUtils.TEXT, null);
                 hide();
                 break;
             case R.id.iv_sharewechat:
-                PolyvShareUtils.shareWeChatFriend(mContext, "", "test", PolyvShareUtils.TEXT, null);
+                PolyvShareUtils.shareWeChatFriend(mContext, "", PolyvPlayerTopFragment.SHARE_TEXT, PolyvShareUtils.TEXT, null);
                 hide();
                 break;
             case R.id.iv_shareweibo:
-                PolyvShareUtils.shareWeiBo(mContext, "", "test", PolyvShareUtils.TEXT, null);
+                PolyvShareUtils.shareWeiBo(mContext, "", PolyvPlayerTopFragment.SHARE_TEXT, PolyvShareUtils.TEXT, null);
                 hide();
                 break;
             case R.id.iv_dmswitch:

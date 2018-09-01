@@ -34,6 +34,8 @@ public class PolyvPlayerTopFragment extends Fragment implements View.OnClickList
     private LinearLayout ll_shareqq, ll_sharewechat, ll_shareweibo;
     private TextView tv_title;
 
+    public static final String SHARE_TEXT = "http://www.polyv.net";
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -102,13 +104,13 @@ public class PolyvPlayerTopFragment extends Fragment implements View.OnClickList
                 getActivity().finish();
                 break;
             case R.id.ll_shareqq:
-                PolyvShareUtils.shareQQFriend(getActivity(), "", "test", PolyvShareUtils.TEXT, null);
+                PolyvShareUtils.shareQQFriend(getActivity(), "", SHARE_TEXT, PolyvShareUtils.TEXT, null);
                 break;
             case R.id.ll_sharewechat:
-                PolyvShareUtils.shareWeChatFriend(getActivity(), "", "test", PolyvShareUtils.TEXT, null);
+                PolyvShareUtils.shareWeChatFriend(getActivity(), "", SHARE_TEXT, PolyvShareUtils.TEXT, null);
                 break;
             case R.id.ll_shareweibo:
-                PolyvShareUtils.shareWeiBo(getActivity(), "", "test", PolyvShareUtils.TEXT, null);
+                PolyvShareUtils.shareWeiBo(getActivity(), "", SHARE_TEXT, PolyvShareUtils.TEXT, null);
                 break;
         }
     }

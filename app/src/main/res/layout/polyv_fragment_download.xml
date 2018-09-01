@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ListView
+        android:id="@+id/lv_download"
+        style="@style/lv_commom"
+        android:layout_above="@+id/rl_bot"
+        android:dividerHeight="@dimen/common_margin_tb"
+        android:listSelector="@android:color/transparent" />
+
+    <ImageView
+        android:id="@+id/iv_empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:src="@drawable/polyv_icon_empty" />
+
+    <RelativeLayout
+        android:id="@+id/rl_bot"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/bottom_layout_height"
+        android:layout_alignParentBottom="true"
+        android:background="#31adfe">
+
+        <View
+            android:id="@+id/v_line"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
+            android:background="#848e99" />
+
+        <LinearLayout
+            android:id="@+id/ll_downloadall"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:layout_toLeftOf="@id/v_line"
+            android:background="@drawable/polyv_blue_click_to_gray"
+            android:clickable="true"
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/polyv_ic_download" />
+
+            <TextView
+                android:id="@+id/tv_downloadall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="@dimen/bottom_tv_margin_left"
+                android:text="下载全部"
+                android:textColor="@color/top_layout_color_white"
+                android:textSize="@dimen/bottom_text_size" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_deleteall"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:layout_toRightOf="@id/v_line"
+            android:background="@drawable/polyv_blue_click_to_gray"
+            android:clickable="true"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/iv_trash"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/polyv_trash" />
+
+            <TextView
+                android:id="@+id/tv_deleteall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="@dimen/bottom_tv_margin_left"
+                android:text="全部清空"
+                android:textColor="@color/center_bottom_text_color_red"
+                android:textSize="@dimen/bottom_text_size" />
+        </LinearLayout>
+    </RelativeLayout>
+</RelativeLayout>

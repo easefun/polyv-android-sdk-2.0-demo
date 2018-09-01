@@ -19,10 +19,10 @@ public class PolyvErrorMessageUtils {
     public static String getDownloaderErrorMessage(PolyvDownloaderErrorReason.ErrorType type) {
         switch (type) {
             case VID_IS_NULL:
-                return "视频id不正确，请设置正确的视频id进行播放";
+                return "视频id不正确，请设置正确的视频id进行下载";
 
             case NOT_PERMISSION:
-                return "非法下载";
+                return "非法下载，请向管理员反馈";
 
             case RUNTIME_EXCEPTION:
                 return "当前视频无法下载，请向管理员反馈";
@@ -79,7 +79,7 @@ public class PolyvErrorMessageUtils {
                 return "检测到拒绝写入存储设备，请先为应用程序分配权限，再重新下载";
 
             case VID_ERROR:
-                return "视频id不正确，请设置正确的视频id进行播放";
+                return "视频id不正确，请设置正确的视频id进行下载";
 
             case EXTRA_DIR_IS_NUll:
                 return "检测到资源目录未设置，请先设置存储目录再重新下载";

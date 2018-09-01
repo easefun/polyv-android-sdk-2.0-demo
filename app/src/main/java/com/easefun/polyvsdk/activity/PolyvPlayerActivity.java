@@ -1,8 +1,6 @@
 package com.easefun.polyvsdk.activity;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -17,6 +15,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -39,7 +38,6 @@ import com.easefun.polyvsdk.player.PolyvPlayerLightView;
 import com.easefun.polyvsdk.player.PolyvPlayerMediaController;
 import com.easefun.polyvsdk.player.PolyvPlayerPreviewView;
 import com.easefun.polyvsdk.player.PolyvPlayerProgressView;
-import com.easefun.polyvsdk.player.PolyvPlayerQuestionView;
 import com.easefun.polyvsdk.player.PolyvPlayerVolumeView;
 import com.easefun.polyvsdk.srt.PolyvSRTItemVO;
 import com.easefun.polyvsdk.sub.vlms.entity.PolyvCoursesInfo;
@@ -75,6 +73,7 @@ import com.easefun.polyvsdk.video.listener.IPolyvOnVideoSRTListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnVideoStatusListener;
 import com.easefun.polyvsdk.vo.PolyvADMatterVO;
 import com.easefun.polyvsdk.vo.PolyvQuestionVO;
+import com.easefun.polyvsdk.vo.PolyvVideoVO;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -161,6 +160,13 @@ public class PolyvPlayerActivity extends FragmentActivity {
     private int fastForwardPos = 0;
     private boolean isPlay = false;
 
+
+    private LinearLayout videoErrorLayout;
+    private TextView videoErrorContent,videoErrorRetry;
+    private String vid;
+    private int bitrate;
+    private boolean isMustFromLocal;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (savedInstanceState != null)
@@ -176,10 +182,10 @@ public class PolyvPlayerActivity extends FragmentActivity {
         PlayMode playMode = PlayMode.getPlayMode(playModeCode);
         if (playMode == null)
             playMode = PlayMode.portrait;
-        String vid = getIntent().getStringExtra("value");
-        int bitrate = getIntent().getIntExtra("bitrate", PolyvBitRate.ziDong.getNum());
+        vid = getIntent().getStringExtra("value");
+        bitrate = getIntent().getIntExtra("bitrate", PolyvBitRate.ziDong.getNum());
         boolean startNow = getIntent().getBooleanExtra("startNow", false);
-        boolean isMustFromLocal = getIntent().getBooleanExtra("isMustFromLocal", false);
+        isMustFromLocal = getIntent().getBooleanExtra("isMustFromLocal", false);
 
         switch (playMode) {
             case landScape:
@@ -216,6 +222,10 @@ public class PolyvPlayerActivity extends FragmentActivity {
     }
 
     private void findIdAndNew() {
+        videoErrorLayout = (LinearLayout) findViewById(R.id.video_error_layout);
+        videoErrorContent = (TextView) findViewById(R.id.video_error_content);
+        videoErrorRetry = (TextView) findViewById(R.id.video_error_retry);
+
         viewLayout = (RelativeLayout) findViewById(R.id.view_layout);
         videoView = (PolyvVideoView) findViewById(R.id.polyv_video_view);
         marqueeView = (PolyvMarqueeView) findViewById(R.id.polyv_marquee_view);
@@ -348,18 +358,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
                 String message = PolyvErrorMessageUtils.getPlayErrorMessage(playErrorReason);
                 message += "(error code " + playErrorReason + ")";
 
-//                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
-                AlertDialog.Builder builder = new AlertDialog.Builder(PolyvPlayerActivity.this);
-                builder.setTitle("错误");
-                builder.setMessage(message);
-                builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        dialog.dismiss();
-                    }
-                });
-
-                if (videoView.getWindowToken() != null)
-                    builder.show();
+                showErrorView(message);
                 return true;
             }
         });
@@ -367,7 +366,9 @@ public class PolyvPlayerActivity extends FragmentActivity {
         videoView.setOnErrorListener(new IPolyvOnErrorListener2() {
             @Override
             public boolean onError() {
-                Toast.makeText(PolyvPlayerActivity.this, "当前视频无法播放，请尝试切换网络重新播放或者向管理员反馈(error code " + PolyvPlayErrorReason.VIDEO_ERROR + ")", Toast.LENGTH_SHORT).show();
+                String message = "当前视频无法播放，请尝试切换网络重新播放或者向管理员反馈(error code " + PolyvPlayErrorReason.VIDEO_ERROR + ")";
+                showErrorView(message);
+                Toast.makeText(PolyvPlayerActivity.this, message, Toast.LENGTH_SHORT).show();
                 return true;
             }
         });
@@ -611,6 +612,15 @@ public class PolyvPlayerActivity extends FragmentActivity {
                         mediaController.show();
             }
         });
+
+        videoErrorRetry.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                videoErrorLayout.setVisibility(View.GONE);
+                //调用setVid方法视频会自动播放
+                play(vid, bitrate, true,isMustFromLocal);
+            }
+        });
     }
 
     /**
@@ -623,8 +633,9 @@ public class PolyvPlayerActivity extends FragmentActivity {
      */
     public void play(final String vid, final int bitrate, boolean startNow, final boolean isMustFromLocal) {
         if (TextUtils.isEmpty(vid)) return;
-        if (iv_vlms_cover != null && iv_vlms_cover.getVisibility() == View.VISIBLE)
+        if (iv_vlms_cover != null && iv_vlms_cover.getVisibility() == View.VISIBLE) {
             iv_vlms_cover.setVisibility(View.GONE);
+        }
 
         videoView.release();
         srtTextView.setVisibility(View.GONE);
@@ -637,7 +648,6 @@ public class PolyvPlayerActivity extends FragmentActivity {
         auxiliaryView.hide();
         advertCountDown.setVisibility(View.GONE);
         firstStartView.hide();
-        coverView.hide();
         progressView.resetMaxValue();
 
         danmuFragment.setVid(vid, videoView);
@@ -650,12 +660,21 @@ public class PolyvPlayerActivity extends FragmentActivity {
 
                 @Override
                 public void onClickStart() {
-                    //调用setVid方法视频会自动播放
-                    videoView.setVid(vid, bitrate, isMustFromLocal);
+                    /**
+                     * 调用setVid方法视频会自动播放
+                     * 如果是有学员登陆的播放，可以在登陆的时候通过
+                     * {@link com.easefun.polyvsdk.PolyvSDKClient.getinstance().setViewerId()}设置学员id
+                     * 或者调用{@link videoView.setVidWithStudentId}传入学员id进行播放
+                     */
+
+                    videoView.setVidWithStudentId(vid, bitrate, isMustFromLocal,"123");
                 }
             });
 
             firstStartView.show(vid);
+        }
+        if (PolyvVideoVO.MODE_VIDEO.equals(videoView.getPriorityMode())) {
+            coverView.hide();
         }
     }
 
@@ -809,5 +828,11 @@ public class PolyvPlayerActivity extends FragmentActivity {
 
             return null;
         }
+    }
+
+
+    public void showErrorView(String message){
+        videoErrorLayout.setVisibility(View.VISIBLE);
+        videoErrorContent.setText(message);
     }
 }
