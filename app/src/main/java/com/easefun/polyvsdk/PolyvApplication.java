@@ -67,7 +67,7 @@ public class PolyvApplication extends MultiDexApplication {
 
 		//SD卡会有SD卡接触不良，SD卡坏了，SD卡的状态错误的问题。
 		//我们在开发中也遇到了SD卡没有权限写入的问题，但是我们确定APP是有赋予android.permission.WRITE_EXTERNAL_STORAGE权限的。
-		//有些是系统问题，有些是SD卡本身的问题，这些问题需要通过重新拔插SD卡来解决。所以如果想要保存下载视频至SD卡请了解这些情况。
+		//有些是系统问题，有些是SD卡本身的问题，这些问题需要通过重新拔插SD卡或者更新SD卡来解决。所以如果想要保存下载视频至SD卡请了解这些情况。
 		File downloadDir = new File(externalFilesDirs.get(0), rootDownloadDirName);
 		PolyvSDKClient.getInstance().setDownloadDir(downloadDir);
 

@@ -35,6 +35,8 @@ import com.easefun.polyvsdk.util.PolyvTimeUtils;
 import com.easefun.polyvsdk.video.IPolyvVideoView;
 import com.easefun.polyvsdk.video.PolyvBaseMediaController;
 import com.easefun.polyvsdk.video.PolyvVideoView;
+import com.easefun.polyvsdk.view.PolyvTickSeekBar;
+import com.easefun.polyvsdk.view.PolyvTickTips;
 import com.easefun.polyvsdk.vo.PolyvVideoVO;
 
 import java.util.ArrayList;
@@ -79,7 +81,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     // 横屏的显示播放进度控件,视频的标题,选择播放速度按钮，选择码率按钮
     private TextView tv_curtime_land, tv_tottime_land, tv_title, tv_speed, tv_bit;
     // 横屏的进度条
-    private SeekBar sb_play_land;
+    private PolyvTickSeekBar sb_play_land;
     /**
      * 侧边布局的view
      */
@@ -155,6 +157,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     private boolean status_isPlaying;
     private PolyvSensorHelper sensorHelper;
     private PolyvPlayerAudioCoverView coverView;
+    private PolyvTickTips tickTips;
 
     //用于处理控制栏的显示状态
     private Handler handler = new Handler() {
@@ -185,15 +188,15 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                 tv_curtime.setText(PolyvTimeUtils.generateTime(position));
                 tv_curtime_land.setText(PolyvTimeUtils.generateTime(position));
                 if (totalTime > 0) {
-                    sb_play.setProgress((int) (1000L * position / totalTime));
-                    sb_play_land.setProgress((int) (1000L * position / totalTime));
+                    sb_play.setProgress((int) (sb_play.getMax() * 1L * position / totalTime));
+                    sb_play_land.setProgress((int) (sb_play_land.getMax() * 1L * position / totalTime));
                 } else {
                     sb_play.setProgress(0);
                     sb_play_land.setProgress(0);
                 }
             }
-            sb_play.setSecondaryProgress(1000 * bufPercent / 100);
-            sb_play_land.setSecondaryProgress(1000 * bufPercent / 100);
+            sb_play.setSecondaryProgress(sb_play.getMax() * bufPercent / 100);
+            sb_play_land.setSecondaryProgress(sb_play_land.getMax() * bufPercent / 100);
             if (videoView.isPlaying()) {
                 iv_play.setSelected(false);
                 iv_play_land.setSelected(false);
@@ -256,7 +259,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         iv_finish = (ImageView) view.findViewById(R.id.iv_finish);
         tv_curtime_land = (TextView) view.findViewById(R.id.tv_curtime_land);
         tv_tottime_land = (TextView) view.findViewById(R.id.tv_tottime_land);
-        sb_play_land = (SeekBar) view.findViewById(R.id.sb_play_land);
+        sb_play_land = (PolyvTickSeekBar) view.findViewById(R.id.sb_play_land);
         tv_title = (TextView) view.findViewById(R.id.tv_title);
         iv_set = (ImageView) view.findViewById(R.id.iv_set);
         iv_share = (ImageView) view.findViewById(R.id.iv_share);
@@ -338,6 +341,16 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         iv_close_bit = (ImageView) view.findViewById(R.id.iv_close_bit);
 
         sensorHelper = new PolyvSensorHelper(videoActivity);
+        tickTips = (PolyvTickTips) view.findViewById(R.id.fl_tt);
+        tickTips.setOnSeekClickListener(new PolyvTickTips.OnSeekClickListener() {
+            @Override
+            public void onSeekClick(PolyvTickSeekBar.TickData tickData) {
+                if (videoView != null) {
+                    videoView.seekTo((int) (tickData.getProgress() * 1000));
+                    tickTips.hide();
+                }
+            }
+        });
     }
 
     private void initView() {
@@ -445,6 +458,39 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             ll_subtitle.setVisibility(visibility);
             ll_subtitle_b.setVisibility(visibility);
             iv_screens.setVisibility(visibility);
+            //设置进度条的打点位置
+            if (PolyvVideoVO.MODE_VIDEO.equals(videoView.getCurrentMode())) {
+                List<PolyvVideoVO.Videokeyframe> videokeyframes;
+                if (videoVO != null && (videokeyframes = videoVO.getVideokeyframes()) != null) {
+                    int maxProgress = videoView.getDuration() / 1000;
+                    double rate = 1;
+                    if (maxProgress < 1000) {//最大进度最小为1000
+                        rate = 1000 * 1.0 / maxProgress;
+                        maxProgress = 1000;
+                    }
+                    List<PolyvTickSeekBar.TickData> tickDataList = new ArrayList<>();
+                    for (PolyvVideoVO.Videokeyframe videokeyframe : videokeyframes) {
+                        //打点的颜色请设置和seekBar的thumb的颜色一致，因为打点是在thumb上层的
+                        tickDataList.add(new PolyvTickSeekBar.TickData((float) (videokeyframe.getKeytime() * rate), Color.WHITE, videokeyframe));
+                    }
+                    sb_play_land.setMax(maxProgress);
+                    sb_play_land.setTicks(tickDataList);
+                    sb_play_land.setOnTickClickListener(new PolyvTickSeekBar.OnTickClickListener() {
+                        @Override
+                        public void onTickClick(PolyvTickSeekBar.TickData tickData) {
+                            tickTips.show(tickData);
+                            resetHideTime(longTime);
+                        }
+
+                        @Override
+                        public boolean onSeekBarClick() {
+                            tickTips.hide();
+                            resetHideTime(longTime);
+                            return false;//false：点击非打点处不触发onProgressChanged
+                        }
+                    });
+                }
+            }
 
             //如果可以获取到音频的播放地址，则显示切换到音频的按钮
             if (canShowLeftSideView()) {
@@ -488,6 +534,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             resetShareLayout(View.GONE);
             resetSpeedLayout(View.GONE);
             resetBitRateLayout(View.GONE);
+            tickTips.hide();
             isShowing = !isShowing;
             setVisibility(View.GONE);
         }
@@ -501,6 +548,10 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     @Override
     public void setAnchorView(View view) {
         //...
+    }
+
+    public void hideTickTips() {
+        tickTips.hide();
     }
 
     // 关闭监听
@@ -633,13 +684,14 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
             if (!b)
                 return;
+            tickTips.hide();
             switch (seekBar.getId()) {
                 case R.id.sb_play:
                 case R.id.sb_play_land:
                     resetHideTime(longTime);
                     status_dragging = true;
                     if (videoView != null) {
-                        int newPosition = (int) (videoView.getDuration() * (long) i / 1000);
+                        int newPosition = (int) (videoView.getDuration() * (long) i / seekBar.getMax());
                         tv_curtime.setText(PolyvTimeUtils.generateTime(newPosition));
                         tv_curtime_land.setText(PolyvTimeUtils.generateTime(newPosition));
                     }
@@ -673,7 +725,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                         if (!videoView.isCompletedState()) {
                             videoView.seekTo(seekToPosition);
                             danmuFragment.seekTo();
-                        } else if (videoView.isCompletedState() && seekToPosition / 1000 * 1000 < videoView.getDuration() / 1000 * 1000) {
+                        } else if (videoView.isCompletedState() && seekToPosition / seekBar.getMax() * seekBar.getMax() < videoView.getDuration() / seekBar.getMax() * seekBar.getMax()) {
                             videoView.seekTo(seekToPosition);
                             danmuFragment.seekTo();
                             videoView.start();

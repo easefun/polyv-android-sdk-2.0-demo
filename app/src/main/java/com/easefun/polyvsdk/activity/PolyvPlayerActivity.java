@@ -547,6 +547,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
             public void callback(boolean start, boolean end) {
                 // 左滑事件
                 Log.d(TAG, String.format("SwipeLeft %b %b", start, end));
+                mediaController.hideTickTips();
                 if (fastForwardPos == 0) {
                     fastForwardPos = videoView.getCurrentPosition();
                 }
@@ -576,6 +577,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
             public void callback(boolean start, boolean end) {
                 // 右滑事件
                 Log.d(TAG, String.format("SwipeRight %b %b", start, end));
+                mediaController.hideTickTips();
                 if (fastForwardPos == 0) {
                     fastForwardPos = videoView.getCurrentPosition();
                 }

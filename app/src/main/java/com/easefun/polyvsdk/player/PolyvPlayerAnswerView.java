@@ -264,14 +264,12 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
     private void continuePlay(int seek) {
         int seconds = PolyvSDKUtil.formatToSecond(polyvQuestionVO.getHours(),
                 polyvQuestionVO.getMinutes(), polyvQuestionVO.getSeconds()) * 1000;
-        if(seek >0){
-            seconds = seek;
-        }
+
         boolean answerRight = rightAnswers.isEmpty() && wrongAnserSelect.isEmpty();
         if(!answerRight){
              seconds =  polyvQuestionVO.getWrongTime() * 1000;
         }
-        if(seconds >0){
+        if(seconds >= 0){
             polyvVideoView.seekTo(seconds);
         }
         polyvVideoView.start();
