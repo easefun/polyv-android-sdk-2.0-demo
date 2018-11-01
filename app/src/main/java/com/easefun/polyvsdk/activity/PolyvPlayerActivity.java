@@ -13,7 +13,10 @@ import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -43,6 +46,7 @@ import com.easefun.polyvsdk.srt.PolyvSRTItemVO;
 import com.easefun.polyvsdk.sub.vlms.entity.PolyvCoursesInfo;
 import com.easefun.polyvsdk.util.PolyvErrorMessageUtils;
 import com.easefun.polyvsdk.util.PolyvScreenUtils;
+import com.easefun.polyvsdk.util.PolyvViewLayoutGlobal;
 import com.easefun.polyvsdk.video.PolyvMediaInfoType;
 import com.easefun.polyvsdk.video.PolyvPlayErrorReason;
 import com.easefun.polyvsdk.video.PolyvVideoView;
@@ -87,10 +91,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
     private PolyvPlayerViewPagerFragment viewPagerFragment;
     private PolyvPlayerDanmuFragment danmuFragment;
     private ImageView iv_vlms_cover;
-    /**
-     * 播放器的parentView
-     */
-    private RelativeLayout viewLayout = null;
+
     /**
      * 播放主视频播放器
      */
@@ -196,7 +197,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
                 break;
         }
 
-        play(vid, bitrate, startNow, isMustFromLocal);
+        gotoPlayer(startNow);
     }
 
     private void addFragment() {
@@ -222,27 +223,38 @@ public class PolyvPlayerActivity extends FragmentActivity {
     }
 
     private void findIdAndNew() {
-        videoErrorLayout = (LinearLayout) findViewById(R.id.video_error_layout);
-        videoErrorContent = (TextView) findViewById(R.id.video_error_content);
-        videoErrorRetry = (TextView) findViewById(R.id.video_error_retry);
+        LinearLayout playerLayout = (LinearLayout) findViewById(R.id.player_layout);
+        if (PolyvViewLayoutGlobal.getInstance().getVideoLayout() == null) {
+            PolyvViewLayoutGlobal.getInstance().setVideoLayout((RelativeLayout) LayoutInflater.from(this).inflate(R.layout.polyv_activity_player_video, null));
+        }
 
-        viewLayout = (RelativeLayout) findViewById(R.id.view_layout);
-        videoView = (PolyvVideoView) findViewById(R.id.polyv_video_view);
-        marqueeView = (PolyvMarqueeView) findViewById(R.id.polyv_marquee_view);
-        mediaController = (PolyvPlayerMediaController) findViewById(R.id.polyv_player_media_controller);
-        srtTextView = (TextView) findViewById(R.id.srt);
-        questionView = (PolyvPlayerAnswerView) findViewById(R.id.polyv_player_question_view);
-        auditionView = (PolyvPlayerAuditionView) findViewById(R.id.polyv_player_audition_view);
-        auxiliaryVideoView = (PolyvAuxiliaryVideoView) findViewById(R.id.polyv_auxiliary_video_view);
-        auxiliaryLoadingProgress = (ProgressBar) findViewById(R.id.auxiliary_loading_progress);
-        auxiliaryView = (PolyvPlayerAuxiliaryView) findViewById(R.id.polyv_player_auxiliary_view);
-        advertCountDown = (TextView) findViewById(R.id.count_down);
-        firstStartView = (PolyvPlayerPreviewView) findViewById(R.id.polyv_player_first_start_view);
-        lightView = (PolyvPlayerLightView) findViewById(R.id.polyv_player_light_view);
-        volumeView = (PolyvPlayerVolumeView) findViewById(R.id.polyv_player_volume_view);
-        progressView = (PolyvPlayerProgressView) findViewById(R.id.polyv_player_progress_view);
-        loadingProgress = (ProgressBar) findViewById(R.id.loading_progress);
-        coverView = (PolyvPlayerAudioCoverView) findViewById(R.id.polyv_cover_view);
+        RelativeLayout videoLayout = PolyvViewLayoutGlobal.getInstance().getVideoLayout();
+        ViewGroup lastParent = (ViewGroup) videoLayout.getParent();
+        if (lastParent != null) {
+            lastParent.removeView(videoLayout);
+        }
+
+        RelativeLayout viewLayout = (RelativeLayout) findViewById(R.id.view_layout);
+        int a = playerLayout.indexOfChild(viewLayout);
+        playerLayout.addView(videoLayout, a);
+        videoLayout.setLayoutParams(viewLayout.getLayoutParams());
+
+        videoView = (PolyvVideoView) videoLayout.findViewById(R.id.polyv_video_view);
+        marqueeView = (PolyvMarqueeView) videoLayout.findViewById(R.id.polyv_marquee_view);
+        mediaController = (PolyvPlayerMediaController) videoLayout.findViewById(R.id.polyv_player_media_controller);
+        srtTextView = (TextView) videoLayout.findViewById(R.id.srt);
+        questionView = (PolyvPlayerAnswerView) videoLayout.findViewById(R.id.polyv_player_question_view);
+        auditionView = (PolyvPlayerAuditionView) videoLayout.findViewById(R.id.polyv_player_audition_view);
+        auxiliaryVideoView = (PolyvAuxiliaryVideoView) videoLayout.findViewById(R.id.polyv_auxiliary_video_view);
+        auxiliaryLoadingProgress = (ProgressBar) videoLayout.findViewById(R.id.auxiliary_loading_progress);
+        auxiliaryView = (PolyvPlayerAuxiliaryView) videoLayout.findViewById(R.id.polyv_player_auxiliary_view);
+        advertCountDown = (TextView) videoLayout.findViewById(R.id.count_down);
+        firstStartView = (PolyvPlayerPreviewView) videoLayout.findViewById(R.id.polyv_player_first_start_view);
+        lightView = (PolyvPlayerLightView) videoLayout.findViewById(R.id.polyv_player_light_view);
+        volumeView = (PolyvPlayerVolumeView) videoLayout.findViewById(R.id.polyv_player_volume_view);
+        progressView = (PolyvPlayerProgressView) videoLayout.findViewById(R.id.polyv_player_progress_view);
+        loadingProgress = (ProgressBar) videoLayout.findViewById(R.id.loading_progress);
+        coverView = (PolyvPlayerAudioCoverView) videoLayout.findViewById(R.id.polyv_cover_view);
 
         mediaController.initConfig(viewLayout);
         mediaController.setAudioCoverView(coverView);
@@ -271,6 +283,10 @@ public class PolyvPlayerActivity extends FragmentActivity {
                 .setStrokeWidth(3) //描边宽度
                 .setStrokeColor(Color.MAGENTA) //描边颜色
                 .setStrokeAlpha(70)); //描边透明度
+
+        videoErrorLayout = (LinearLayout) videoLayout.findViewById(R.id.video_error_layout);
+        videoErrorContent = (TextView) videoLayout.findViewById(R.id.video_error_content);
+        videoErrorRetry = (TextView) videoLayout.findViewById(R.id.video_error_retry);
     }
 
     private void initView() {
@@ -625,6 +641,18 @@ public class PolyvPlayerActivity extends FragmentActivity {
         });
     }
 
+    private void gotoPlayer(boolean startNow) {
+        if (!videoView.isPlaying()) {
+            play(vid, bitrate, startNow, isMustFromLocal);
+            return;
+        }
+
+        if (!vid.equals(videoView.getCurrentVideoId())) {
+            play(vid, bitrate, startNow, isMustFromLocal);
+            return;
+        }
+    }
+
     /**
      * 播放视频
      *
@@ -718,19 +746,19 @@ public class PolyvPlayerActivity extends FragmentActivity {
     protected void onStop() {
         super.onStop();
         //弹出去暂停
-        isPlay = videoView.onActivityStop();
-        danmuFragment.pause();
+//        isPlay = videoView.onActivityStop();
+//        danmuFragment.pause();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        videoView.destroy();
-        questionView.hide();
-        auditionView.hide();
-        auxiliaryView.hide();
-        firstStartView.hide();
-        coverView.hide();
+//        videoView.destroy();
+//        questionView.hide();
+//        auditionView.hide();
+//        auxiliaryView.hide();
+//        firstStartView.hide();
+//        coverView.hide();
         mediaController.disable();
     }
 

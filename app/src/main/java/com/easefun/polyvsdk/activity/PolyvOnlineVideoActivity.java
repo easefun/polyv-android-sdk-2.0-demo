@@ -15,6 +15,7 @@ import com.easefun.polyvsdk.RestVO;
 import com.easefun.polyvsdk.adapter.EndlessRecyclerOnScrollListener;
 import com.easefun.polyvsdk.adapter.HeaderViewRecyclerAdapter;
 import com.easefun.polyvsdk.adapter.PolyvOnlineListViewAdapter;
+import com.easefun.polyvsdk.util.PolyvViewLayoutGlobal;
 
 import org.json.JSONException;
 
@@ -111,5 +112,11 @@ public class PolyvOnlineVideoActivity extends Activity implements View.OnClickLi
                 finish();
                 break;
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        PolyvViewLayoutGlobal.getInstance().videoLayoutDestroy();
     }
 }
