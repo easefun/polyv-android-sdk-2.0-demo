@@ -43,6 +43,7 @@ import com.easefun.polyvsdk.srt.PolyvSRTItemVO;
 import com.easefun.polyvsdk.sub.vlms.entity.PolyvCoursesInfo;
 import com.easefun.polyvsdk.util.PolyvErrorMessageUtils;
 import com.easefun.polyvsdk.util.PolyvScreenUtils;
+import com.easefun.polyvsdk.util.PolyvVodPlayerUtil;
 import com.easefun.polyvsdk.video.PolyvMediaInfoType;
 import com.easefun.polyvsdk.video.PolyvPlayErrorReason;
 import com.easefun.polyvsdk.video.PolyvVideoView;
@@ -290,6 +291,8 @@ public class PolyvPlayerActivity extends FragmentActivity {
                 progressView.setViewMaxValue(videoView.getDuration());
                 // 没开预加载在这里开始弹幕
                 // danmuFragment.start();
+                Log.i(TAG, "polyv position = " + PolyvVodPlayerUtil.lastPositionWithVid(videoView.getCurrentVid()));
+                Log.i(TAG, "polyv position timestamp = " + PolyvVodPlayerUtil.lastPositionTimestampWithVid(videoView.getCurrentVid()));
             }
         });
 
@@ -547,6 +550,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
             public void callback(boolean start, boolean end) {
                 // 左滑事件
                 Log.d(TAG, String.format("SwipeLeft %b %b", start, end));
+                mediaController.hideTickTips();
                 if (fastForwardPos == 0) {
                     fastForwardPos = videoView.getCurrentPosition();
                 }
@@ -576,6 +580,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
             public void callback(boolean start, boolean end) {
                 // 右滑事件
                 Log.d(TAG, String.format("SwipeRight %b %b", start, end));
+                mediaController.hideTickTips();
                 if (fastForwardPos == 0) {
                     fastForwardPos = videoView.getCurrentPosition();
                 }

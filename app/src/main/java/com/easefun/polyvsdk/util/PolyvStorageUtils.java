@@ -12,7 +12,7 @@ import java.util.Arrays;
 
 /**
  * 存储工具类
- * @author Lion 2018-6-12
+ * @author Lionel 2018-6-12
  */
 public class PolyvStorageUtils {
 
@@ -20,7 +20,9 @@ public class PolyvStorageUtils {
 
     /**
      * 获取可使用的外部存储目录<br/>
-     * https://developer.android.com/guide/topics/data/data-storage?hl=zh-cn#filesExternal
+     * 列表中的第一个条目被视为外部主存储，当Android API 大于等于19时，列表中包含了可移除的存储介质（例如 SD 卡）的路径。
+     * 当用户卸载您的应用时，此目录列表中的目录及其内容将被删除。
+     * 详细请看:https://developer.android.com/guide/topics/data/data-storage?hl=zh-cn#filesExternal
      * @param context
      * @return 外部存储目录列表
      */
@@ -28,6 +30,7 @@ public class PolyvStorageUtils {
     public static ArrayList<File> getExternalFilesDirs(@NonNull Context context) {
         File[] files;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            //列表中包含了可移除的存储介质（例如 SD 卡）的路径。
             files = context.getExternalFilesDirs(null);
         } else {
             files = ContextCompat.getExternalFilesDirs(context, null);

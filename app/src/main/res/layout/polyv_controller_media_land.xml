@@ -244,7 +244,7 @@
             android:src="@drawable/polyv_dm_switch"/>
     </RelativeLayout>
 
-    <SeekBar
+    <com.easefun.polyvsdk.view.PolyvTickSeekBar
         android:id="@+id/sb_play_land"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -254,11 +254,19 @@
         android:max="1000"
         android:maxHeight="@dimen/center_pb_width_l"
         android:minHeight="@dimen/center_pb_width_l"
-        android:paddingTop="@dimen/talk_common_margin"
+        android:paddingTop="10dp"
         android:progress="0"
         android:progressDrawable="@drawable/polyv_sb_pg_drawable"
         android:secondaryProgress="0"
         android:thumb="@drawable/polyv_sb_thumb"
         android:thumbOffset="0dp"/>
+
+    <com.easefun.polyvsdk.view.PolyvTickTips
+        android:id="@+id/fl_tt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/sb_play_land"
+        android:layout_marginBottom="5dp"
+        android:visibility="invisible" />
 
 </RelativeLayout>

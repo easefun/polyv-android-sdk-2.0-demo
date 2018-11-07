@@ -22,7 +22,7 @@
     <color name="left_text_color_blue">#2196f3</color>
     <color name="center_bottom_sb_pg_color_blue">#14a2f4</color>
     <!-- b2->a2 -->
-    <color name="center_bottom_sb_pg_color_blue_alpha">#a214a2f4</color>
+    <color name="center_bottom_sb_pg_color_blue_alpha">#5914a2f4</color>
     <!-- no use -->
     <color name="center_bottom_sb_sec_color_blue">#95d5fa</color>
     <color name="center_bottom_text_color_gray">#848e99</color>

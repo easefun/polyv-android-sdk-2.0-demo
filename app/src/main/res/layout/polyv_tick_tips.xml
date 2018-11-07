@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/polyv_tips_corners"
+    android:clickable="true"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp">
+
+    <TextView
+        android:id="@+id/tv_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="12:12"
+        android:textColor="#575e65"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/tv_context"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:singleLine="true"
+        android:text="这是一行文本这是一行文本"
+        android:textColor="#575e65"
+        android:textSize="14sp" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/iv_seek"
+        android:layout_width="26dp"
+        android:layout_height="26dp"
+        android:layout_marginLeft="10dp"
+        android:src="@drawable/polyv_tick_seek" />
+</LinearLayout>
