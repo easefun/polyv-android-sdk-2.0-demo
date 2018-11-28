@@ -41,7 +41,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
-        <!-- 字幕 -->
+        <!-- 底部字幕 -->
         <TextView
             android:id="@+id/srt"
             android:layout_width="match_parent"
@@ -50,6 +50,17 @@
             android:gravity="bottom|center_horizontal"
             android:textColor="@android:color/white"
             android:visibility="gone"/>
+
+        <!-- 顶部字幕 -->
+        <TextView
+            android:id="@+id/top_srt"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_alignParentTop="true"
+            android:gravity="top|center_horizontal"
+            android:paddingTop="10dp"
+            android:textColor="@android:color/white"
+            android:visibility="gone" />
 
         <com.easefun.polyvsdk.player.PolyvPlayerLightView
             android:id="@+id/polyv_player_light_view"

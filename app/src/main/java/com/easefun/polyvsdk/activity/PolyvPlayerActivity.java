@@ -52,7 +52,6 @@ import com.easefun.polyvsdk.video.listener.IPolyvOnAdvertisementEventListener2;
 import com.easefun.polyvsdk.video.listener.IPolyvOnAdvertisementOutListener2;
 import com.easefun.polyvsdk.video.listener.IPolyvOnChangeModeListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnCompletionListener2;
-import com.easefun.polyvsdk.video.listener.IPolyvOnErrorListener2;
 import com.easefun.polyvsdk.video.listener.IPolyvOnGestureClickListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnGestureLeftDownListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnGestureLeftUpListener;
@@ -70,7 +69,9 @@ import com.easefun.polyvsdk.video.listener.IPolyvOnTeaserCountDownListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnTeaserOutListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnVideoPlayErrorListener2;
 import com.easefun.polyvsdk.video.listener.IPolyvOnVideoSRTListener;
+import com.easefun.polyvsdk.video.listener.IPolyvOnVideoSRTPreparedListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnVideoStatusListener;
+import com.easefun.polyvsdk.video.listener.IPolyvOnVideoTimeoutListener;
 import com.easefun.polyvsdk.vo.PolyvADMatterVO;
 import com.easefun.polyvsdk.vo.PolyvQuestionVO;
 import com.easefun.polyvsdk.vo.PolyvVideoVO;
@@ -79,6 +80,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 
 public class PolyvPlayerActivity extends FragmentActivity {
     private static final String TAG = PolyvPlayerActivity.class.getSimpleName();
@@ -108,6 +110,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
      * 字幕文本视图
      */
     private TextView srtTextView = null;
+    private TextView topSrtTextView = null;
     /**
      * 普通问答界面
      */
@@ -231,6 +234,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
         marqueeView = (PolyvMarqueeView) findViewById(R.id.polyv_marquee_view);
         mediaController = (PolyvPlayerMediaController) findViewById(R.id.polyv_player_media_controller);
         srtTextView = (TextView) findViewById(R.id.srt);
+        topSrtTextView = (TextView) findViewById(R.id.top_srt);
         questionView = (PolyvPlayerAnswerView) findViewById(R.id.polyv_player_question_view);
         auditionView = (PolyvPlayerAuditionView) findViewById(R.id.polyv_player_audition_view);
         auxiliaryVideoView = (PolyvAuxiliaryVideoView) findViewById(R.id.polyv_auxiliary_video_view);
@@ -282,6 +286,8 @@ public class PolyvPlayerActivity extends FragmentActivity {
         videoView.setOpenMarquee(true);
         videoView.setAutoContinue(true);
         videoView.setNeedGestureDetector(true);
+        videoView.setLoadTimeoutSecond(25);//加载超时时间，单位：秒
+        videoView.setBufferTimeoutSecond(15);//缓冲超时时间，单位：秒
 
         videoView.setOnPreparedListener(new IPolyvOnPreparedListener2() {
             @Override
@@ -341,6 +347,13 @@ public class PolyvPlayerActivity extends FragmentActivity {
             }
         });
 
+        videoView.setOnVideoTimeoutListener(new IPolyvOnVideoTimeoutListener() {
+            @Override
+            public void onBufferTimeout(int timeoutSecond, int times) {//在一个缓冲里，每超过设置的timeoutSecond都会回调一次
+                Toast.makeText(PolyvPlayerActivity.this, "视频加载速度缓慢，请切换到低清晰度的视频或调整网络", Toast.LENGTH_LONG).show();
+            }
+        });
+
         videoView.setOnVideoStatusListener(new IPolyvOnVideoStatusListener() {
             @Override
             public void onStatus(int status) {
@@ -363,15 +376,18 @@ public class PolyvPlayerActivity extends FragmentActivity {
             }
         });
 
-        videoView.setOnErrorListener(new IPolyvOnErrorListener2() {
-            @Override
-            public boolean onError() {
-                String message = "当前视频无法播放，请尝试切换网络重新播放或者向管理员反馈(error code " + PolyvPlayErrorReason.VIDEO_ERROR + ")";
-                showErrorView(message);
-                Toast.makeText(PolyvPlayerActivity.this, message, Toast.LENGTH_SHORT).show();
-                return true;
-            }
-        });
+        //为了能更好的统一错误处理，这个错误回调合并到setOnVideoPlayErrorListener(IPolyvOnVideoPlayErrorListener2)中，对应的错误类型是PolyvPlayErrorReason.VIDEO_ERROR。
+        //为了向后兼容，以前的程序不受影响，当设置了这个错误回调时，setOnVideoPlayErrorListener(IPolyvOnVideoPlayErrorListener2)错误回调不会被触发。
+        //没有设置这个错误回调时，setOnVideoPlayErrorListener(IPolyvOnVideoPlayErrorListener2)错误回调才会触发。
+//        videoView.setOnErrorListener(new IPolyvOnErrorListener2() {
+//            @Override
+//            public boolean onError() {
+//                String message = "当前视频无法播放，请尝试切换网络重新播放或者向管理员反馈(error code " + PolyvPlayErrorReason.VIDEO_ERROR + ")";
+//                showErrorView(message);
+//                Toast.makeText(PolyvPlayerActivity.this, message, Toast.LENGTH_SHORT).show();
+//                return true;
+//            }
+//        });
 
         videoView.setOnAdvertisementOutListener(new IPolyvOnAdvertisementOutListener2() {
             @Override
@@ -466,16 +482,31 @@ public class PolyvPlayerActivity extends FragmentActivity {
             }
         });
 
+        videoView.setOnVideoSRTPreparedListener(new IPolyvOnVideoSRTPreparedListener() {
+            @Override
+            public void onVideoSRTPrepared() {
+                mediaController.preparedSRT(videoView);
+            }
+        });
+
         videoView.setOnVideoSRTListener(new IPolyvOnVideoSRTListener() {
             @Override
-            public void onVideoSRT(@Nullable PolyvSRTItemVO subTitleItem) {
-                if (subTitleItem == null) {
-                    srtTextView.setText("");
-                } else {
-                    srtTextView.setText(subTitleItem.getSubTitle());
+            public void onVideoSRT(@Nullable List<PolyvSRTItemVO> subTitleItems) {
+                srtTextView.setText("");
+                topSrtTextView.setText("");
+
+                if (subTitleItems != null) {
+                    for (PolyvSRTItemVO srtItemVO : subTitleItems) {
+                        if (srtItemVO.isBottomCenterSubTitle()) {
+                            srtTextView.setText(srtItemVO.getSubTitle());
+                        } else if (srtItemVO.isTopCenterSubTitle()) {
+                            topSrtTextView.setText(srtItemVO.getSubTitle());
+                        }
+                    }
                 }
 
                 srtTextView.setVisibility(View.VISIBLE);
+                topSrtTextView.setVisibility(View.VISIBLE);
             }
         });
 
@@ -544,7 +575,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
         videoView.setOnGestureSwipeLeftListener(new IPolyvOnGestureSwipeLeftListener() {
 
             @Override
-            public void callback(boolean start, boolean end) {
+            public void callback(boolean start, int times, boolean end) {
                 // 左滑事件
                 Log.d(TAG, String.format("SwipeLeft %b %b", start, end));
                 mediaController.hideTickTips();
@@ -563,7 +594,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
                     }
                     fastForwardPos = 0;
                 } else {
-                    fastForwardPos -= 10000;
+                    fastForwardPos -= 1000 * times;
                     if (fastForwardPos <= 0)
                         fastForwardPos = -1;
                 }
@@ -574,7 +605,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
         videoView.setOnGestureSwipeRightListener(new IPolyvOnGestureSwipeRightListener() {
 
             @Override
-            public void callback(boolean start, boolean end) {
+            public void callback(boolean start, int times, boolean end) {
                 // 右滑事件
                 Log.d(TAG, String.format("SwipeRight %b %b", start, end));
                 mediaController.hideTickTips();
@@ -596,7 +627,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
                     }
                     fastForwardPos = 0;
                 } else {
-                    fastForwardPos += 10000;
+                    fastForwardPos += 1000 * times;
                     if (fastForwardPos > videoView.getDuration())
                         fastForwardPos = videoView.getDuration();
                 }
@@ -641,7 +672,9 @@ public class PolyvPlayerActivity extends FragmentActivity {
 
         videoView.release();
         srtTextView.setVisibility(View.GONE);
+        topSrtTextView.setVisibility(View.GONE);
         mediaController.hide();
+        mediaController.resetView();
         loadingProgress.setVisibility(View.GONE);
         questionView.hide();
         auditionView.hide();
@@ -680,13 +713,6 @@ public class PolyvPlayerActivity extends FragmentActivity {
         }
     }
 
-    private void clearGestureInfo() {
-        videoView.clearGestureInfo();
-        progressView.hide();
-        volumeView.hide();
-        lightView.hide();
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (viewPagerFragment != null)
@@ -710,7 +736,6 @@ public class PolyvPlayerActivity extends FragmentActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        clearGestureInfo();
         mediaController.pause();
     }
 

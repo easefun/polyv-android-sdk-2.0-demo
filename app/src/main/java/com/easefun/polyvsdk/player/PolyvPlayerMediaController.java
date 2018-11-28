@@ -431,6 +431,27 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         return videoVO != null && videoVO.hasAudioPath();
     }
 
+    public void resetView() {
+        if (ll_subtitle != null) {
+            ll_subtitle.setVisibility(View.GONE);
+        }
+        if (ll_subtitle_b != null) {
+            ll_subtitle_b.setVisibility(View.GONE);
+        }
+    }
+
+    public void preparedSRT(IPolyvVideoView videoView) {
+        if (videoView != null) {
+            this.videoView = (PolyvVideoView) videoView;
+            this.videoVO = videoView.getVideo();
+            //初始化字幕控件
+            initSrtView(videoView.getCurrSRTKey());
+            int visibility = PolyvVideoVO.MODE_AUDIO.equals(videoView.getCurrentMode()) ? View.GONE : View.VISIBLE;
+            ll_subtitle.setVisibility(visibility);
+            ll_subtitle_b.setVisibility(visibility);
+        }
+    }
+
     public void preparedView() {
         if (videoView != null) {
             videoVO = videoView.getVideo();
@@ -441,8 +462,6 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             tv_tottime_land.setText(PolyvTimeUtils.generateTime(totalTime));
             //初始化播放器的银幕比率的显示控件
             initRatioView(videoView.getCurrentAspectRatio());
-            //初始化字幕控件
-            initSrtView(videoView.getCurrSRTKey());
             //初始化倍速控件及其可见性
             initSpeedView((int) (videoView.getSpeed() * 10));
             //初始化码率控件及其可见性
@@ -455,8 +474,6 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                 rl_center_bit.setVisibility(visibility);
             tv_bit.setVisibility(visibility);
             ll_adaptive_mode.setVisibility(visibility);
-            ll_subtitle.setVisibility(visibility);
-            ll_subtitle_b.setVisibility(visibility);
             iv_screens.setVisibility(visibility);
             //设置进度条的打点位置
             if (PolyvVideoVO.MODE_VIDEO.equals(videoView.getCurrentMode())) {
