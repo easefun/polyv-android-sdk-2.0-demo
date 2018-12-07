@@ -2,7 +2,7 @@
 polyv-android-sdk-2.0.0-demo
 ===
 [![build passing](https://img.shields.io/badge/build-passing-brightgreen.svg)](#)
-[![GitHub release](https://img.shields.io/badge/release-v2.6.0-blue.svg)](https://github.com/easefun/polyv-android-sdk-2.0-demo/releases/tag/v2.6.0)
+[![GitHub release](https://img.shields.io/badge/release-v2.6.1-blue.svg)](https://github.com/easefun/polyv-android-sdk-2.0-demo/releases/tag/v2.6.1)
 #### polyv-android-sdk-2.0.0（以下称SDK2.0.0）是什么？
 SDK2.0.0是Polyv为开发者用户提供的点播SDK ，是jar文件和so文件。易于集成，内部包含`视频播放` `弹幕` `视频下载` `视频上传`等功能。首先需要在[链接到官网](www.polyv.net)注册账户并开通点播功能，然后集成SDK2.0.0到你的项目中。
 #### polyv-android-sdk-2.0.0-demo（以下称**SDK2.0.0demo**）是什么？
