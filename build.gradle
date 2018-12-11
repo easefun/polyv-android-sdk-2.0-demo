@@ -3,9 +3,11 @@
 buildscript {
     repositories {
         jcenter()
+        google()
+        maven {url 'https://google.bintray.com/exoplayer/'}
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.3'
+        classpath 'com.android.tools.build:gradle:3.0.1'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -15,8 +17,10 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
+        google()
         maven {url 'http://maven.aliyun.com/nexus/content/repositories/releases/'}
         maven {url 'https://dl.bintray.com/polyv/android'}
+        maven {url 'https://google.bintray.com/exoplayer/'}
     }
 }
 

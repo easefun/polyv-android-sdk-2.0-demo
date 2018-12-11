@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.3"
+    buildToolsVersion "26.0.3"
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 23
@@ -37,13 +37,10 @@ android {
     }
 
     //修改输出apk的名称
-    android.applicationVariants.all {variant->
-        variant.outputs.each { output->
-            def outputFile = output.outputFile;
-            if (outputFile != null && outputFile.name.endsWith(".apk")) {
-                //这里修改apk文件名
-                def fileName = "polyv-${versionName}-${releaseTime()}.apk";
-                output.outputFile = new File(outputFile.parent, fileName);
+    applicationVariants.all { variant ->
+        if (variant.buildType.name.equals('release')) {
+            variant.outputs.all { output ->
+                outputFileName = "polyv-${versionName}-${releaseTime()}.apk";
             }
         }
     }
@@ -64,7 +61,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23+'
     compile 'com.android.support:support-v4:23+'
     compile 'com.android.support:design:23+'
-    compile 'com.android.support:multidex:1.0.1'//64K 引用限制
     compile 'com.easefun.polyv:polyvPlayer:2.6.1'//SDK核心包
     compile 'com.easefun.polyv:polyvPlayerABI:1.6.1'//SDK核心包
     compile 'com.easefun.polyv:polyvDownload:2.5.0'//SDK下载功能
