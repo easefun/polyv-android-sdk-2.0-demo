@@ -3,19 +3,20 @@
     android:layout_width="match_parent"
     android:layout_height="45dp"
     android:id="@+id/answer_item_layout"
-    android:gravity="center_vertical"
+
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal">
 
     <ImageView
 
-        android:layout_margin="5dp"
+        android:layout_margin="10dp"
         android:id="@+id/answer_check"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/polyv_answer_choice_selector" />
 
     <TextView
+        android:layout_margin="10dp"
         android:layout_marginLeft="10dp"
         tools:text="@string/action_settings"
         android:textSize="16sp"

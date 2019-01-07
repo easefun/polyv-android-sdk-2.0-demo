@@ -132,4 +132,12 @@
         android:thumb="@drawable/polyv_sb_thumb"
         android:thumbOffset="0dp"/>
 
+
+    <ImageView
+        android:id="@+id/iv_screencast_search"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_margin="10dp"
+        android:src="@drawable/polyv_iv_screencast_selector" />
 </RelativeLayout>

@@ -15,6 +15,7 @@ import java.util.List;
 public class PolyvAnswerAdapter extends RecyclerView.Adapter<PolyvAnswerAdapter.ViewHolder> {
     private List<PolyvQuestionChoicesVO> questionChoicesVOs;
     private Context context;
+    private char a='A';
     private boolean isMultiSelect;
     private View lastSelectedView;
 
@@ -33,8 +34,8 @@ public class PolyvAnswerAdapter extends RecyclerView.Adapter<PolyvAnswerAdapter.
     @Override
     public void onBindViewHolder(PolyvAnswerAdapter.ViewHolder viewHolder, final int position) {
 
-//        viewHolder.check.setSelected(questionChoicesVOs.get(position).isSelected());
-        viewHolder.content.setText(questionChoicesVOs.get(position).getAnswer());
+        viewHolder.check.setSelected(questionChoicesVOs.get(position).isSelected());
+        viewHolder.content.setText((char)(a+position) +"."+questionChoicesVOs.get(position).getAnswer());
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -44,6 +45,9 @@ public class PolyvAnswerAdapter extends RecyclerView.Adapter<PolyvAnswerAdapter.
                     PolyvQuestionChoicesVO polyvQuestionChoicesVO = getItemData(lastPos);
                     if (polyvQuestionChoicesVO != null) {
                         polyvQuestionChoicesVO.setSelected(false);
+                    }
+                    if(answerSelectCallback != null){
+                        answerSelectCallback.onSelectAnswer(lastPos,lastSelectedView.isSelected());
                     }
                 }
 
@@ -56,7 +60,7 @@ public class PolyvAnswerAdapter extends RecyclerView.Adapter<PolyvAnswerAdapter.
 
                 PolyvQuestionChoicesVO polyvQuestionChoicesVO = getItemData(position);
                 if (polyvQuestionChoicesVO != null) {
-                    polyvQuestionChoicesVO.setSelected(true);
+                    polyvQuestionChoicesVO.setSelected(v.isSelected());
                 }
             }
         });
@@ -72,7 +76,7 @@ public class PolyvAnswerAdapter extends RecyclerView.Adapter<PolyvAnswerAdapter.
     }
 
     private PolyvQuestionChoicesVO getItemData(int pos) {
-        if (questionChoicesVOs != null && (questionChoicesVOs.size() - 1 > pos)) {
+        if (questionChoicesVOs != null && (questionChoicesVOs.size() - 1 >= pos)) {
             return questionChoicesVOs.get(pos);
         }
         return null;

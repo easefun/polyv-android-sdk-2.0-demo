@@ -1,6 +1,7 @@
 package com.easefun.polyvsdk.activity;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -10,9 +11,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -39,6 +42,7 @@ import com.easefun.polyvsdk.player.PolyvPlayerMediaController;
 import com.easefun.polyvsdk.player.PolyvPlayerPreviewView;
 import com.easefun.polyvsdk.player.PolyvPlayerProgressView;
 import com.easefun.polyvsdk.player.PolyvPlayerVolumeView;
+import com.easefun.polyvsdk.screencast.PolyvScreencastHelper;
 import com.easefun.polyvsdk.srt.PolyvSRTItemVO;
 import com.easefun.polyvsdk.sub.vlms.entity.PolyvCoursesInfo;
 import com.easefun.polyvsdk.util.PolyvErrorMessageUtils;
@@ -72,6 +76,8 @@ import com.easefun.polyvsdk.video.listener.IPolyvOnVideoSRTListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnVideoSRTPreparedListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnVideoStatusListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnVideoTimeoutListener;
+import com.easefun.polyvsdk.view.PolyvScreencastSearchLayout;
+import com.easefun.polyvsdk.view.PolyvScreencastStatusLayout;
 import com.easefun.polyvsdk.vo.PolyvADMatterVO;
 import com.easefun.polyvsdk.vo.PolyvQuestionVO;
 import com.easefun.polyvsdk.vo.PolyvVideoVO;
@@ -89,6 +95,11 @@ public class PolyvPlayerActivity extends FragmentActivity {
     private PolyvPlayerViewPagerFragment viewPagerFragment;
     private PolyvPlayerDanmuFragment danmuFragment;
     private ImageView iv_vlms_cover;
+    //投屏相关
+    private PolyvScreencastHelper screencastHelper;
+    private PolyvScreencastStatusLayout fl_screencast_status;
+    private PolyvScreencastSearchLayout fl_screencast_search, fl_screencast_search_land;
+    private ImageView iv_screencast_search, iv_screencast_search_land;
     /**
      * 播放器的parentView
      */
@@ -155,6 +166,8 @@ public class PolyvPlayerActivity extends FragmentActivity {
      * 音频模式下的封面
      */
     private PolyvPlayerAudioCoverView coverView = null;
+    //mp3源文件播放时的封面图
+    private PolyvPlayerAudioCoverView audioSourceCoverView = null;
     /**
      * 视频加载缓冲视图
      */
@@ -163,6 +176,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
     private int fastForwardPos = 0;
     private boolean isPlay = false;
 
+    private boolean isBackgroundPlay = false;
 
     private LinearLayout videoErrorLayout;
     private TextView videoErrorContent,videoErrorRetry;
@@ -179,6 +193,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
         addFragment();
         findIdAndNew();
         initView();
+        initScreencast();
 
         PolyvScreenUtils.generateHeight16_9(this);
         int playModeCode = getIntent().getIntExtra("playMode", PlayMode.portrait.getCode());
@@ -247,6 +262,13 @@ public class PolyvPlayerActivity extends FragmentActivity {
         progressView = (PolyvPlayerProgressView) findViewById(R.id.polyv_player_progress_view);
         loadingProgress = (ProgressBar) findViewById(R.id.loading_progress);
         coverView = (PolyvPlayerAudioCoverView) findViewById(R.id.polyv_cover_view);
+        audioSourceCoverView = (PolyvPlayerAudioCoverView) findViewById(R.id.polyv_source_audio_cover);
+        fl_screencast_search = (PolyvScreencastSearchLayout) findViewById(R.id.fl_screencast_search);
+        fl_screencast_search_land = (PolyvScreencastSearchLayout) findViewById(R.id.fl_screencast_search_land);
+        fl_screencast_status = (PolyvScreencastStatusLayout) findViewById(R.id.fl_screencast_status);
+
+        iv_screencast_search = (ImageView) mediaController.findViewById(R.id.iv_screencast_search);
+        iv_screencast_search_land = (ImageView) mediaController.findViewById(R.id.iv_screencast_search_land);
 
         mediaController.initConfig(viewLayout);
         mediaController.setAudioCoverView(coverView);
@@ -292,6 +314,11 @@ public class PolyvPlayerActivity extends FragmentActivity {
         videoView.setOnPreparedListener(new IPolyvOnPreparedListener2() {
             @Override
             public void onPrepared() {
+                if (videoView.getVideo() != null && videoView.getVideo().isMp3Source()) {
+                    audioSourceCoverView.onlyShowCover(videoView);
+                } else {
+                    audioSourceCoverView.hide();
+                }
                 mediaController.preparedView();
                 progressView.setViewMaxValue(videoView.getDuration());
                 // 没开预加载在这里开始弹幕
@@ -327,6 +354,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
             @Override
             public void onPause() {
                 coverView.stopAnimation();
+                danmuFragment.pause();
             }
 
             @Override
@@ -515,6 +543,10 @@ public class PolyvPlayerActivity extends FragmentActivity {
             @Override
             public void callback(boolean start, boolean end) {
                 Log.d(TAG, String.format("LeftUp %b %b brightness %d", start, end, videoView.getBrightness(PolyvPlayerActivity.this)));
+                if(mediaController.isLocked()){
+                    return;
+                }
+
                 int brightness = videoView.getBrightness(PolyvPlayerActivity.this) + 5;
                 if (brightness > 100) {
                     brightness = 100;
@@ -530,6 +562,9 @@ public class PolyvPlayerActivity extends FragmentActivity {
             @Override
             public void callback(boolean start, boolean end) {
                 Log.d(TAG, String.format("LeftDown %b %b brightness %d", start, end, videoView.getBrightness(PolyvPlayerActivity.this)));
+                if(mediaController.isLocked()){
+                    return;
+                }
                 int brightness = videoView.getBrightness(PolyvPlayerActivity.this) - 5;
                 if (brightness < 0) {
                     brightness = 0;
@@ -546,6 +581,9 @@ public class PolyvPlayerActivity extends FragmentActivity {
             public void callback(boolean start, boolean end) {
                 Log.d(TAG, String.format("RightUp %b %b volume %d", start, end, videoView.getVolume()));
                 // 加减单位最小为10，否则无效果
+                if(mediaController.isLocked()){
+                    return;
+                }
                 int volume = videoView.getVolume() + 10;
                 if (volume > 100) {
                     volume = 100;
@@ -562,6 +600,9 @@ public class PolyvPlayerActivity extends FragmentActivity {
             public void callback(boolean start, boolean end) {
                 Log.d(TAG, String.format("RightDown %b %b volume %d", start, end, videoView.getVolume()));
                 // 加减单位最小为10，否则无效果
+                if(mediaController.isLocked()){
+                    return;
+                }
                 int volume = videoView.getVolume() - 10;
                 if (volume < 0) {
                     volume = 0;
@@ -578,6 +619,9 @@ public class PolyvPlayerActivity extends FragmentActivity {
             public void callback(boolean start, int times, boolean end) {
                 // 左滑事件
                 Log.d(TAG, String.format("SwipeLeft %b %b", start, end));
+                if(mediaController.isLocked()){
+                    return;
+                }
                 mediaController.hideTickTips();
                 if (fastForwardPos == 0) {
                     fastForwardPos = videoView.getCurrentPosition();
@@ -608,6 +652,9 @@ public class PolyvPlayerActivity extends FragmentActivity {
             public void callback(boolean start, int times, boolean end) {
                 // 右滑事件
                 Log.d(TAG, String.format("SwipeRight %b %b", start, end));
+                if(mediaController.isLocked()){
+                    return;
+                }
                 mediaController.hideTickTips();
                 if (fastForwardPos == 0) {
                     fastForwardPos = videoView.getCurrentPosition();
@@ -666,6 +713,12 @@ public class PolyvPlayerActivity extends FragmentActivity {
      */
     public void play(final String vid, final int bitrate, boolean startNow, final boolean isMustFromLocal) {
         if (TextUtils.isEmpty(vid)) return;
+
+        if (fl_screencast_status != null && fl_screencast_status.getVisibility() == View.VISIBLE) {
+            showScreencastTipsDialog(vid, bitrate, startNow, isMustFromLocal);
+            return;
+        }
+
         if (iv_vlms_cover != null && iv_vlms_cover.getVisibility() == View.VISIBLE) {
             iv_vlms_cover.setVisibility(View.GONE);
         }
@@ -684,6 +737,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
         advertCountDown.setVisibility(View.GONE);
         firstStartView.hide();
         progressView.resetMaxValue();
+        audioSourceCoverView.hide();
 
         danmuFragment.setVid(vid, videoView);
         if (startNow) {
@@ -722,12 +776,14 @@ public class PolyvPlayerActivity extends FragmentActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        //回来后继续播放
-        if (isPlay) {
-            videoView.onActivityResume();
-            danmuFragment.resume();
-            if (auxiliaryView.isPauseAdvert()) {
-                auxiliaryView.hide();
+        if (!isBackgroundPlay) {
+            //回来后继续播放
+            if (isPlay) {
+                videoView.onActivityResume();
+                danmuFragment.resume();
+                if (auxiliaryView.isPauseAdvert()) {
+                    auxiliaryView.hide();
+                }
             }
         }
         mediaController.resume();
@@ -742,9 +798,11 @@ public class PolyvPlayerActivity extends FragmentActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        //弹出去暂停
-        isPlay = videoView.onActivityStop();
-        danmuFragment.pause();
+        if (!isBackgroundPlay) {
+            //弹出去暂停
+            isPlay = videoView.onActivityStop();
+            danmuFragment.pause();
+        }
     }
 
     @Override
@@ -757,11 +815,92 @@ public class PolyvPlayerActivity extends FragmentActivity {
         firstStartView.hide();
         coverView.hide();
         mediaController.disable();
+        fl_screencast_search.destroy();
+        fl_screencast_search_land.destroy();
+        screencastHelper.release();
+    }
+
+    private void showScreencastTipsDialog(final String vid, final int bitrate, final boolean startNow, final boolean isMustFromLocal) {
+        new AlertDialog.Builder(this)
+                .setTitle("提示")
+                .setMessage("切换视频后会退出当前的投屏，是否继续")
+                .setPositiveButton("继续", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        fl_screencast_status.hide(true);
+                        play(vid, bitrate, startNow, isMustFromLocal);
+                    }
+                })
+                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .show();
+    }
+
+    private void initScreencast() {
+        fl_screencast_status.setScreencastSearchLayout(fl_screencast_search);
+        fl_screencast_status.setLandScreencastSearchLayout(fl_screencast_search_land);
+        fl_screencast_status.setVideoView(videoView);
+        fl_screencast_status.setMediaController(mediaController);
+
+        screencastHelper = PolyvScreencastHelper.getInstance(null);//如果之前已经初始化，那么这里可以传null
+
+        fl_screencast_search.setScreencastStatusLayout(fl_screencast_status);
+        fl_screencast_search.setScreencastHelper(screencastHelper);
+        fl_screencast_search_land.setScreencastStatusLayout(fl_screencast_status);
+        fl_screencast_search_land.setScreencastHelper(screencastHelper);
+
+        iv_screencast_search.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (iv_screencast_search.isSelected()) {
+                    fl_screencast_search.hide(true);
+                } else {
+                    fl_screencast_search.show();
+                }
+            }
+        });
+        iv_screencast_search_land.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fl_screencast_search_land.show();
+            }
+        });
+
+        fl_screencast_search.setOnVisibilityChangedListener(new PolyvScreencastSearchLayout.OnVisibilityChangedListener() {
+            @Override
+            public void onVisibilityChanged(@NonNull View changedView, int visibility) {
+                iv_screencast_search.setSelected(visibility == View.VISIBLE);
+            }
+        });
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        if (ev.getAction() == MotionEvent.ACTION_DOWN && fl_screencast_search_land.getVisibility() == View.VISIBLE) {
+            int[] location = new int[2];
+            fl_screencast_search_land.getLocationInWindow(location);
+            if (ev.getX() < location[0]) {
+                fl_screencast_search_land.hide(true);
+                return true;
+            }
+        }
+        return super.dispatchTouchEvent(ev);
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (fl_screencast_search.getVisibility() == View.VISIBLE) {
+                fl_screencast_search.hide(true);
+                return true;
+            }
+            if (fl_screencast_search_land.getVisibility() == View.VISIBLE) {
+                fl_screencast_search_land.hide(true);
+                return true;
+            }
             if (PolyvScreenUtils.isLandscape(this) && mediaController != null) {
                 mediaController.changeToPortrait();
                 return true;

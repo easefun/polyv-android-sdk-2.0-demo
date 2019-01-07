@@ -159,6 +159,8 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     private PolyvPlayerAudioCoverView coverView;
     private PolyvTickTips tickTips;
 
+    private ImageView polyvScreenLock, polyvScreenLockAudio;
+
     //用于处理控制栏的显示状态
     private Handler handler = new Handler() {
         @Override
@@ -351,6 +353,20 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                 }
             }
         });
+
+        polyvScreenLock = (ImageView) view.findViewById(R.id.polyv_screen_lock);
+        polyvScreenLockAudio = (ImageView) view.findViewById(R.id.polyv_screen_lock_audio);
+        if (canShowLeftSideView()) {
+            showAudioLock(true);
+        }
+    }
+
+    public void showAudioLock(boolean show) {
+        polyvScreenLockAudio.setVisibility(show ? VISIBLE : GONE);
+        polyvScreenLock.setVisibility(show ? GONE : VISIBLE);
+
+        polyvScreenLock.setSelected(false);
+        polyvScreenLockAudio.setSelected(false);
     }
 
     private void initView() {
@@ -423,6 +439,8 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         iv_video_land.setOnClickListener(this);
         iv_audio.setOnClickListener(this);
         iv_audio_land.setOnClickListener(this);
+        polyvScreenLock.setOnClickListener(this);
+        polyvScreenLockAudio.setOnClickListener(this);
     }
 
     //是否显示左侧边的切换音视频的布局
@@ -455,6 +473,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     public void preparedView() {
         if (videoView != null) {
             videoVO = videoView.getVideo();
+            showAudioLock(canShowLeftSideView());
             if (videoVO != null)
                 tv_title.setText(videoVO.getTitle());
             int totalTime = videoView.getDuration();
@@ -600,20 +619,41 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             status_showalways = true;
         else
             status_showalways = false;
-        if (!isShowing) {
-            resetTopBottomLayout(View.VISIBLE);
-            resetSideLayout(View.VISIBLE);
-            if (canShowLeftSideView()) {
-                resetLeftSideView(View.VISIBLE);
-            }
-            //获取焦点
-            requestFocus();
-            handler.removeMessages(SHOW_PROGRESS);
-            handler.sendEmptyMessage(SHOW_PROGRESS);
-            isShowing = !isShowing;
+        if (PolyvScreenUtils.isLandscape(getContext()) && (polyvScreenLock.isSelected() || polyvScreenLockAudio.isSelected())) {
             setVisibility(View.VISIBLE);
+
+            updateLockStatus();
+            resetTopBottomLayout(View.GONE);
+            resetSideLayout(View.GONE);
+            resetLeftSideView(View.GONE);
+            isShowing = true;
+        } else {
+            if (!isShowing) {
+                resetTopBottomLayout(View.VISIBLE);
+                resetSideLayout(View.VISIBLE);
+                if (canShowLeftSideView()) {
+                    resetLeftSideView(View.VISIBLE);
+                }
+                //获取焦点
+                requestFocus();
+                handler.removeMessages(SHOW_PROGRESS);
+                handler.sendEmptyMessage(SHOW_PROGRESS);
+                isShowing = !isShowing;
+                setVisibility(View.VISIBLE);
+            }
+            sensorHelper.toggle(true,PolyvScreenUtils.isLandscape(getContext()));
         }
+
+
         resetHideTime(timeout);
+    }
+
+    private void updateLockStatus() {
+        boolean show = canShowLeftSideView();
+        polyvScreenLockAudio.setVisibility(show ? VISIBLE : GONE);
+        polyvScreenLock.setVisibility(show ? GONE : VISIBLE);
+
+        sensorHelper.toggle(!polyvScreenLockAudio.isSelected() && !polyvScreenLock.isSelected(),true);
     }
 
     @Override
@@ -664,6 +704,9 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
 
     //根据屏幕状态改变控制栏布局
     private void resetControllerLayout() {
+        if(polyvScreenLock.isSelected() || polyvScreenLockAudio.isSelected()){
+            return;
+        }
         hide();
         PolyvScreenUtils.reSetStatusBar(videoActivity);
         if (PolyvScreenUtils.isLandscape(mContext)) {
@@ -1272,9 +1315,19 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         tv_audio_land.setSelected(!isVideo);
     }
 
+    public boolean isLocked() {
+        return PolyvScreenUtils.isLandscape(getContext()) &&
+                (polyvScreenLock.isSelected() || polyvScreenLockAudio.isSelected());
+    }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
+            case R.id.polyv_screen_lock:
+            case R.id.polyv_screen_lock_audio:
+                view.setSelected(!view.isSelected());
+                show();
+                break;
             case R.id.iv_land:
                 changeToLandscape();
                 break;
@@ -1446,6 +1499,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                 //如果当前已经是优先视频模式，则不再切换
                 if (videoView != null && !PolyvVideoVO.MODE_VIDEO.equals(videoView.getPriorityMode())) {
                     resetModeView(true);
+                    showAudioLock(true);
                     videoView.changeMode(PolyvVideoVO.MODE_VIDEO);
                     if (coverView != null)
                         coverView.hide();
@@ -1456,6 +1510,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                 //如果当前已经是优先音频模式，则不再切换
                 if (videoView != null && !PolyvVideoVO.MODE_AUDIO.equals(videoView.getPriorityMode())) {
                     resetModeView(false);
+                    showAudioLock(true);
                     videoView.changeMode(PolyvVideoVO.MODE_AUDIO);
                 }
                 break;

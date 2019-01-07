@@ -5,6 +5,7 @@ import android.support.multidex.MultiDexApplication;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.easefun.polyvsdk.screencast.PolyvScreencastHelper;
 import com.easefun.polyvsdk.util.PolyvStorageUtils;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -26,6 +27,14 @@ public class PolyvApplication extends MultiDexApplication {
 		ImageLoader.getInstance().init(configuration);
 
 		initPolyvCilent();
+		initScreencast();
+	}
+
+	public void initScreencast() {
+		//TODO appId和appSecret需与包名绑定，获取方式请咨询Polyv技术支持
+		PolyvScreencastHelper.init("10747", "34fa2201e4e7441635ca4fa97fd4b21e");//该appId，appSecret仅能在demo中使用
+		//初始化单例
+		PolyvScreencastHelper.getInstance(this);
 	}
 
 	//加密秘钥和加密向量，在后台->设置->API接口中获取，用于解密SDK加密串
@@ -41,7 +50,7 @@ public class PolyvApplication extends MultiDexApplication {
 //		new LoadConfigTask().execute();
 		PolyvSDKClient client = PolyvSDKClient.getInstance();
 		//使用SDK加密串来配置
-		client.setConfig("CMWht3MlpVkgpFzrLNAebYi4RdQDY/Nhvk3Kc+qWcck6chwHYKfl9o2aOVBvXVTRZD/14XFzVP7U5un43caq1FXwl0cYmTfimjTmNUYa1sZC1pkHE8gEsRpwpweQtEIiTGVEWrYVNo4/o5jI2/efzA==", aeskey, iv, getApplicationContext());
+		client.setConfig("", aeskey, iv, getApplicationContext());
 		//初始化SDK设置
 		client.initSetting(getApplicationContext());
 		//启动Bugly

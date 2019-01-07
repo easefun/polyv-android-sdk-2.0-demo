@@ -7,4 +7,7 @@
         <attr name="dividerThickness" format="dimension" />
     </declare-styleable>
 
+    <declare-styleable name="PolyvPlayerAudioCoverView">
+        <attr name="show_film" format="boolean" />
+    </declare-styleable>
 </resources>

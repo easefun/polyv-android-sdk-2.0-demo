@@ -7,6 +7,8 @@ import android.support.v7.widget.AppCompatSeekBar;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
+import com.easefun.polyvsdk.util.PolyvScreenUtils;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -18,7 +20,7 @@ public class PolyvTickSeekBar extends AppCompatSeekBar {
     private List<TickData> mTickDataList;
     private boolean isMoved;
     private int moveCount;
-    private final float fingerRadius = 45;//触摸点的45px范围的点视为点中打点
+    private float fingerRadius;//触摸点的px范围的点视为点中打点
 
     public PolyvTickSeekBar(Context context) {
         this(context, null);
@@ -31,6 +33,8 @@ public class PolyvTickSeekBar extends AppCompatSeekBar {
     public PolyvTickSeekBar(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initStrokePaint();
+
+        fingerRadius = PolyvScreenUtils.dip2px(getContext(), 16);
     }
 
     //初始化画笔

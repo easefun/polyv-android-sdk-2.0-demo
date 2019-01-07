@@ -3,6 +3,7 @@ package com.easefun.polyvsdk.player;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -33,6 +34,8 @@ public class PolyvPlayerAudioCoverView extends FrameLayout {
     private float currentValue;
     private String currentMode;
 
+    private boolean isShowFilm;
+
     public PolyvPlayerAudioCoverView(@NonNull Context context) {
         this(context, null);
     }
@@ -43,6 +46,9 @@ public class PolyvPlayerAudioCoverView extends FrameLayout {
 
     public PolyvPlayerAudioCoverView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.PolyvPlayerAudioCoverView);
+        isShowFilm = typedArray.getBoolean(R.styleable.PolyvPlayerAudioCoverView_show_film, true);
+        typedArray.recycle();
         init();
     }
 
@@ -51,6 +57,12 @@ public class PolyvPlayerAudioCoverView extends FrameLayout {
         iv_audio_cover = (ImageView) findViewById(R.id.iv_audio_cover);
         iv_audio_cover_m = (ImageView) findViewById(R.id.iv_audio_cover_m);
         fl_cover = (FrameLayout) findViewById(R.id.fl_cover);
+        if (!isShowFilm) {
+            iv_audio_cover_m.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            fl_cover.setVisibility(View.GONE);
+        } else {
+            iv_audio_cover_m.setAlpha(0.4f);
+        }
     }
 
     private void showCover(PolyvVideoView videoView, ImageView imageView, boolean isRotateView) {
@@ -80,6 +92,7 @@ public class PolyvPlayerAudioCoverView extends FrameLayout {
             imageView.setImageResource(isRotateView ? R.drawable.polyv_rotate_cover_default : R.drawable.polyv_bg_cover_default);//显示默认的图片
     }
 
+    //用于音视频切换
     public void changeModeFitCover(PolyvVideoView videoView, String changedMode) {
         this.currentMode = changedMode;
         if (PolyvVideoVO.MODE_AUDIO.equals(changedMode)) {
@@ -99,6 +112,11 @@ public class PolyvPlayerAudioCoverView extends FrameLayout {
         fl_cover.setVisibility(View.GONE);
         iv_audio_cover.setVisibility(View.GONE);
         iv_audio_cover_m.setVisibility(View.GONE);
+    }
+
+    //用于mp3源文件播放
+    public void onlyShowCover(PolyvVideoView videoView) {
+        showCover(videoView, iv_audio_cover_m, false);
     }
 
     public void stopAnimation() {
