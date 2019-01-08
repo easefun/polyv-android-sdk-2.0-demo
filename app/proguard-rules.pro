@@ -94,3 +94,20 @@
 -keep class tv.danmaku.ijk.media.**{*;}
 -keep class net.lingala.zip4j.**{*;}
 -keep class org.apache.commons.compress.**{*;}
+
+###jmdns
+-keep class javax.jmdns.** { *; }
+-dontwarn javax.jmdns.**
+
+###CyberGarage-upnp
+-keep class org.cybergarage.** { *; }
+-dontwarn org.cybergarage.**
+
+###plist
+-keep class com.dd.plist.** { *; }
+-dontwarn com.dd.plist.**
+
+###Lebo
+-keep class com.hpplay.**{*;}
+-keep class com.hpplay.**$*{*;}
+-dontwarn com.hpplay.**
