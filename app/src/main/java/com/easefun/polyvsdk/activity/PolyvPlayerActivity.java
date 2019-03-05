@@ -49,6 +49,7 @@ import com.easefun.polyvsdk.util.PolyvErrorMessageUtils;
 import com.easefun.polyvsdk.util.PolyvScreenUtils;
 import com.easefun.polyvsdk.video.PolyvMediaInfoType;
 import com.easefun.polyvsdk.video.PolyvPlayErrorReason;
+import com.easefun.polyvsdk.video.PolyvSeekType;
 import com.easefun.polyvsdk.video.PolyvVideoView;
 import com.easefun.polyvsdk.video.auxiliary.PolyvAuxiliaryVideoView;
 import com.easefun.polyvsdk.video.listener.IPolyvOnAdvertisementCountDownListener;
@@ -308,8 +309,10 @@ public class PolyvPlayerActivity extends FragmentActivity {
         videoView.setOpenMarquee(true);
         videoView.setAutoContinue(true);
         videoView.setNeedGestureDetector(true);
+        videoView.setSeekType(PolyvSeekType.SEEKTYPE_NORMAL);
         videoView.setLoadTimeoutSecond(25);//加载超时时间，单位：秒
         videoView.setBufferTimeoutSecond(15);//缓冲超时时间，单位：秒
+        videoView.disableScreenCAP(this, false);//防录屏开关，true为开启，如果开启防录屏，投屏功能将不可用
 
         videoView.setOnPreparedListener(new IPolyvOnPreparedListener2() {
             @Override
@@ -723,6 +726,11 @@ public class PolyvPlayerActivity extends FragmentActivity {
             iv_vlms_cover.setVisibility(View.GONE);
         }
 
+        if (videoView.isDisableScreenCAP()) {
+            iv_screencast_search.setVisibility(View.GONE);
+            iv_screencast_search_land.setVisibility(View.GONE);
+        }
+
         videoView.release();
         srtTextView.setVisibility(View.GONE);
         topSrtTextView.setVisibility(View.GONE);
@@ -899,6 +907,9 @@ public class PolyvPlayerActivity extends FragmentActivity {
             }
             if (fl_screencast_search_land.getVisibility() == View.VISIBLE) {
                 fl_screencast_search_land.hide(true);
+                return true;
+            }
+            if (mediaController != null && mediaController.isLocked()) {
                 return true;
             }
             if (PolyvScreenUtils.isLandscape(this) && mediaController != null) {

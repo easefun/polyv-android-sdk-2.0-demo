@@ -127,7 +127,7 @@ public class PolyvErrorMessageUtils {
                 return "当前视频无法下载，请重启手机再次下载或者向管理员反馈";
 
             case UNZIP_FILE_ERROR:
-                return "当前视频无法下载，请重启手机再次下载或者向管理员反馈";
+                return "当前视频解压失败，请尝试删除视频再次下载或者切换网络再次下载或者向管理员反馈";
 
             case CREATE_ZIP_TMP_FILE_ERROR:
                 return "当前视频无法下载，请重启手机再次下载或者向管理员反馈";
@@ -179,6 +179,9 @@ public class PolyvErrorMessageUtils {
 
             case MEDIA_EJECTING:
                 return "SD卡不可用，请重启手机或者更换SD卡或者向管理员反馈";
+
+            case VIDEO_BITRATE_NOT_EXIST:
+                return "当前视频下载出错，请尝试切换码率进行下载或者向管理员反馈";
 
             default:
                 return "当前视频无法下载，请向管理员反馈";

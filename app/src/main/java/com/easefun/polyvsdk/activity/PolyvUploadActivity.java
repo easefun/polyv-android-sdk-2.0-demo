@@ -93,7 +93,12 @@ public class PolyvUploadActivity extends Activity {
             File file = new File(filepath);
             String fileName = file.getName();
             // 标题
-            String title = fileName.substring(0, fileName.lastIndexOf("."));
+            String title = null;
+            if (fileName.contains(".")) {
+                title = fileName.substring(0, fileName.lastIndexOf("."));
+            } else {
+                title = fileName;
+            }
             // 描述
             String desc = title;
             // 大小

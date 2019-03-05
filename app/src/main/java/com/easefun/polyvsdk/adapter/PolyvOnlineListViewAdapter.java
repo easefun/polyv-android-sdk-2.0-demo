@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -20,16 +21,18 @@ import com.easefun.polyvsdk.PolyvBitRate;
 import com.easefun.polyvsdk.PolyvDownloader;
 import com.easefun.polyvsdk.PolyvDownloaderErrorReason;
 import com.easefun.polyvsdk.PolyvDownloaderManager;
+import com.easefun.polyvsdk.PolyvSDKUtil;
 import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.RestVO;
-import com.easefun.polyvsdk.Video;
 import com.easefun.polyvsdk.activity.PolyvMainActivity;
 import com.easefun.polyvsdk.activity.PolyvPlayerActivity;
 import com.easefun.polyvsdk.bean.PolyvDownloadInfo;
 import com.easefun.polyvsdk.database.PolyvDownloadSQLiteHelper;
 import com.easefun.polyvsdk.download.listener.IPolyvDownloaderProgressListener;
+import com.easefun.polyvsdk.download.listener.IPolyvDownloaderProgressListener2;
 import com.easefun.polyvsdk.player.PolyvAnimateFirstDisplayListener;
 import com.easefun.polyvsdk.util.PolyvErrorMessageUtils;
+import com.easefun.polyvsdk.vo.PolyvVideoVO;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
@@ -40,6 +43,7 @@ import java.util.List;
 
 
 public class PolyvOnlineListViewAdapter extends AbsRecyclerViewAdapter {
+    private static final String TAG = PolyvOnlineListViewAdapter.class.getSimpleName();
     private Context context;
     private List<RestVO> videos;
     private DisplayImageOptions options;
@@ -49,7 +53,7 @@ public class PolyvOnlineListViewAdapter extends AbsRecyclerViewAdapter {
         super(recyclerView);
         this.context = context;
         this.videos = videos;
-        this.downloadSQLiteHelper = PolyvDownloadSQLiteHelper.getInstance(context);
+        downloadSQLiteHelper = PolyvDownloadSQLiteHelper.getInstance(context);
 
         options = new DisplayImageOptions.Builder().showImageOnLoading(R.drawable.polyv_pic_demo) // 设置图片在下载期间显示的图片
                 .showImageForEmptyUri(R.drawable.polyv_pic_demo)// 设置图片Uri为空或是错误的时候显示的图片
@@ -61,13 +65,13 @@ public class PolyvOnlineListViewAdapter extends AbsRecyclerViewAdapter {
                 .imageScaleType(ImageScaleType.IN_SAMPLE_INT).build();// 构建完成
     }
 
-    public class ItemViewHolder extends AbsRecyclerViewAdapter.ClickableViewHolder {
+    private class ItemViewHolder extends AbsRecyclerViewAdapter.ClickableViewHolder {
         // 封面图
         ImageView iv_cover;
         // 标题，时间，下载按钮，播放按钮
         TextView tv_title, tv_time, tv_download, tv_play;
 
-        public ItemViewHolder(View itemView) {
+        ItemViewHolder(View itemView) {
             super(itemView);
             iv_cover = $(R.id.iv_cover);
             tv_title = $(R.id.tv_title);
@@ -133,12 +137,15 @@ public class PolyvOnlineListViewAdapter extends AbsRecyclerViewAdapter {
         public void onDownloadSuccess() {
             if (total == 0)
                 total = 1;
+
             downloadSQLiteHelper.update(downloadInfo, total, total);
         }
 
         @Override
         public void onDownloadFail(@NonNull PolyvDownloaderErrorReason errorReason) {
             String errorMsg = PolyvErrorMessageUtils.getDownloaderErrorMessage(errorReason.getType());
+            errorMsg += "(error code " + errorReason.getType().getCode() + ")";
+            Log.e(TAG, errorMsg);
             if (contextWeakReference.get() != null)
                 Toast.makeText(contextWeakReference.get(), errorMsg, Toast.LENGTH_LONG).show();
         }
@@ -160,8 +167,10 @@ public class PolyvOnlineListViewAdapter extends AbsRecyclerViewAdapter {
 
         @Override
         public void onClick(final View view) {
-            Video.loadVideo(vid, new Video.OnVideoLoaded() {
-                public void onloaded(final Video v) {
+            LoadVideoInfoTask loadVideoInfoTask = new LoadVideoInfoTask(new ILoadVideoInfoListener() {
+
+                @Override
+                public void onloaded(final PolyvVideoVO v) {
                     if (v == null) {
                         Toast.makeText(context, "获取下载信息失败，请重试", Toast.LENGTH_SHORT).show();
                         return;
@@ -197,10 +206,41 @@ public class PolyvOnlineListViewAdapter extends AbsRecyclerViewAdapter {
                                 }
                             });
 
-                    if  (view.getWindowToken() != null)
+                    if (view.getWindowToken() != null)
                         selectDialog.show().setCanceledOnTouchOutside(true);
                 }
             });
+
+            loadVideoInfoTask.execute(vid);
         }
+    }
+
+    private static class LoadVideoInfoTask extends AsyncTask<String, Void, PolyvVideoVO> {
+
+        private final ILoadVideoInfoListener l;
+
+        LoadVideoInfoTask(ILoadVideoInfoListener l) {
+            this.l = l;
+        }
+
+        @Override
+        protected PolyvVideoVO doInBackground(String... params) {
+            try {
+                return PolyvSDKUtil.loadVideoJSON2Video(params[0]);
+            } catch (Exception e) {
+                Log.e(TAG, PolyvSDKUtil.getExceptionFullMessage(e, -1));
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(PolyvVideoVO v) {
+            super.onPostExecute(v);
+            l.onloaded(v);
+        }
+    }
+
+    private interface ILoadVideoInfoListener {
+        void onloaded(PolyvVideoVO v);
     }
 }

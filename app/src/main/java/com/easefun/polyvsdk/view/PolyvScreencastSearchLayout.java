@@ -526,17 +526,25 @@ public class PolyvScreencastSearchLayout extends FrameLayout implements View.OnC
 
     public void play(String playPath, int bitrate) {
         PolyvLogger.test(TAG, "start play url:" + playPath + " type:" + PolyvAllCast.MEDIA_TYPE_VIDEO);
+        if (screencastStatusLayout.getVideoView().isDisableScreenCAP()) {
+            PolyvToastUtil.show(getApplicationContext(), "防录屏状态下不能投屏");
+            screencastStatusLayout.callPlayErrorStatus();
+            return;
+        }
         if (TextUtils.isEmpty(playPath)) {
             PolyvToastUtil.show(getApplicationContext(), "获取播放地址失败");
+            screencastStatusLayout.callPlayErrorStatus();
             return;
         }
         if (null == screencastHelper) {
             PolyvToastUtil.show(getApplicationContext(), "未初始化或未选择设备");
+            screencastStatusLayout.callPlayErrorStatus();
             return;
         }
         List<LelinkServiceInfo> connectInfos = screencastHelper.getConnectInfos();
         if (null == connectInfos || connectInfos.isEmpty()) {
             PolyvToastUtil.show(getApplicationContext(), "请先连接设备");
+            screencastStatusLayout.callPlayErrorStatus();
             return;
         }
         screencastStatusLayout.callScreencastingStatus(bitrate);

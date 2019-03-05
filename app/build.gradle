@@ -64,18 +64,16 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 
-    compile(name: 'sdk-lecast-release', ext: 'aar')
-
     compile 'com.android.support:support-annotations:23+'
     compile 'com.android.support:appcompat-v7:23+'
     compile 'com.android.support:support-v4:23+'
     compile 'com.android.support:design:23+'
     compile 'com.android.support:multidex:1.0.1'//64K 引用限制
-    compile 'com.easefun.polyv:polyvPlayer:2.7.0'//SDK核心包
-    compile 'com.easefun.polyv:polyvPlayerABI:1.7.0'//SDK核心包
-    compile 'com.easefun.polyv:polyvDownload:2.6.0'//SDK下载功能
-    compile 'com.easefun.polyv:polyvUpload:2.2.1'//SDK上传功能
-    compile 'com.easefun.polyv:polyvScreencast:0.1.0'//SDK上传功能
+    compile 'com.easefun.polyv:polyvPlayer:2.7.1'//SDK核心包
+    compile 'com.easefun.polyv:polyvPlayerABI:1.7.1'//SDK核心包
+    compile 'com.easefun.polyv:polyvDownload:2.7.0'//SDK下载功能
+    compile 'com.easefun.polyv:polyvUpload:2.2.2'//SDK上传功能
+    compile 'com.easefun.polyv:polyvScreencast:0.2.0'//SDK上传功能
     compile 'de.hdodenhof:circleimageview:2.2.0'//圆形imageview，音频封面图使用
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'//demo中图片使用
     compile "com.daimajia.swipelayout:library:1.2.0@aar"//demo中下载列表使用

@@ -100,7 +100,7 @@ public class PolyvTickSeekBar extends AppCompatSeekBar {
                 moveCount = 0;
                 return hasTick || super.onTouchEvent(event);
             case MotionEvent.ACTION_MOVE:
-                if (++moveCount >= 4) {
+                if (++moveCount >= 7) {
                     isMoved = true;
                 } else {
                     return hasTick || super.onTouchEvent(event);
@@ -210,6 +210,7 @@ public class PolyvTickSeekBar extends AppCompatSeekBar {
     }
 
     public static class TickData {
+        private int keyTime;
         private float progress;
         private int color;
         private Object tag;
@@ -217,9 +218,22 @@ public class PolyvTickSeekBar extends AppCompatSeekBar {
         private float cx;
 
         public TickData(float progress, int color, Object tag) {
+            this((int) progress, progress, color, tag);
+        }
+
+        public TickData(int keyTime, float progress, int color, Object tag) {
+            this.keyTime = keyTime;
             this.progress = progress;
             this.color = color;
             this.tag = tag;
+        }
+
+        public int getKeyTime() {
+            return keyTime;
+        }
+
+        public void setKeyTime(int keyTime) {
+            this.keyTime = keyTime;
         }
 
         public float getProgress() {
@@ -257,7 +271,8 @@ public class PolyvTickSeekBar extends AppCompatSeekBar {
         @Override
         public String toString() {
             return "TickData{" +
-                    "progress=" + progress +
+                    "keyTime=" + keyTime +
+                    ", progress=" + progress +
                     ", color=" + color +
                     ", tag=" + tag +
                     ", cx=" + cx +

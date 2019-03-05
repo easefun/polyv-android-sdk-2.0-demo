@@ -72,6 +72,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/rl_bot" />
+    <!-- 中间选择线路布局 -->
+
+    <include
+        layout="@layout/polyv_controller_media_center_route"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/rl_bot"/>
 
     <!-- 中间分享布局 -->
 
@@ -230,9 +237,15 @@
             android:src="@drawable/polyv_btn_exitfulls" />
 
         <TextView
-            android:id="@+id/tv_speed"
+            android:id="@+id/tv_route"
             style="@style/tv_click_controller_land_bottom"
             android:layout_toLeftOf="@id/iv_port"
+            android:text="线路"/>
+
+        <TextView
+            android:id="@+id/tv_speed"
+            style="@style/tv_click_controller_land_bottom"
+            android:layout_toLeftOf="@id/tv_route"
             android:text="1x" />
 
         <TextView

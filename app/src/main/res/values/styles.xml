@@ -58,6 +58,16 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="tv_click_controller_portrait_center">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:clickable">true</item>
+        <item name="android:textColor">@color/polyv_bit_text_color</item>
+        <item name="android:textSize">@dimen/center_text_size</item>
+        <item name="android:padding">@dimen/corners_common</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <style name="tv_click_controller_land_center_s">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
