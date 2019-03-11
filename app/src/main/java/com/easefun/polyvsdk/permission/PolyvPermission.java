@@ -30,7 +30,8 @@ public class PolyvPermission {
         play(100),
         download(101),
         upload(102),
-        playAndDownload(103);
+        playAndDownload(103),
+        readImei(104);
 
         private final int num;
         private OperationType(int num) {
@@ -46,6 +47,8 @@ public class PolyvPermission {
                 return play;
             } else if (num == download.getNum()) {
                 return download;
+            } else if (num == readImei.getNum()) {
+                return readImei;
             } else if (num == upload.getNum()) {
                 return upload;
             } else if (num == playAndDownload.getNum()) {
@@ -73,8 +76,14 @@ public class PolyvPermission {
             case play:
                 //播放视频需要的权限
                 permissions.add(Manifest.permission.READ_PHONE_STATE);
+                //投屏功能在android9.0获取wifi名称及搜索设备所需的权限
+                permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
                 permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
                 resultCode = OperationType.play.getNum();
+                break;
+            case readImei:
+                permissions.add(Manifest.permission.READ_PHONE_STATE);
+                resultCode = OperationType.readImei.getNum();
                 break;
             case download:
                 //下载需要的权限

@@ -7,6 +7,8 @@ import android.support.v7.widget.AppCompatSeekBar;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
+import com.easefun.polyvsdk.util.PolyvScreenUtils;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -18,7 +20,7 @@ public class PolyvTickSeekBar extends AppCompatSeekBar {
     private List<TickData> mTickDataList;
     private boolean isMoved;
     private int moveCount;
-    private final float fingerRadius = 45;//触摸点的45px范围的点视为点中打点
+    private float fingerRadius;//触摸点的px范围的点视为点中打点
 
     public PolyvTickSeekBar(Context context) {
         this(context, null);
@@ -31,6 +33,8 @@ public class PolyvTickSeekBar extends AppCompatSeekBar {
     public PolyvTickSeekBar(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initStrokePaint();
+
+        fingerRadius = PolyvScreenUtils.dip2px(getContext(), 16);
     }
 
     //初始化画笔
@@ -96,7 +100,7 @@ public class PolyvTickSeekBar extends AppCompatSeekBar {
                 moveCount = 0;
                 return hasTick || super.onTouchEvent(event);
             case MotionEvent.ACTION_MOVE:
-                if (++moveCount >= 4) {
+                if (++moveCount >= 7) {
                     isMoved = true;
                 } else {
                     return hasTick || super.onTouchEvent(event);
@@ -206,6 +210,7 @@ public class PolyvTickSeekBar extends AppCompatSeekBar {
     }
 
     public static class TickData {
+        private int keyTime;
         private float progress;
         private int color;
         private Object tag;
@@ -213,9 +218,22 @@ public class PolyvTickSeekBar extends AppCompatSeekBar {
         private float cx;
 
         public TickData(float progress, int color, Object tag) {
+            this((int) progress, progress, color, tag);
+        }
+
+        public TickData(int keyTime, float progress, int color, Object tag) {
+            this.keyTime = keyTime;
             this.progress = progress;
             this.color = color;
             this.tag = tag;
+        }
+
+        public int getKeyTime() {
+            return keyTime;
+        }
+
+        public void setKeyTime(int keyTime) {
+            this.keyTime = keyTime;
         }
 
         public float getProgress() {
@@ -253,7 +271,8 @@ public class PolyvTickSeekBar extends AppCompatSeekBar {
         @Override
         public String toString() {
             return "TickData{" +
-                    "progress=" + progress +
+                    "keyTime=" + keyTime +
+                    ", progress=" + progress +
                     ", color=" + color +
                     ", tag=" + tag +
                     ", cx=" + cx +

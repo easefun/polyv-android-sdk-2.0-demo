@@ -49,9 +49,9 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
     private PolyvAnswerAdapter polyvAnswerAdapter;
     private boolean isMultiSelected;
     private int rightAnswerNum;
-    private LinkedList rightAnswers = new LinkedList();
-    private LinkedList wrongAnserSelect = new LinkedList();
-    private LinkedList rightAnserSelect = new LinkedList();
+    private LinkedList<Integer> rightAnswers = new LinkedList();
+    private LinkedList<Integer> wrongAnserSelect = new LinkedList();
+    private LinkedList<Integer> rightAnserSelect = new LinkedList();
     private PolyvQuestionVO polyvQuestionVO;
     private LinearLayout answerContentLayout, answerTipLayout;
     private ImageView answerTipImg;
@@ -148,11 +148,13 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
                     if (!rightAnswers.contains(pos)) {
                         wrongAnserSelect.add(pos);
                     } else {
-                        rightAnserSelect.add(rightAnswers.remove(pos));
+                        rightAnswers.remove(pos);
+                        rightAnserSelect.add(pos);
                     }
                 } else {
                     if (rightAnserSelect.contains(pos)) {
-                        rightAnswers.add(rightAnserSelect.remove(pos));
+                        rightAnserSelect.remove(pos);
+                        rightAnswers.add(pos);
                     } else {
                         wrongAnserSelect.remove(pos);
                     }
@@ -161,7 +163,7 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
         });
 
 
-        if (answerIllustration.getVisibility() == VISIBLE) {
+        if (answerIllustration.getVisibility() == VISIBLE || PolyvScreenUtils.isLandscape(getContext())) {
             answerList.setLayoutManager(new LinearLayoutManager(getContext()));
         } else {
             answerList.setLayoutManager(new GridLayoutManager(getContext(), 2));
@@ -193,6 +195,7 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
         int length = choicesList.size();
         for (int i = 0; i < length; i++) {
             PolyvQuestionChoicesVO choicesVO = choicesList.get(i);
+            choicesVO.setSelected(false);
             if (choicesVO.getRightAnswer() == 1) {
                 rightAnswerNum++;
                 rightAnswers.add(i);
@@ -366,6 +369,8 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
             ViewGroup.LayoutParams answerTipLayoutParams = answerTipLayout.getLayoutParams();
             answerTipLayoutParams.width = PolyvScreenUtils.dip2px(getContext(), 200);
             answerTipLayoutParams.height = PolyvScreenUtils.dip2px(getContext(), 200);
+
+            answerList.setLayoutManager(new LinearLayoutManager(getContext()));
         } else {
             answerContentLayout.setBackgroundResource(android.R.color.white);
             ViewGroup.LayoutParams layoutParams = answerContentLayout.getLayoutParams();
@@ -375,6 +380,12 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
             ViewGroup.LayoutParams answerTipLayoutParams = answerTipLayout.getLayoutParams();
             answerTipLayoutParams.width = PolyvScreenUtils.dip2px(getContext(), 150);
             answerTipLayoutParams.height = PolyvScreenUtils.dip2px(getContext(), 150);
+
+            if(answerIllustration.getVisibility() == VISIBLE){
+                answerList.setLayoutManager(new LinearLayoutManager(getContext()));
+            }else{
+                answerList.setLayoutManager(new GridLayoutManager(getContext(), 2));
+            }
         }
     }
 }

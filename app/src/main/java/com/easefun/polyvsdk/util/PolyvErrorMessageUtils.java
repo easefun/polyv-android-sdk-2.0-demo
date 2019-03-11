@@ -127,7 +127,7 @@ public class PolyvErrorMessageUtils {
                 return "当前视频无法下载，请重启手机再次下载或者向管理员反馈";
 
             case UNZIP_FILE_ERROR:
-                return "当前视频无法下载，请重启手机再次下载或者向管理员反馈";
+                return "当前视频解压失败，请尝试删除视频再次下载或者切换网络再次下载或者向管理员反馈";
 
             case CREATE_ZIP_TMP_FILE_ERROR:
                 return "当前视频无法下载，请重启手机再次下载或者向管理员反馈";
@@ -180,6 +180,9 @@ public class PolyvErrorMessageUtils {
             case MEDIA_EJECTING:
                 return "SD卡不可用，请重启手机或者更换SD卡或者向管理员反馈";
 
+            case VIDEO_BITRATE_NOT_EXIST:
+                return "当前视频下载出错，请尝试切换码率进行下载或者向管理员反馈";
+
             default:
                 return "当前视频无法下载，请向管理员反馈";
         }
@@ -192,6 +195,9 @@ public class PolyvErrorMessageUtils {
      */
     public static String getPlayErrorMessage(@PolyvPlayErrorReason.PlayErrorReason int playErrorReason) {
         switch (playErrorReason) {
+            case PolyvPlayErrorReason.VIDEO_ERROR:
+                return "当前视频无法播放，请尝试切换网络重新播放或者向管理员反馈";
+
             case PolyvPlayErrorReason.NETWORK_DENIED:
                 return "无法连接网络，请连接网络后播放";
 
@@ -249,9 +255,6 @@ public class PolyvErrorMessageUtils {
             case PolyvPlayErrorReason.M3U8_15X_LINK_NUM_ERROR:
                 return "当前视频无法播放，请向管理员反馈";
 
-            case PolyvPlayErrorReason.CHANGE_EQUAL_BITRATE:
-                return "切换清晰度相同，请选择其它清晰度";
-
             case PolyvPlayErrorReason.CHANGE_EQUAL_HLS_SPEED:
                 return "切换播放速度相同，请选择其它播放速度";
 
@@ -279,9 +282,6 @@ public class PolyvErrorMessageUtils {
             case PolyvPlayErrorReason.TOKEN_NULL:
                 return "播放授权获取失败，请重新播放或者切换网络重新播放或者向管理员反馈";
 
-            case PolyvPlayErrorReason.EXCEPTION_COMPLETION:
-                return "视频异常结束，请重新播放或者向管理员反馈";
-
             case PolyvPlayErrorReason.WRITE_EXTERNAL_STORAGE_DENIED:
                 return "检测到拒绝读取存储设备，请先为应用程序分配权限，再重新播放";
 
@@ -302,6 +302,9 @@ public class PolyvErrorMessageUtils {
 
             case PolyvPlayErrorReason.LOCAL_AUDIO_ERROR:
                 return "本地音频文件损坏，请重新下载";
+
+            case PolyvPlayErrorReason.LOAD_TIMEOUT:
+                return "加载超时，请重新播放";
 
             default:
                 return "当前视频无法播放，请向管理员反馈";

@@ -67,10 +67,31 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     private RelativeLayout rl_port;
     // 竖屏的切屏按钮，竖屏的播放/暂停按钮
     private ImageView iv_land, iv_play;
-    // 竖屏的显示播放进度控件
-    private TextView tv_curtime, tv_tottime;
+    // 竖屏的显示播放进度控件，切换清晰度按钮，切换倍速按钮，切换线路按钮
+    private TextView tv_curtime, tv_tottime, tv_bit_portrait, tv_speed_portrait, tv_route_portrait;
     // 竖屏的进度条
     private SeekBar sb_play;
+    /**
+     * 竖屏的播放速度布局
+     */
+    //播放速度布局
+    private RelativeLayout rl_center_speed_portrait;
+    //选择播放速度控件
+    private TextView tv_speed05_portrait, tv_speed10_portrait, tv_speed12_portrait, tv_speed15_portrait, tv_speed20_portrait;
+    /**
+     * 竖屏的播放码率布局
+     */
+    //播放码率布局
+    private RelativeLayout rl_center_bit_portrait;
+    //选择播放码率的控件
+    private TextView tv_sc_portrait, tv_hd_portrait, tv_flu_portrait, tv_auto_portrait;
+    /**
+     * 竖屏的播放线路布局
+     */
+    //播放线路布局
+    private RelativeLayout rl_center_route_portrait;
+    //选择播放码率的控件
+    private TextView tv_route1_portrait, tv_route2_portrait, tv_route3_portrait;
     /**
      * 横屏的view
      */
@@ -78,8 +99,8 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     private RelativeLayout rl_land, rl_top, rl_bot;
     //横屏的切屏按钮，横屏的播放/暂停按钮,横屏的返回按钮，设置按钮，分享按钮，弹幕开关
     private ImageView iv_port, iv_play_land, iv_finish, iv_set, iv_share, iv_dmswitch;
-    // 横屏的显示播放进度控件,视频的标题,选择播放速度按钮，选择码率按钮
-    private TextView tv_curtime_land, tv_tottime_land, tv_title, tv_speed, tv_bit;
+    // 横屏的显示播放进度控件,视频的标题,选择播放速度按钮，选择码率按钮，选择线路按钮
+    private TextView tv_curtime_land, tv_tottime_land, tv_title, tv_speed, tv_bit, tv_route;
     // 横屏的进度条
     private PolyvTickSeekBar sb_play_land;
     /**
@@ -131,7 +152,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     // 分享控件,关闭布局按钮
     private ImageView iv_shareqq, iv_sharewechat, iv_shareweibo, iv_close_share;
     /**
-     * 播放速度布局
+     * 横屏的播放速度布局
      */
     //播放速度布局
     private RelativeLayout rl_center_speed;
@@ -140,7 +161,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     //关闭布局按钮
     private ImageView iv_close_speed;
     /**
-     * 播放码率布局
+     * 横屏的播放码率布局
      */
     //播放码率布局
     private RelativeLayout rl_center_bit;
@@ -148,6 +169,15 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     private TextView tv_sc, tv_hd, tv_flu, tv_auto;
     //关闭布局按钮
     private ImageView iv_close_bit;
+    /**
+     * 横屏的播放线路布局
+     */
+    //播放线路布局
+    private RelativeLayout rl_center_route;
+    //选择播放码率的控件
+    private TextView tv_route1, tv_route2, tv_route3;
+    //关闭布局按钮
+    private ImageView iv_close_route;
     //-----------------------------------------
     // 进度条是否处于拖动的状态
     private boolean status_dragging;
@@ -158,6 +188,8 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     private PolyvSensorHelper sensorHelper;
     private PolyvPlayerAudioCoverView coverView;
     private PolyvTickTips tickTips;
+
+    private ImageView polyvScreenLock, polyvScreenLockAudio;
 
     //用于处理控制栏的显示状态
     private Handler handler = new Handler() {
@@ -249,7 +281,28 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         iv_play = (ImageView) view.findViewById(R.id.iv_play);
         tv_curtime = (TextView) view.findViewById(R.id.tv_curtime);
         tv_tottime = (TextView) view.findViewById(R.id.tv_tottime);
+        tv_bit_portrait = (TextView) view.findViewById(R.id.tv_bit_portrait);
+        tv_speed_portrait = (TextView) view.findViewById(R.id.tv_speed_portrait);
+        tv_route_portrait = (TextView) view.findViewById(R.id.tv_route_portrait);
         sb_play = (SeekBar) view.findViewById(R.id.sb_play);
+        //竖屏的播放速度布局的view
+        rl_center_speed_portrait = (RelativeLayout) view.findViewById(R.id.rl_center_speed_portrait);
+        tv_speed05_portrait = (TextView) view.findViewById(R.id.tv_speed05_portrait);
+        tv_speed10_portrait = (TextView) view.findViewById(R.id.tv_speed10_portrait);
+        tv_speed12_portrait = (TextView) view.findViewById(R.id.tv_speed12_portrait);
+        tv_speed15_portrait = (TextView) view.findViewById(R.id.tv_speed15_portrait);
+        tv_speed20_portrait = (TextView) view.findViewById(R.id.tv_speed20_portrait);
+        //竖屏的播放码率布局的view
+        rl_center_bit_portrait = (RelativeLayout) view.findViewById(R.id.rl_center_bit_portrait);
+        tv_sc_portrait = (TextView) view.findViewById(R.id.tv_sc_portrait);
+        tv_hd_portrait = (TextView) view.findViewById(R.id.tv_hd_portrait);
+        tv_flu_portrait = (TextView) view.findViewById(R.id.tv_flu_portrait);
+        tv_auto_portrait = (TextView) view.findViewById(R.id.tv_auto_portrait);
+        //视频的播放线路布局的view
+        rl_center_route_portrait = (RelativeLayout) view.findViewById(R.id.rl_center_route_portrait);
+        tv_route1_portrait = (TextView) view.findViewById(R.id.tv_route1_portrait);
+        tv_route2_portrait = (TextView) view.findViewById(R.id.tv_route2_portrait);
+        tv_route3_portrait = (TextView) view.findViewById(R.id.tv_route3_portrait);
         //横屏的view
         rl_land = (RelativeLayout) view.findViewById(R.id.rl_land);
         rl_top = (RelativeLayout) view.findViewById(R.id.rl_top);
@@ -266,6 +319,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         iv_dmswitch = (ImageView) view.findViewById(R.id.iv_dmswitch);
         tv_speed = (TextView) view.findViewById(R.id.tv_speed);
         tv_bit = (TextView) view.findViewById(R.id.tv_bit);
+        tv_route = (TextView) view.findViewById(R.id.tv_route);
         //设置布局的view
         rl_center_set = (RelativeLayout) view.findViewById(R.id.rl_center_set);
         sb_light = (SeekBar) view.findViewById(R.id.sb_light);
@@ -324,7 +378,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         iv_sharewechat = (ImageView) view.findViewById(R.id.iv_sharewechat);
         iv_shareweibo = (ImageView) view.findViewById(R.id.iv_shareweibo);
         iv_close_share = (ImageView) view.findViewById(R.id.iv_close_share);
-        //播放速度布局的view
+        //横屏的播放速度布局的view
         rl_center_speed = (RelativeLayout) view.findViewById(R.id.rl_center_speed);
         tv_speed05 = (TextView) view.findViewById(R.id.tv_speed05);
         tv_speed10 = (TextView) view.findViewById(R.id.tv_speed10);
@@ -332,13 +386,19 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         tv_speed15 = (TextView) view.findViewById(R.id.tv_speed15);
         tv_speed20 = (TextView) view.findViewById(R.id.tv_speed20);
         iv_close_speed = (ImageView) view.findViewById(R.id.iv_close_speed);
-        //播放码率布局的view
+        //横屏的播放码率布局的view
         rl_center_bit = (RelativeLayout) view.findViewById(R.id.rl_center_bit);
         tv_sc = (TextView) view.findViewById(R.id.tv_sc);
         tv_hd = (TextView) view.findViewById(R.id.tv_hd);
         tv_flu = (TextView) view.findViewById(R.id.tv_flu);
         tv_auto = (TextView) view.findViewById(R.id.tv_auto);
         iv_close_bit = (ImageView) view.findViewById(R.id.iv_close_bit);
+        //横屏的播放线路布局的view
+        rl_center_route = (RelativeLayout) view.findViewById(R.id.rl_center_route);
+        tv_route1 = (TextView) view.findViewById(R.id.tv_route1);
+        tv_route2 = (TextView) view.findViewById(R.id.tv_route2);
+        tv_route3 = (TextView) view.findViewById(R.id.tv_route3);
+        iv_close_route = (ImageView) view.findViewById(R.id.iv_close_route);
 
         sensorHelper = new PolyvSensorHelper(videoActivity);
         tickTips = (PolyvTickTips) view.findViewById(R.id.fl_tt);
@@ -346,11 +406,22 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             @Override
             public void onSeekClick(PolyvTickSeekBar.TickData tickData) {
                 if (videoView != null) {
-                    videoView.seekTo((int) (tickData.getProgress() * 1000));
+                    videoView.seekTo(tickData.getKeyTime() * 1000);
                     tickTips.hide();
                 }
             }
         });
+
+        polyvScreenLock = (ImageView) view.findViewById(R.id.polyv_screen_lock);
+        polyvScreenLockAudio = (ImageView) view.findViewById(R.id.polyv_screen_lock_audio);
+    }
+
+    public void showAudioLock(boolean show) {
+        polyvScreenLockAudio.setVisibility(show ? VISIBLE : GONE);
+        polyvScreenLock.setVisibility(show ? GONE : VISIBLE);
+
+        polyvScreenLock.setSelected(false);
+        polyvScreenLockAudio.setSelected(false);
     }
 
     private void initView() {
@@ -399,16 +470,27 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         tv_srt3.setOnClickListener(this);
         tv_srtnone.setOnClickListener(this);
         tv_speed.setOnClickListener(this);
+        tv_speed_portrait.setOnClickListener(this);
         tv_speed05.setOnClickListener(this);
+        tv_speed05_portrait.setOnClickListener(this);
         tv_speed10.setOnClickListener(this);
+        tv_speed10_portrait.setOnClickListener(this);
         tv_speed12.setOnClickListener(this);
+        tv_speed12_portrait.setOnClickListener(this);
         tv_speed15.setOnClickListener(this);
+        tv_speed15_portrait.setOnClickListener(this);
         tv_speed20.setOnClickListener(this);
+        tv_speed20_portrait.setOnClickListener(this);
         tv_bit.setOnClickListener(this);
+        tv_bit_portrait.setOnClickListener(this);
         tv_sc.setOnClickListener(this);
+        tv_sc_portrait.setOnClickListener(this);
         tv_hd.setOnClickListener(this);
+        tv_hd_portrait.setOnClickListener(this);
         tv_flu.setOnClickListener(this);
+        tv_flu_portrait.setOnClickListener(this);
         tv_auto.setOnClickListener(this);
+        tv_auto_portrait.setOnClickListener(this);
         iv_close_bit.setOnClickListener(this);
         iv_close_set.setOnClickListener(this);
         iv_close_share.setOnClickListener(this);
@@ -423,6 +505,17 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         iv_video_land.setOnClickListener(this);
         iv_audio.setOnClickListener(this);
         iv_audio_land.setOnClickListener(this);
+        polyvScreenLock.setOnClickListener(this);
+        polyvScreenLockAudio.setOnClickListener(this);
+        tv_route.setOnClickListener(this);
+        tv_route_portrait.setOnClickListener(this);
+        tv_route1.setOnClickListener(this);
+        tv_route1_portrait.setOnClickListener(this);
+        tv_route2.setOnClickListener(this);
+        tv_route2_portrait.setOnClickListener(this);
+        tv_route3.setOnClickListener(this);
+        tv_route3_portrait.setOnClickListener(this);
+        iv_close_route.setOnClickListener(this);
     }
 
     //是否显示左侧边的切换音视频的布局
@@ -431,9 +524,31 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         return videoVO != null && videoVO.hasAudioPath();
     }
 
+    public void resetView() {
+        if (ll_subtitle != null) {
+            ll_subtitle.setVisibility(View.GONE);
+        }
+        if (ll_subtitle_b != null) {
+            ll_subtitle_b.setVisibility(View.GONE);
+        }
+    }
+
+    public void preparedSRT(IPolyvVideoView videoView) {
+        if (videoView != null) {
+            this.videoView = (PolyvVideoView) videoView;
+            this.videoVO = videoView.getVideo();
+            //初始化字幕控件
+            initSrtView(videoView.getCurrSRTKey());
+            int visibility = PolyvVideoVO.MODE_AUDIO.equals(videoView.getCurrentMode()) ? View.GONE : View.VISIBLE;
+            ll_subtitle.setVisibility(visibility);
+            ll_subtitle_b.setVisibility(visibility);
+        }
+    }
+
     public void preparedView() {
         if (videoView != null) {
             videoVO = videoView.getVideo();
+            showAudioLock(canShowLeftSideView());
             if (videoVO != null)
                 tv_title.setText(videoVO.getTitle());
             int totalTime = videoView.getDuration();
@@ -441,22 +556,28 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             tv_tottime_land.setText(PolyvTimeUtils.generateTime(totalTime));
             //初始化播放器的银幕比率的显示控件
             initRatioView(videoView.getCurrentAspectRatio());
-            //初始化字幕控件
-            initSrtView(videoView.getCurrSRTKey());
             //初始化倍速控件及其可见性
             initSpeedView((int) (videoView.getSpeed() * 10));
             //初始化码率控件及其可见性
             initBitRateView(videoView.getBitRate());
             initBitRateViewVisible(videoView.getBitRate());
+            //初始化切换线路及其可见性
+            initRouteView();
+            //下面两行代码是设置切换线路默认不可见，如果需要根据是否有线路进行切换，注释这两行代码即可
+            tv_route.setVisibility(View.GONE);
+            tv_route_portrait.setVisibility(View.GONE);
 
             //音频模式下，隐藏切换码率/填充模式/字幕/截图的按钮
             int visibility = PolyvVideoVO.MODE_AUDIO.equals(videoView.getCurrentMode()) ? View.GONE : View.VISIBLE;
-            if (visibility == View.GONE)
+            if (visibility == View.GONE) {
                 rl_center_bit.setVisibility(visibility);
+                rl_center_bit_portrait.setVisibility(visibility);
+                rl_center_route.setVisibility(visibility);
+                rl_center_route_portrait.setVisibility(visibility);
+            }
             tv_bit.setVisibility(visibility);
+            tv_bit_portrait.setVisibility(visibility);
             ll_adaptive_mode.setVisibility(visibility);
-            ll_subtitle.setVisibility(visibility);
-            ll_subtitle_b.setVisibility(visibility);
             iv_screens.setVisibility(visibility);
             //设置进度条的打点位置
             if (PolyvVideoVO.MODE_VIDEO.equals(videoView.getCurrentMode())) {
@@ -471,7 +592,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                     List<PolyvTickSeekBar.TickData> tickDataList = new ArrayList<>();
                     for (PolyvVideoVO.Videokeyframe videokeyframe : videokeyframes) {
                         //打点的颜色请设置和seekBar的thumb的颜色一致，因为打点是在thumb上层的
-                        tickDataList.add(new PolyvTickSeekBar.TickData((float) (videokeyframe.getKeytime() * rate), Color.WHITE, videokeyframe));
+                        tickDataList.add(new PolyvTickSeekBar.TickData(videokeyframe.getKeytime(), (float) (videokeyframe.getKeytime() * rate), Color.WHITE, videokeyframe));
                     }
                     sb_play_land.setMax(maxProgress);
                     sb_play_land.setTicks(tickDataList);
@@ -486,7 +607,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                         public boolean onSeekBarClick() {
                             tickTips.hide();
                             resetHideTime(longTime);
-                            return false;//false：点击非打点处不触发onProgressChanged
+                            return true;//false：点击非打点处不触发onProgressChanged
                         }
                     });
                 }
@@ -529,12 +650,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         if (isShowing) {
             handler.removeMessages(HIDE);
             handler.removeMessages(SHOW_PROGRESS);
-            resetSetLayout(View.GONE);
-            resetDanmuLayout(View.GONE);
-            resetShareLayout(View.GONE);
-            resetSpeedLayout(View.GONE);
-            resetBitRateLayout(View.GONE);
-            tickTips.hide();
+            resetPopupLayout();
             isShowing = !isShowing;
             setVisibility(View.GONE);
         }
@@ -572,6 +688,17 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         sensorHelper.disable();
     }
 
+    private void resetPopupLayout(){
+        resetSetLayout(View.GONE);
+        resetDanmuLayout(View.GONE);
+        resetShareLayout(View.GONE);
+        resetSpeedLayout(View.GONE);
+        resetBitRateLayout(View.GONE);
+        resetRouteLayout(View.GONE);
+        hidePortraitPopupView();
+        tickTips.hide();
+    }
+
     /**
      * 显示控制栏
      *
@@ -583,20 +710,42 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             status_showalways = true;
         else
             status_showalways = false;
-        if (!isShowing) {
-            resetTopBottomLayout(View.VISIBLE);
-            resetSideLayout(View.VISIBLE);
-            if (canShowLeftSideView()) {
-                resetLeftSideView(View.VISIBLE);
-            }
-            //获取焦点
-            requestFocus();
-            handler.removeMessages(SHOW_PROGRESS);
-            handler.sendEmptyMessage(SHOW_PROGRESS);
-            isShowing = !isShowing;
+        if (PolyvScreenUtils.isLandscape(getContext()) && (polyvScreenLock.isSelected() || polyvScreenLockAudio.isSelected())) {
             setVisibility(View.VISIBLE);
+
+            updateLockStatus();
+            resetPopupLayout();
+            resetSideLayout(View.GONE);
+            resetLeftSideView(View.GONE);
+            resetTopBottomLayout(View.GONE);
+            isShowing = true;
+        } else {
+            if (!isShowing) {
+                resetTopBottomLayout(View.VISIBLE);
+                resetSideLayout(View.VISIBLE);
+                if (canShowLeftSideView()) {
+                    resetLeftSideView(View.VISIBLE);
+                }
+                //获取焦点
+                requestFocus();
+                handler.removeMessages(SHOW_PROGRESS);
+                handler.sendEmptyMessage(SHOW_PROGRESS);
+                isShowing = !isShowing;
+                setVisibility(View.VISIBLE);
+            }
+            sensorHelper.toggle(true,PolyvScreenUtils.isLandscape(getContext()));
         }
+
+
         resetHideTime(timeout);
+    }
+
+    private void updateLockStatus() {
+        boolean show = canShowLeftSideView();
+        polyvScreenLockAudio.setVisibility(show ? VISIBLE : GONE);
+        polyvScreenLock.setVisibility(show ? GONE : VISIBLE);
+
+        sensorHelper.toggle(!polyvScreenLockAudio.isSelected() && !polyvScreenLock.isSelected(),true);
     }
 
     @Override
@@ -647,6 +796,9 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
 
     //根据屏幕状态改变控制栏布局
     private void resetControllerLayout() {
+        if(polyvScreenLock.isSelected() || polyvScreenLockAudio.isSelected()){
+            return;
+        }
         hide();
         PolyvScreenUtils.reSetStatusBar(videoActivity);
         if (PolyvScreenUtils.isLandscape(mContext)) {
@@ -798,6 +950,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             resetLeftSideView(View.GONE);
             resetBitRateLayout(View.GONE, false);
             resetSpeedLayout(View.GONE, false);
+            resetRouteLayout(View.GONE, false);
             et_dmedit.requestFocus();
             et_dmedit.setText("");
             if (videoView != null) {
@@ -1032,6 +1185,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             show(-1);
             resetTopBottomLayout(View.GONE, true);
             resetBitRateLayout(View.GONE, false);
+            resetRouteLayout(View.GONE, false);
         } else if (isShowTopBottomLayout) {
             resetTopBottomLayout(View.VISIBLE);
             requestFocus();
@@ -1043,30 +1197,45 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     //初始化选择播放速度的控件
     private void initSpeedView(int speed) {
         tv_speed05.setSelected(false);
+        tv_speed05_portrait.setSelected(false);
         tv_speed10.setSelected(false);
+        tv_speed10_portrait.setSelected(false);
         tv_speed12.setSelected(false);
+        tv_speed12_portrait.setSelected(false);
         tv_speed15.setSelected(false);
+        tv_speed15_portrait.setSelected(false);
         tv_speed20.setSelected(false);
+        tv_speed20_portrait.setSelected(false);
         switch (speed) {
             case 5:
                 tv_speed05.setSelected(true);
+                tv_speed05_portrait.setSelected(true);
                 tv_speed.setText("0.5x");
+                tv_speed_portrait.setText("0.5x");
                 break;
             case 10:
                 tv_speed10.setSelected(true);
+                tv_speed10_portrait.setSelected(true);
                 tv_speed.setText("1x");
+                tv_speed_portrait.setText("1x");
                 break;
             case 12:
                 tv_speed12.setSelected(true);
+                tv_speed12_portrait.setSelected(true);
                 tv_speed.setText("1.2x");
+                tv_speed_portrait.setText("1.2x");
                 break;
             case 15:
                 tv_speed15.setSelected(true);
+                tv_speed15_portrait.setSelected(true);
                 tv_speed.setText("1.5x");
+                tv_speed_portrait.setText("1.5x");
                 break;
             case 20:
                 tv_speed20.setSelected(true);
+                tv_speed20_portrait.setSelected(true);
                 tv_speed.setText("2x");
+                tv_speed_portrait.setText("2x");
                 break;
         }
     }
@@ -1083,25 +1252,37 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     //初始化选择码率的控件
     private void initBitRateView(int bitRate) {
         tv_sc.setSelected(false);
+        tv_sc_portrait.setSelected(false);
         tv_hd.setSelected(false);
+        tv_hd_portrait.setSelected(false);
         tv_flu.setSelected(false);
+        tv_flu_portrait.setSelected(false);
         tv_auto.setSelected(false);
+        tv_auto_portrait.setSelected(false);
         switch (bitRate) {
             case 0:
                 tv_bit.setText("自动");
+                tv_bit_portrait.setText("自动");
                 tv_auto.setSelected(true);
+                tv_auto_portrait.setSelected(true);
                 break;
             case 1:
                 tv_bit.setText("流畅");
+                tv_bit_portrait.setText("流畅");
                 tv_flu.setSelected(true);
+                tv_flu_portrait.setSelected(true);
                 break;
             case 2:
                 tv_bit.setText("高清");
+                tv_bit_portrait.setText("高清");
                 tv_hd.setSelected(true);
+                tv_hd_portrait.setSelected(true);
                 break;
             case 3:
                 tv_bit.setText("超清");
+                tv_bit_portrait.setText("超清");
                 tv_sc.setSelected(true);
+                tv_sc_portrait.setSelected(true);
                 break;
         }
     }
@@ -1109,40 +1290,57 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     //初始化选择码率控件的可见性
     private void initBitRateViewVisible(int currentBitRate) {
         tv_sc.setVisibility(View.GONE);
+        tv_sc_portrait.setVisibility(View.GONE);
         tv_hd.setVisibility(View.GONE);
+        tv_hd_portrait.setVisibility(View.GONE);
         tv_flu.setVisibility(View.GONE);
+        tv_flu_portrait.setVisibility(View.GONE);
         tv_auto.setVisibility(View.GONE);
+        tv_auto_portrait.setVisibility(View.GONE);
         if (videoVO != null) {
             switch (videoVO.getDfNum()) {
                 case 1:
                     tv_flu.setVisibility(View.VISIBLE);
+                    tv_flu_portrait.setVisibility(View.VISIBLE);
                     tv_auto.setVisibility(View.VISIBLE);
+                    tv_auto_portrait.setVisibility(View.VISIBLE);
                     break;
                 case 2:
                     tv_hd.setVisibility(View.VISIBLE);
+                    tv_hd_portrait.setVisibility(View.VISIBLE);
                     tv_flu.setVisibility(View.VISIBLE);
+                    tv_flu_portrait.setVisibility(View.VISIBLE);
                     tv_auto.setVisibility(View.VISIBLE);
+                    tv_auto_portrait.setVisibility(View.VISIBLE);
                     break;
                 case 3:
                     tv_sc.setVisibility(View.VISIBLE);
+                    tv_sc_portrait.setVisibility(View.VISIBLE);
                     tv_hd.setVisibility(View.VISIBLE);
+                    tv_hd_portrait.setVisibility(View.VISIBLE);
                     tv_flu.setVisibility(View.VISIBLE);
+                    tv_flu_portrait.setVisibility(View.VISIBLE);
                     tv_auto.setVisibility(View.VISIBLE);
+                    tv_auto_portrait.setVisibility(View.VISIBLE);
                     break;
             }
         } else {
             switch (currentBitRate) {
                 case 0:
                     tv_auto.setVisibility(View.VISIBLE);
+                    tv_auto_portrait.setVisibility(View.VISIBLE);
                     break;
                 case 1:
                     tv_flu.setVisibility(View.VISIBLE);
+                    tv_flu_portrait.setVisibility(View.VISIBLE);
                     break;
                 case 2:
                     tv_hd.setVisibility(View.VISIBLE);
+                    tv_hd_portrait.setVisibility(View.VISIBLE);
                     break;
                 case 3:
                     tv_sc.setVisibility(View.VISIBLE);
+                    tv_sc_portrait.setVisibility(View.VISIBLE);
                     break;
             }
         }
@@ -1158,6 +1356,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             show(-1);
             resetTopBottomLayout(View.GONE, true);
             resetSpeedLayout(View.GONE, false);
+            resetRouteLayout(View.GONE, false);
         } else if (isShowTopBottomLayout) {
             resetTopBottomLayout(View.VISIBLE);
             requestFocus();
@@ -1174,6 +1373,78 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         if (isChangeSuccess) {
             initBitRateView(bitRate);
             hide();
+        }
+    }
+
+    private void changeRoute(int route) {
+        boolean isChangeSuccess = false;
+        if (videoView != null)
+            isChangeSuccess = videoView.changeRoute(route);
+        if (isChangeSuccess) {
+            initSelectedRouteView(route);
+            hide();
+        }
+    }
+
+    private void resetRouteLayout(int isVisible) {
+        resetRouteLayout(isVisible, true);
+    }
+
+    private void resetRouteLayout(int isVisible, boolean isShowTopBottomLayout) {
+        if (isVisible == View.VISIBLE) {
+            show(-1);
+            resetTopBottomLayout(View.GONE, true);
+            resetSpeedLayout(View.GONE, false);
+            resetBitRateLayout(View.GONE, false);
+        } else if (isShowTopBottomLayout) {
+            resetTopBottomLayout(View.VISIBLE);
+            requestFocus();
+            resetHideTime(longTime);
+        }
+        rl_center_route.setVisibility(isVisible);
+    }
+
+    private void initRouteView() {
+        if (videoView.getRouteCount() > 1) {
+            tv_route.setVisibility(View.VISIBLE);
+            tv_route_portrait.setVisibility(View.VISIBLE);
+
+            tv_route1.setVisibility(View.VISIBLE);
+            tv_route1_portrait.setVisibility(View.VISIBLE);
+            tv_route2.setVisibility(View.VISIBLE);
+            tv_route2_portrait.setVisibility(View.VISIBLE);
+            if (videoView.getRouteCount() > 2) {
+                tv_route3.setVisibility(View.VISIBLE);
+                tv_route3_portrait.setVisibility(View.VISIBLE);
+            } else {
+                tv_route3.setVisibility(View.GONE);
+                tv_route3_portrait.setVisibility(View.GONE);
+            }
+
+            initSelectedRouteView(videoView.getCurrentRoute());
+        } else {
+            tv_route.setVisibility(View.GONE);
+            tv_route_portrait.setVisibility(View.GONE);
+        }
+    }
+
+    private void initSelectedRouteView(int currentRoute) {
+        tv_route1_portrait.setSelected(false);
+        tv_route1.setSelected(false);
+        tv_route2_portrait.setSelected(false);
+        tv_route2.setSelected(false);
+        tv_route3_portrait.setSelected(false);
+        tv_route3.setSelected(false);
+
+        if (currentRoute == 1) {
+            tv_route1_portrait.setSelected(true);
+            tv_route1.setSelected(true);
+        } else if (currentRoute == 2) {
+            tv_route2_portrait.setSelected(true);
+            tv_route2.setSelected(true);
+        } else {
+            tv_route3_portrait.setSelected(true);
+            tv_route3.setSelected(true);
         }
     }
 
@@ -1255,9 +1526,25 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         tv_audio_land.setSelected(!isVideo);
     }
 
+    private void hidePortraitPopupView() {
+        rl_center_bit_portrait.setVisibility(View.GONE);
+        rl_center_speed_portrait.setVisibility(View.GONE);
+        rl_center_route_portrait.setVisibility(View.GONE);
+    }
+
+    public boolean isLocked() {
+        return PolyvScreenUtils.isLandscape(getContext()) &&
+                (polyvScreenLock.isSelected() || polyvScreenLockAudio.isSelected());
+    }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
+            case R.id.polyv_screen_lock:
+            case R.id.polyv_screen_lock_audio:
+                view.setSelected(!view.isSelected());
+                show();
+                break;
             case R.id.iv_land:
                 changeToLandscape();
                 break;
@@ -1367,11 +1654,25 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             case R.id.tv_srtnone:
                 resetSrtView(3);
                 break;
+            case R.id.tv_speed_portrait:
+                boolean isVisible = rl_center_speed_portrait.getVisibility() == View.VISIBLE;
+                hidePortraitPopupView();
+                if (!isVisible) {
+                    rl_center_speed_portrait.setVisibility(View.VISIBLE);
+                }
+                break;
             case R.id.tv_speed:
                 if (rl_center_speed.getVisibility() == View.GONE)
                     resetSpeedLayout(View.VISIBLE);
                 else
                     resetSpeedLayout(View.GONE);
+                break;
+            case R.id.tv_bit_portrait:
+                boolean isVisibleBit = rl_center_bit_portrait.getVisibility() == View.VISIBLE;
+                hidePortraitPopupView();
+                if (!isVisibleBit) {
+                    rl_center_bit_portrait.setVisibility(View.VISIBLE);
+                }
                 break;
             case R.id.tv_bit:
                 if (rl_center_bit.getVisibility() == View.GONE)
@@ -1379,34 +1680,71 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                 else
                     resetBitRateLayout(View.GONE);
                 break;
+            case R.id.tv_sc_portrait:
             case R.id.tv_sc:
                 resetBitRateView(3);
                 break;
+            case R.id.tv_hd_portrait:
             case R.id.tv_hd:
                 resetBitRateView(2);
                 break;
+            case R.id.tv_flu_portrait:
             case R.id.tv_flu:
                 resetBitRateView(1);
                 break;
+            case R.id.tv_auto_portrait:
             case R.id.tv_auto:
                 resetBitRateView(0);
                 break;
+            case R.id.tv_speed05_portrait:
             case R.id.tv_speed05:
                 resetSpeedView(5);
                 break;
+            case R.id.tv_speed10_portrait:
             case R.id.tv_speed10:
                 resetSpeedView(10);
                 break;
+            case R.id.tv_speed12_portrait:
             case R.id.tv_speed12:
                 resetSpeedView(12);
                 break;
+            case R.id.tv_speed15_portrait:
             case R.id.tv_speed15:
                 resetSpeedView(15);
                 break;
+            case R.id.tv_speed20_portrait:
             case R.id.tv_speed20:
                 resetSpeedView(20);
                 break;
             case R.id.iv_close_bit:
+                hide();
+                break;
+            case R.id.tv_route_portrait:
+                boolean isVisibleRoute = rl_center_route_portrait.getVisibility() == View.VISIBLE;
+                hidePortraitPopupView();
+                if (!isVisibleRoute) {
+                    rl_center_route_portrait.setVisibility(View.VISIBLE);
+                }
+                break;
+            case R.id.tv_route:
+                if (rl_center_route.getVisibility() == View.GONE)
+                    resetRouteLayout(View.VISIBLE);
+                else
+                    resetRouteLayout(View.GONE);
+                break;
+            case R.id.tv_route1_portrait:
+            case R.id.tv_route1:
+                changeRoute(1);
+                break;
+            case R.id.tv_route2_portrait:
+            case R.id.tv_route2:
+                changeRoute(2);
+                break;
+            case R.id.tv_route3_portrait:
+            case R.id.tv_route3:
+                changeRoute(3);
+                break;
+            case R.id.iv_close_route:
                 hide();
                 break;
             case R.id.iv_close_set:
@@ -1429,6 +1767,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                 //如果当前已经是优先视频模式，则不再切换
                 if (videoView != null && !PolyvVideoVO.MODE_VIDEO.equals(videoView.getPriorityMode())) {
                     resetModeView(true);
+                    showAudioLock(true);
                     videoView.changeMode(PolyvVideoVO.MODE_VIDEO);
                     if (coverView != null)
                         coverView.hide();
@@ -1439,6 +1778,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                 //如果当前已经是优先音频模式，则不再切换
                 if (videoView != null && !PolyvVideoVO.MODE_AUDIO.equals(videoView.getPriorityMode())) {
                     resetModeView(false);
+                    showAudioLock(true);
                     videoView.changeMode(PolyvVideoVO.MODE_AUDIO);
                 }
                 break;

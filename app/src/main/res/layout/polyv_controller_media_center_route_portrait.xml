@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rl_center_route_portrait"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:alpha="0.7"
+    android:background="@color/top_left_layout_color_black"
+    android:visibility="gone">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:paddingLeft="@dimen/corners_common_l">
+
+        <TextView
+            android:id="@+id/tv_route1_portrait"
+            style="@style/tv_click_controller_portrait_center"
+            android:layout_marginRight="@dimen/dmcolor_commom_wh"
+            android:text="线路1" />
+
+        <TextView
+            android:id="@+id/tv_route2_portrait"
+            style="@style/tv_click_controller_portrait_center"
+            android:layout_marginRight="@dimen/dmcolor_commom_wh"
+            android:text="线路2" />
+
+        <TextView
+            android:id="@+id/tv_route3_portrait"
+            style="@style/tv_click_controller_portrait_center"
+            android:layout_marginRight="@dimen/dmcolor_commom_wh"
+            android:text="线路3" />
+    </LinearLayout>
+
+</RelativeLayout>

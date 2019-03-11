@@ -131,6 +131,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/top_center_margin_top"
+            android:visibility="gone"
             android:gravity="center_vertical">
 
             <View
@@ -154,6 +155,7 @@
             android:id="@+id/ll_subtitle_b"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             android:layout_marginTop="@dimen/top_center_margin_top_s">
 
             <TextView

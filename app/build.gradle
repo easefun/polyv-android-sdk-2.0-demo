@@ -6,8 +6,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 25200
-        versionName "2.5.2"
+        versionCode Integer.parseInt(VERSIONCODE)
+        versionName VERSIONNAME
 
         //64K 引用限制
         multiDexEnabled true
@@ -22,12 +22,20 @@ android {
     }
 
     buildTypes {
+        debug{
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
+    repositories {
+        flatDir {
+            dirs 'libs'
+        }
+    }
     lintOptions {
         abortOnError false
     }
@@ -61,11 +69,11 @@ dependencies {
     compile 'com.android.support:support-v4:23+'
     compile 'com.android.support:design:23+'
     compile 'com.android.support:multidex:1.0.1'//64K 引用限制
-    compile 'com.easefun.polyv:polyvPlayer:2.5.3'//SDK核心包
-    compile 'com.easefun.polyv:polyvPlayerABI:1.6.1'//SDK核心包
-    compile 'com.easefun.polyv:polyvDownload:2.5.0'//SDK下载功能
-    compile 'com.easefun.polyv:polyvUpload:2.2.1'//SDK上传功能
-    compile "com.daimajia.swipelayout:library:1.2.0@aar"//下载列表
+    compile 'com.easefun.polyv:polyvPlayer:2.7.2'//SDK核心包
+    compile 'com.easefun.polyv:polyvPlayerABI:1.7.1'//SDK核心包
+    compile 'com.easefun.polyv:polyvDownload:2.7.1'//SDK下载功能
+    compile 'com.easefun.polyv:polyvUpload:2.2.2'//SDK上传功能
+    compile 'com.easefun.polyv:polyvScreencast:0.2.0'//SDK上传功能
     compile 'de.hdodenhof:circleimageview:2.2.0'//圆形imageview，音频封面图使用
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'//demo中图片使用
     compile "com.daimajia.swipelayout:library:1.2.0@aar"//demo中下载列表使用

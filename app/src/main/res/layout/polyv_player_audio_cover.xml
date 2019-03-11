@@ -8,8 +8,8 @@
         android:id="@+id/iv_audio_cover_m"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:alpha="0.4"
         android:scaleType="centerCrop"
+        android:background="#000000"
         android:visibility="gone"/>
 
     <FrameLayout
