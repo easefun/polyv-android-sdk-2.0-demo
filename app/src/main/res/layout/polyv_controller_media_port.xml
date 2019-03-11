@@ -12,21 +12,21 @@
         layout="@layout/polyv_controller_media_center_bit_portrait"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/rl_bot_portrait" />
+        android:layout_above="@+id/rl_bot_portrait" />
     <!-- 中间选择倍速布局 -->
 
     <include
         layout="@layout/polyv_controller_media_center_speed_portrait"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/rl_bot_portrait" />
+        android:layout_above="@+id/rl_bot_portrait" />
     <!-- 中间选择线路布局 -->
 
     <include
         layout="@layout/polyv_controller_media_center_route_portrait"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/rl_bot_portrait" />
+        android:layout_above="@+id/rl_bot_portrait" />
 
     <RelativeLayout
         android:id="@+id/rl_bot_portrait"
