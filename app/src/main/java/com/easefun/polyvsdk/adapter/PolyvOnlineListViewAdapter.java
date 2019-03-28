@@ -25,11 +25,11 @@ import com.easefun.polyvsdk.PolyvSDKUtil;
 import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.RestVO;
 import com.easefun.polyvsdk.activity.PolyvMainActivity;
+import com.easefun.polyvsdk.activity.PolyvOnlineVideoActivity;
 import com.easefun.polyvsdk.activity.PolyvPlayerActivity;
 import com.easefun.polyvsdk.bean.PolyvDownloadInfo;
 import com.easefun.polyvsdk.database.PolyvDownloadSQLiteHelper;
 import com.easefun.polyvsdk.download.listener.IPolyvDownloaderProgressListener;
-import com.easefun.polyvsdk.download.listener.IPolyvDownloaderProgressListener2;
 import com.easefun.polyvsdk.player.PolyvAnimateFirstDisplayListener;
 import com.easefun.polyvsdk.util.PolyvErrorMessageUtils;
 import com.easefun.polyvsdk.vo.PolyvVideoVO;
@@ -143,7 +143,7 @@ public class PolyvOnlineListViewAdapter extends AbsRecyclerViewAdapter {
 
         @Override
         public void onDownloadFail(@NonNull PolyvDownloaderErrorReason errorReason) {
-            String errorMsg = PolyvErrorMessageUtils.getDownloaderErrorMessage(errorReason.getType());
+            String errorMsg = PolyvErrorMessageUtils.getDownloaderErrorMessage(errorReason.getType(), downloadInfo.getFileType());
             errorMsg += "(error code " + errorReason.getType().getCode() + ")";
             Log.e(TAG, errorMsg);
             if (contextWeakReference.get() != null)
@@ -185,11 +185,13 @@ public class PolyvOnlineListViewAdapter extends AbsRecyclerViewAdapter {
                                     int bitrate = which + 1;
 
                                     final PolyvDownloadInfo downloadInfo = new PolyvDownloadInfo(vid, v.getDuration(),
-                                            v.getFileSizeMatchVideoType(bitrate), bitrate, title);
+                                            v.getFileSizeMatchVideoType(bitrate,PolyvDownloader.FILE_VIDEO), bitrate, title);
+                                    //设置下载的文件类型，视频/音频，可以用v.hasAudioPath()判断是否有音频
+                                    downloadInfo.setFileType(PolyvDownloader.FILE_VIDEO);
                                     Log.i("videoAdapter", downloadInfo.toString());
                                     if (downloadSQLiteHelper != null && !downloadSQLiteHelper.isAdd(downloadInfo)) {
                                         downloadSQLiteHelper.insert(downloadInfo);
-                                        PolyvDownloader polyvDownloader = PolyvDownloaderManager.getPolyvDownloader(vid, bitrate);
+                                        PolyvDownloader polyvDownloader = PolyvDownloaderManager.getPolyvDownloader(vid, bitrate, downloadInfo.getFileType());
                                         polyvDownloader.setPolyvDownloadProressListener(new MyDownloadListener(context, downloadInfo));
                                         polyvDownloader.start(context);
                                     } else {

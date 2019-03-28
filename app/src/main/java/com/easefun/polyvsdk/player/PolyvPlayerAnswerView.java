@@ -3,12 +3,15 @@ package com.easefun.polyvsdk.player;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -128,9 +131,9 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
             polyvAnswerSkip.setVisibility(GONE);
         }
 
-        setTitle(questionVO);
-
         initialChoiceStatus(questionVO);
+
+        setTitle(questionVO);
 
         intialAdapter(questionVO);
 
@@ -226,7 +229,10 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
                 imgUrl = polyvQAFormatVO.getStr();
             }
         }
-        answerTitle.setText(title);
+        SpannableStringBuilder span = new SpannableStringBuilder(isMultiSelected ? "【多选题】" : "【单选题】");
+        span.setSpan(new ForegroundColorSpan(Color.parseColor("#4A90E2")), 0, 5, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        span.append(title);
+        answerTitle.setText(span);
 
         if (!TextUtils.isEmpty(questionVO.getIllustration()) && !"null".equals(questionVO.getIllustration())) {
             answerIllustration.setVisibility(VISIBLE);
@@ -294,7 +300,7 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
             return;
         }
         polyvVideoView.answerQuestion(rightAnswers.isEmpty() && wrongAnserSelect.isEmpty(),
-                rightAnswers.isEmpty() ? polyvQuestionVO.getAnswer() : polyvQuestionVO.getWrongAnswer());
+                rightAnswers.isEmpty() && wrongAnserSelect.isEmpty() ? polyvQuestionVO.getAnswer() : polyvQuestionVO.getWrongAnswer());
     }
 
     public void showAnswerTips(String msg) {

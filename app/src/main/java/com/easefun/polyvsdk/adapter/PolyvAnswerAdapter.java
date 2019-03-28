@@ -34,6 +34,7 @@ public class PolyvAnswerAdapter extends RecyclerView.Adapter<PolyvAnswerAdapter.
     @Override
     public void onBindViewHolder(PolyvAnswerAdapter.ViewHolder viewHolder, final int position) {
 
+        viewHolder.check.setImageResource(isMultiSelect ? R.drawable.polyv_answer_choice_selector_multi : R.drawable.polyv_answer_choice_selector);
         viewHolder.check.setSelected(questionChoicesVOs.get(position).isSelected());
         viewHolder.content.setText((char)(a+position) +"."+questionChoicesVOs.get(position).getAnswer());
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
