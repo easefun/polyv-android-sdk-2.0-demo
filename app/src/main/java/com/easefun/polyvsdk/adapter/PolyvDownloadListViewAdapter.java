@@ -294,9 +294,6 @@ public class PolyvDownloadListViewAdapter extends BaseSwipeAdapter {
         }
 
         private void removeToDownloadedQueue(int position) {
-            if(position >= lists.size()){
-                return;
-            }
             PolyvDownloadInfo downloadInfo = lists.remove(position);
             ((BaseSwipeAdapter) wr_lv_download.get().getAdapter()).notifyDataSetChanged();
             if (downloadSuccessListener != null) {

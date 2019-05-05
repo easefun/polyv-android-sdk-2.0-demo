@@ -8,15 +8,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.easefun.polyvsdk.bean.PolyvUploadInfo;
 
 import java.util.LinkedList;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 public class PolyvUploadSQLiteHelper extends SQLiteOpenHelper{
     private static PolyvUploadSQLiteHelper sqLiteHelper;
     private static final String DATABASENAME = "uploadlist.db";
     private static final int VERSION = 6;
-
-    private static final Executor SINGLE_EXECUTOR = Executors.newSingleThreadExecutor();
 
     public static PolyvUploadSQLiteHelper getInstance(Context context) {
         if (sqLiteHelper == null) {
@@ -48,46 +44,31 @@ public class PolyvUploadSQLiteHelper extends SQLiteOpenHelper{
      * 添加上传信息至数据库
      * @param info
      */
-    public void insert(final PolyvUploadInfo info) {
-        SINGLE_EXECUTOR.execute(new Runnable() {
-            @Override
-            public void run() {
-                SQLiteDatabase db = getWritableDatabase();
-                String sql = "insert into uploadlist(title,desc,filesize,filepath,cataid) values(?,?,?,?,?)";
-                db.execSQL(sql, new Object[] {info.getTitle(), info.getDesc(), info.getFilesize(),
-                        info.getFilepath(),info.getCataid() });
-            }
-        });
+    public void insert(PolyvUploadInfo info) {
+        SQLiteDatabase db = getWritableDatabase();
+        String sql = "insert into uploadlist(title,desc,filesize,filepath,cataid) values(?,?,?,?,?)";
+        db.execSQL(sql, new Object[] {info.getTitle(), info.getDesc(), info.getFilesize(),
+                info.getFilepath(),info.getCataid() });
     }
 
     /**
      * 移除上传信息从数据库中
      * @param info
      */
-    public void delete(final PolyvUploadInfo info) {
-        SINGLE_EXECUTOR.execute(new Runnable() {
-            @Override
-            public void run() {
-                SQLiteDatabase db = getWritableDatabase();
-                String sql = "delete from uploadlist where filepath=?";
-                db.execSQL(sql, new Object[] { info.getFilepath() });
-            }
-        });
+    public void delete(PolyvUploadInfo info) {
+        SQLiteDatabase db = getWritableDatabase();
+        String sql = "delete from uploadlist where filepath=?";
+        db.execSQL(sql, new Object[] { info.getFilepath() });
     }
 
     /**
      * 更新上传的分类id至数据库
      * @param info
      */
-    public void updateCataid(final PolyvUploadInfo info) {
-        SINGLE_EXECUTOR.execute(new Runnable() {
-            @Override
-            public void run() {
-                SQLiteDatabase db = getWritableDatabase();
-                String sql = "update uploadlist set cataid=? where filepath=?";
-                db.execSQL(sql, new Object[]{ info.getCataid(), info.getFilepath() });
-            }
-        });
+    public void updateCataid(PolyvUploadInfo info) {
+        SQLiteDatabase db = getWritableDatabase();
+        String sql = "update uploadlist set cataid=? where filepath=?";
+        db.execSQL(sql, new Object[]{ info.getCataid(), info.getFilepath() });
     }
 
     /**
@@ -96,15 +77,10 @@ public class PolyvUploadSQLiteHelper extends SQLiteOpenHelper{
      * @param percent
      * @param total
      */
-    public void update(final PolyvUploadInfo info, final long percent, final long total) {
-        SINGLE_EXECUTOR.execute(new Runnable() {
-            @Override
-            public void run() {
-                SQLiteDatabase db = getWritableDatabase();
-                String sql = "update uploadlist set percent=?,total=? where filepath=?";
-                db.execSQL(sql, new Object[]{percent, total, info.getFilepath()});
-            }
-        });
+    public void update(PolyvUploadInfo info, long percent, long total) {
+        SQLiteDatabase db = getWritableDatabase();
+        String sql = "update uploadlist set percent=?,total=? where filepath=?";
+        db.execSQL(sql, new Object[] { percent, total, info.getFilepath() });
     }
 
     /**

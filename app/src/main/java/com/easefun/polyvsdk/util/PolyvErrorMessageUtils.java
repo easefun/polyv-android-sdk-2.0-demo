@@ -196,15 +196,6 @@ public class PolyvErrorMessageUtils {
             case VIDEO_BITRATE_NOT_EXIST:
                 return "当前" + tipsTypeMsg + "下载出错，请尝试切换码率进行下载或者向管理员反馈";
 
-            case AUDIO_NOT_EXIST:
-                return tipsTypeMsg + "文件不存在，无法下载，请尝试切换网络重新下载或者向管理员反馈";
-
-            case VIDEO_JSON_CLIENT_ERROR:
-                return "视频加载失败，请检查网络设置";
-
-            case VIDEO_JSON_SERVER_ERROR:
-                return "视频加载失败，请联系管理员";
-
             default:
                 return "当前" + tipsTypeMsg + "无法下载，请向管理员反馈";
         }
@@ -327,21 +318,6 @@ public class PolyvErrorMessageUtils {
 
             case PolyvPlayErrorReason.LOAD_TIMEOUT:
                 return "加载超时，请重新播放";
-
-            case PolyvPlayErrorReason.CAN_NOT_CHANGE_ROUTE:
-                return "当前无法切换播放器的线路，请重新进入播放器";
-
-            case PolyvPlayErrorReason.TOKEN_CLIENT_ERROR:
-                return "视频加载失败，请检查网络设置";
-
-            case PolyvPlayErrorReason.TOKEN_SERVER_ERROR:
-                return "视频加载失败，请联系管理员";
-
-            case PolyvPlayErrorReason.VIDEO_JSON_CLIENT_ERROR:
-                return "视频加载失败，请检查网络设置";
-
-            case PolyvPlayErrorReason.VIDEO_JSON_SERVER_ERROR:
-                return "视频加载失败，请联系管理员";
 
             default:
                 return "当前视频无法播放，请向管理员反馈";

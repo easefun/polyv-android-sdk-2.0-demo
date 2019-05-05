@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -27,12 +26,8 @@ import com.easefun.polyvsdk.PolyvQuestionUtil;
 import com.easefun.polyvsdk.PolyvSDKUtil;
 import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.adapter.PolyvAnswerAdapter;
-import com.easefun.polyvsdk.fragment.PolyvPlayerDanmuFragment;
-import com.easefun.polyvsdk.question.PolyvQuestion;
 import com.easefun.polyvsdk.util.PolyvScreenUtils;
 import com.easefun.polyvsdk.video.PolyvVideoView;
-import com.easefun.polyvsdk.video.listener.IPolyvOnQuestionAnswerTipsCustomListener;
-import com.easefun.polyvsdk.video.listener.IPolyvOnQuestionAnswerTipsListener;
 import com.easefun.polyvsdk.vo.PolyvQAFormatVO;
 import com.easefun.polyvsdk.vo.PolyvQuestionChoicesVO;
 import com.easefun.polyvsdk.vo.PolyvQuestionVO;
@@ -65,12 +60,8 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
     private ImageView answerTipImg;
     private TextView polyvAnswerTipContent;
     private PolyvVideoView polyvVideoView;
-    private PolyvPlayerDanmuFragment danmuFragment;
     private static final int ANSWER_TIP_STAY_TIME = 3*1000;
     private DisplayImageOptions imageOptions;
-
-    //自定义问答的答题结果监听器
-    private IPolyvOnQuestionAnswerTipsCustomListener customQuestionAnswerListener;
 
     public PolyvPlayerAnswerView(Context context) {
         this(context, null);
@@ -138,8 +129,6 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
         polyvQuestionVO = questionVO;
         if (!questionVO.isSkip()) {
             polyvAnswerSkip.setVisibility(GONE);
-        }else {
-            polyvAnswerSkip.setVisibility(VISIBLE);
         }
 
         initialChoiceStatus(questionVO);
@@ -148,33 +137,6 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
 
         intialAdapter(questionVO);
 
-    }
-
-    /**
-     * 显示用户自定义的问题，由用户调用
-     * @param questionVO
-     */
-    public void showCustomQuestion(PolyvQuestionVO questionVO){
-        //构建新的PolyvQuesion对象
-        final PolyvQuestion customQuestion=new PolyvQuestion(polyvVideoView);
-        customQuestion.setOnQuestionAnswerTipsListener(new IPolyvOnQuestionAnswerTipsListener() {
-            @Override
-            public void onTips(@NonNull String msg) {
-                showAnswerTips(msg);
-                customQuestion.removeCustomQuestion();
-            }
-
-            @Override
-            public void onTips(@NonNull String msg, int seek) {
-                showAnswerTips(msg,seek);
-                customQuestion.removeCustomQuestion();
-            }
-        });
-        polyvVideoView.getPolyvQuestion().setCustomQuestion(customQuestion);
-
-        polyvVideoView.pause(true);
-        customQuestion.insertCustomQuestion(questionVO);
-        showAnswerContent(questionVO);
     }
 
     private void intialAdapter(PolyvQuestionVO questionVO) {
@@ -299,7 +261,6 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
                 hide();
                 if (polyvVideoView != null) {
                     polyvVideoView.skipQuestion();
-                    danmuFragment.resume();
                 }
                 break;
             case R.id.polyv_answer_submit:
@@ -321,7 +282,6 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
             polyvVideoView.seekTo(seconds);
         }
         polyvVideoView.start();
-        danmuFragment.resume();
     }
 
     private void submitAnswer() {
@@ -341,14 +301,6 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
         }
         polyvVideoView.answerQuestion(rightAnswers.isEmpty() && wrongAnserSelect.isEmpty(),
                 rightAnswers.isEmpty() && wrongAnserSelect.isEmpty() ? polyvQuestionVO.getAnswer() : polyvQuestionVO.getWrongAnswer());
-        //自定义问答的答题结果回调
-        if (customQuestionAnswerListener !=null){
-            danmuFragment.resume();
-            customQuestionAnswerListener.onAnswerResult(polyvQuestionVO);
-        }
-    }
-    public void setCustomQuestionAnswerListener(IPolyvOnQuestionAnswerTipsCustomListener listener){
-        this.customQuestionAnswerListener=listener;
     }
 
     public void showAnswerTips(String msg) {
@@ -398,9 +350,6 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
 
     public void setPolyvVideoView(PolyvVideoView polyvVideoView) {
         this.polyvVideoView = polyvVideoView;
-    }
-    public void setDanmuFragment(PolyvPlayerDanmuFragment danmuFragment){
-        this.danmuFragment=danmuFragment;
     }
 
     public void hide() {

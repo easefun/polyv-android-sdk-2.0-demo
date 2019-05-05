@@ -17,8 +17,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -50,7 +48,6 @@ import com.easefun.polyvsdk.player.PolyvPlayerVolumeView;
 import com.easefun.polyvsdk.screencast.PolyvScreencastHelper;
 import com.easefun.polyvsdk.srt.PolyvSRTItemVO;
 import com.easefun.polyvsdk.sub.vlms.entity.PolyvCoursesInfo;
-import com.easefun.polyvsdk.util.PolyvCustomQuestionBuilder;
 import com.easefun.polyvsdk.util.PolyvNetworkDetection;
 import com.easefun.polyvsdk.util.PolyvScreenUtils;
 import com.easefun.polyvsdk.video.PolyvMediaInfoType;
@@ -76,7 +73,6 @@ import com.easefun.polyvsdk.video.listener.IPolyvOnInfoListener2;
 import com.easefun.polyvsdk.video.listener.IPolyvOnPlayPauseListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnPreloadPlayListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnPreparedListener2;
-import com.easefun.polyvsdk.video.listener.IPolyvOnQuestionAnswerTipsCustomListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnQuestionAnswerTipsListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnQuestionOutListener2;
 import com.easefun.polyvsdk.video.listener.IPolyvOnTeaserCountDownListener;
@@ -140,10 +136,6 @@ public class PolyvPlayerActivity extends FragmentActivity {
      */
     private PolyvPlayerAnswerView questionView = null;
     /**
-     * 用户自定义问答界面
-     */
-    private PolyvPlayerAnswerView customQuestionView = null;
-    /**
      * 语音问答界面
      */
     private PolyvPlayerAuditionView auditionView = null;
@@ -205,8 +197,6 @@ public class PolyvPlayerActivity extends FragmentActivity {
 
     private boolean isBackgroundPlay = false;
 
-    private LinearLayout videoErrorLayout;
-    private TextView videoErrorContent, videoErrorRetry;
     private String vid;
     private int bitrate;
     private boolean isMustFromLocal;
@@ -315,7 +305,6 @@ public class PolyvPlayerActivity extends FragmentActivity {
         srtTextView = (TextView) findViewById(R.id.srt);
         topSrtTextView = (TextView) findViewById(R.id.top_srt);
         questionView = (PolyvPlayerAnswerView) findViewById(R.id.polyv_player_question_view);
-        customQuestionView = (PolyvPlayerAnswerView) findViewById(R.id.polyv_player_custom_question_view);
         auditionView = (PolyvPlayerAuditionView) findViewById(R.id.polyv_player_audition_view);
         auxiliaryVideoView = (PolyvAuxiliaryVideoView) findViewById(R.id.polyv_auxiliary_video_view);
         auxiliaryLoadingProgress = (ProgressBar) findViewById(R.id.auxiliary_loading_progress);
@@ -347,9 +336,6 @@ public class PolyvPlayerActivity extends FragmentActivity {
         mediaController.setAudioCoverView(coverView);
         mediaController.setDanmuFragment(danmuFragment);
         questionView.setPolyvVideoView(videoView);
-        questionView.setDanmuFragment(danmuFragment);
-        customQuestionView.setPolyvVideoView(videoView);
-        customQuestionView.setDanmuFragment(danmuFragment);
         auditionView.setPolyvVideoView(videoView);
         auxiliaryVideoView.setPlayerBufferingIndicator(auxiliaryLoadingProgress);
         auxiliaryView.setPolyvVideoView(videoView);
@@ -386,8 +372,8 @@ public class PolyvPlayerActivity extends FragmentActivity {
         videoView.setAutoContinue(true);
         videoView.setNeedGestureDetector(true);
         videoView.setSeekType(PolyvSeekType.SEEKTYPE_NORMAL);
-        videoView.setLoadTimeoutSecond(false, 60);//加载超时时间，单位：秒。false：不开启。
-        videoView.setBufferTimeoutSecond(false, 30);//缓冲超时时间，单位：秒。false：不开启。
+        videoView.setLoadTimeoutSecond(25);//加载超时时间，单位：秒
+        videoView.setBufferTimeoutSecond(15);//缓冲超时时间，单位：秒
         videoView.disableScreenCAP(this, false);//防录屏开关，true为开启，如果开启防录屏，投屏功能将不可用
 
         videoView.setOnPreparedListener(new IPolyvOnPreparedListener2() {
@@ -439,7 +425,6 @@ public class PolyvPlayerActivity extends FragmentActivity {
             @Override
             public void onPlay() {
                 coverView.startAnimation();
-                danmuFragment.resume();
             }
 
             @Override
@@ -457,7 +442,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
 
         videoView.setOnVideoTimeoutListener(new IPolyvOnVideoTimeoutListener() {
             @Override
-            public void onBufferTimeout(int timeoutSecond, int times) {//在一个缓冲里，每超过设置的timeoutSecond都会回调一次，需开启该功能才会回调
+            public void onBufferTimeout(int timeoutSecond, int times) {//在一个缓冲里，每超过设置的timeoutSecond都会回调一次
                 Toast.makeText(PolyvPlayerActivity.this, "视频加载速度缓慢，请切换到低清晰度的视频或调整网络", Toast.LENGTH_LONG).show();
             }
         });
@@ -569,13 +554,11 @@ public class PolyvPlayerActivity extends FragmentActivity {
 
             @Override
             public void onTips(@NonNull String msg) {
-                danmuFragment.resume();
                 questionView.showAnswerTips(msg);
             }
 
             @Override
             public void onTips(@NonNull String msg, int seek) {
-                danmuFragment.resume();
                 questionView.showAnswerTips(msg,seek);
             }
         });
@@ -677,7 +660,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
             public void callback(boolean start, boolean end) {
                 Log.d(TAG, String.format("RightDown %b %b volume %d", start, end, videoView.getVolume()));
                 // 加减单位最小为10，否则无效果
-                if (mediaController.isLocked()) {
+                if(mediaController.isLocked()){
                     return;
                 }
                 int volume = videoView.getVolume() - 10;
@@ -995,33 +978,6 @@ public class PolyvPlayerActivity extends FragmentActivity {
                     }
                 })
                 .show();
-    }
-
-    /**
-     * 显示自定义问答的示例代码
-     */
-    private void showCustomQuestion(){
-        PolyvCustomQuestionBuilder.ChoiceList choiceList = new PolyvCustomQuestionBuilder.ChoiceList();
-        choiceList.addChoice("晴天", true)
-                .addChoice("雨天",true)
-                .addChoice("大雾");
-        try {
-            PolyvCustomQuestionBuilder.create(customQuestionView)
-                    .mustParam("123", "今天天气怎么样",choiceList)
-                    .skip(true)
-                    .illustration(null)
-                    .rightAnswerTip("答对了")
-                    .wrongAnswerTip("答错了")
-                    .listen(new IPolyvOnQuestionAnswerTipsCustomListener() {
-                        @Override
-                        public void onAnswerResult(PolyvQuestionVO polyvQuestionVO) {
-                            Log.d(TAG,polyvQuestionVO.getExamId());
-                        }
-                    })
-                    .showQuestion();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     private void initScreencast() {

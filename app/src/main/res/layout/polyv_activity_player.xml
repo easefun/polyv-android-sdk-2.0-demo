@@ -113,11 +113,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone" />
-        <com.easefun.polyvsdk.player.PolyvPlayerAnswerView
-            android:id="@+id/polyv_player_custom_question_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone" />
 
         <com.easefun.polyvsdk.player.PolyvPlayerAuditionView
             android:id="@+id/polyv_player_audition_view"
