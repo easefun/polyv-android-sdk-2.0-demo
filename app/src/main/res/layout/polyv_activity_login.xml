@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:textSize="28dp"
+        android:text="账户1"
+        android:background="@color/center_layout_color_gray"
+        android:id="@+id/account_id1"
+        android:layout_width="100dp"
+        android:layout_height="50dp" />
+
+    <TextView
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:textSize="28dp"
+        android:text="账户2"
+        android:background="@color/center_layout_color_gray"
+        android:id="@+id/account_id2"
+        android:layout_width="100dp"
+        android:layout_height="50dp" />
+
+    <TextView
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:textSize="28dp"
+        android:text="登出"
+        android:background="@color/center_layout_color_gray"
+        android:id="@+id/logout"
+        android:layout_width="100dp"
+        android:layout_height="50dp" />
+
+    <TextView
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:textSize="28dp"
+        android:text="去主界面"
+        android:background="@color/center_layout_color_gray"
+        android:id="@+id/gohome"
+        android:layout_width="100dp"
+        android:layout_height="50dp" />
+</LinearLayout>

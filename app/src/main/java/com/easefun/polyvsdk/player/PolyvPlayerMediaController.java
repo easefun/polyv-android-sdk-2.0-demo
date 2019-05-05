@@ -3,6 +3,7 @@ package com.easefun.polyvsdk.player;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
@@ -26,6 +27,8 @@ import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.fragment.PolyvPlayerDanmuFragment;
 import com.easefun.polyvsdk.fragment.PolyvPlayerTopFragment;
 import com.easefun.polyvsdk.ijk.PolyvPlayerScreenRatio;
+import com.easefun.polyvsdk.sub.auxilliary.IOUtil;
+import com.easefun.polyvsdk.sub.auxilliary.SDCardUtil;
 import com.easefun.polyvsdk.sub.danmaku.entity.PolyvDanmakuInfo;
 import com.easefun.polyvsdk.sub.screenshot.PolyvScreenShot;
 import com.easefun.polyvsdk.util.PolyvKeyBoardUtils;
@@ -42,7 +45,11 @@ import com.easefun.polyvsdk.view.PolyvTickSeekBar;
 import com.easefun.polyvsdk.view.PolyvTickTips;
 import com.easefun.polyvsdk.vo.PolyvVideoVO;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class PolyvPlayerMediaController extends PolyvBaseMediaController implements View.OnClickListener {
@@ -1511,6 +1518,39 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         }
     }
 
+    //本地截图
+    private void localScreenshot() {
+        if (videoView != null) {
+            //该方法可能会稍微耗时，可以使用screenshot(width, height)较小的宽高来避免，也可以截图完成后弹出截取的图片，减少卡顿的感知
+            Bitmap bitmap = videoView.screenshot();
+            if (bitmap != null) {
+                String savePath = SDCardUtil.createPathPF(mContext, "polyvsnapshot");
+                String fileName = videoView.getCurrentVid() + "_" + PolyvTimeUtils.generateTime(videoView.getCurrentPosition()) + "_" + new SimpleDateFormat("yyyy-MM-dd_kk:mm:ss").format(new Date()) + ".jpg";
+                String filePath = new File(savePath, fileName).getAbsolutePath();
+
+                FileOutputStream fileOutputStream = null;
+                try {
+                    fileOutputStream = new FileOutputStream(filePath);
+                    boolean compressResult = bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+                    if (compressResult) {
+                        toastMsg("截图成功：" + filePath);
+                    } else {
+                        toastMsg("截图失败：bitmap compress fail");
+                    }
+                } catch (Exception e) {
+                    toastMsg("截图失败：" + e.getMessage());
+                } finally {
+                    IOUtil.closeIO(fileOutputStream);
+                }
+
+            } else {
+                toastMsg("截图失败：bitmap is null");
+            }
+        } else {
+            toastMsg("截图失败：videoView is null");
+        }
+    }
+
     //网络截图
     private void screenshot() {
         String vid = null;
@@ -1856,7 +1896,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                 sendDanmaku();
                 break;
             case R.id.iv_screens:
-                screenshot();
+                localScreenshot();
                 break;
             case R.id.iv_video:
             case R.id.iv_video_land:
