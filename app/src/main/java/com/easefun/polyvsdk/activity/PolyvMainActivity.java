@@ -22,9 +22,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.easefun.polyvsdk.PolyvSDKClient;
+import com.easefun.polyvsdk.PolyvUserClient;
 import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.adapter.PolyvHotCoursesGridViewAdapter;
 import com.easefun.polyvsdk.permission.PolyvPermission;
+import com.easefun.polyvsdk.screencast.utils.PolyvToastUtil;
 import com.easefun.polyvsdk.sub.vlms.entity.PolyvAddOrderInfo;
 import com.easefun.polyvsdk.sub.vlms.entity.PolyvCoursesInfo;
 import com.easefun.polyvsdk.sub.vlms.listener.PolyvVlmsApiListener;
