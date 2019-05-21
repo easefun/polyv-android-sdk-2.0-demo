@@ -266,7 +266,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
                 if (networkDetection.isMobileType()) {
                     if (!networkDetection.isAllowMobile()) {
                         if (videoView.isPlaying()) {
-                            videoView.pause();
+                            videoView.pause(true);
                             flowPlayLayout.setVisibility(View.VISIBLE);
                             cancelFlowPlayButton.setVisibility(View.GONE);
                         }
