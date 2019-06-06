@@ -421,7 +421,9 @@ public class PolyvPlayerActivity extends FragmentActivity {
                         danmuFragment.pause(false);
                         break;
                     case PolyvMediaInfoType.MEDIA_INFO_BUFFERING_END:
-                        danmuFragment.resume(false);
+                        if (!videoView.isPausState()){
+                            danmuFragment.resume(false);
+                        }
                         break;
                 }
 
@@ -950,11 +952,6 @@ public class PolyvPlayerActivity extends FragmentActivity {
     protected void onPause() {
         super.onPause();
         mediaController.pause();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
         if (!isBackgroundPlay) {
             //弹出去暂停
             isPlay = videoView.onActivityStop();
