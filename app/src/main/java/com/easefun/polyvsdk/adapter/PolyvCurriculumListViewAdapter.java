@@ -168,7 +168,7 @@ public class PolyvCurriculumListViewAdapter extends BaseAdapter {
         long filesize = -1;
         // 获取可以下载码率的文件大小
         while (filesize <= 0 && bitrate > 0)
-            filesize = videoVO.getFileSizeMatchVideoType(bitrate--);
+            filesize = videoVO.getFileSizeMatchVideoType(bitrate--, PolyvDownloader.FILE_VIDEO);
         return new PolyvDownloadInfo(videoVO.getVid(), videoVO.getDuration(), filesize, bitrate + 1, curriculum.lecture.title);
     }
 
@@ -202,9 +202,10 @@ public class PolyvCurriculumListViewAdapter extends BaseAdapter {
             for (int j = 1; j <= 3; j++) {
                 boolean isSelected = getSideIconStatus(j, i, false);
                 final PolyvDownloadInfo downloadInfo = generateDownloadInfo(i, j);
+                downloadInfo.setFileType(PolyvDownloader.FILE_VIDEO);
                 if (isSelected && !downloadSQLiteHelper.isAdd(downloadInfo)) {
                     downloadSQLiteHelper.insert(downloadInfo);
-                    PolyvDownloader downloader = PolyvDownloaderManager.getPolyvDownloader(downloadInfo.getVid(), downloadInfo.getBitrate());
+                    PolyvDownloader downloader = PolyvDownloaderManager.getPolyvDownloader(downloadInfo.getVid(), downloadInfo.getBitrate(), downloadInfo.getFileType());
                     downloader.setPolyvDownloadProressListener(new MyDownloadListener(downloadInfo));
                     downloader.start();
                 }

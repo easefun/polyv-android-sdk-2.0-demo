@@ -3,6 +3,7 @@ package com.easefun.polyvsdk.player;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
@@ -21,25 +22,34 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.easefun.polyvsdk.PolyvDownloader;
 import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.fragment.PolyvPlayerDanmuFragment;
 import com.easefun.polyvsdk.fragment.PolyvPlayerTopFragment;
 import com.easefun.polyvsdk.ijk.PolyvPlayerScreenRatio;
+import com.easefun.polyvsdk.sub.auxilliary.IOUtil;
+import com.easefun.polyvsdk.sub.auxilliary.SDCardUtil;
 import com.easefun.polyvsdk.sub.danmaku.entity.PolyvDanmakuInfo;
 import com.easefun.polyvsdk.sub.screenshot.PolyvScreenShot;
 import com.easefun.polyvsdk.util.PolyvKeyBoardUtils;
+import com.easefun.polyvsdk.util.PolyvNetworkDetection;
 import com.easefun.polyvsdk.util.PolyvScreenUtils;
 import com.easefun.polyvsdk.util.PolyvSensorHelper;
 import com.easefun.polyvsdk.util.PolyvShareUtils;
 import com.easefun.polyvsdk.util.PolyvTimeUtils;
 import com.easefun.polyvsdk.video.IPolyvVideoView;
 import com.easefun.polyvsdk.video.PolyvBaseMediaController;
+import com.easefun.polyvsdk.video.PolyvVideoUtil;
 import com.easefun.polyvsdk.video.PolyvVideoView;
 import com.easefun.polyvsdk.view.PolyvTickSeekBar;
 import com.easefun.polyvsdk.view.PolyvTickTips;
 import com.easefun.polyvsdk.vo.PolyvVideoVO;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class PolyvPlayerMediaController extends PolyvBaseMediaController implements View.OnClickListener {
@@ -191,6 +201,11 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
 
     private ImageView polyvScreenLock, polyvScreenLockAudio;
 
+    private PolyvNetworkDetection networkDetection;
+    private LinearLayout flowPlayLayout;
+    private View flowButton, cancelFlowButton;
+    private int fileType;
+
     //用于处理控制栏的显示状态
     private Handler handler = new Handler() {
         @Override
@@ -264,6 +279,14 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
      */
     public void initConfig(ViewGroup parentView) {
         this.parentView = parentView;
+    }
+
+    public void setPolyvNetworkDetetion(PolyvNetworkDetection networkDetetion, LinearLayout layout, View button, View cancelButton, int fileType) {
+        this.networkDetection = networkDetetion;
+        this.flowPlayLayout = layout;
+        this.flowButton = button;
+        this.cancelFlowButton = cancelButton;
+        this.fileType = fileType;
     }
 
     public void setDanmuFragment(PolyvPlayerDanmuFragment danmuFragment) {
@@ -563,8 +586,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             initBitRateViewVisible(videoView.getBitRate());
             //初始化切换线路及其可见性
             initRouteView();
-            //下面两行代码是设置切换线路默认不可见，如果需要根据是否有线路进行切换，注释这两行代码即可
-            tv_route.setVisibility(View.GONE);
+            //竖屏控制栏的切换线路按钮默认不可见，如需更改为可见，注释这行代码即可
             tv_route_portrait.setVisibility(View.GONE);
 
             //音频模式下，隐藏切换码率/填充模式/字幕/截图的按钮
@@ -813,7 +835,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     }
 
     //根据视频的播放状态去暂停或播放
-    private void playOrPause() {
+    public void playOrPause() {
         if (videoView != null) {
             if (videoView.isPlaying()) {
                 danmuFragment.pause();
@@ -1365,8 +1387,45 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         rl_center_bit.setVisibility(isVisible);
     }
 
+    private boolean checkNetworkType(int bitRate, int fileType, OnClickListener onClickListener) {
+        if (networkDetection.isMobileType() && !networkDetection.isAllowMobile()) {
+            if (PolyvDownloader.FILE_VIDEO == fileType) {
+                if (bitRate != 0 && !PolyvVideoUtil.validateLocalVideo(videoView.getCurrentVid(), bitRate).hasLocalVideo() ||
+                        (bitRate == 0 && !PolyvVideoUtil.validateLocalVideo(videoView.getCurrentVid()).hasLocalVideo())) {
+                    flowButton.setOnClickListener(onClickListener);
+                    flowPlayLayout.setVisibility(View.VISIBLE);
+                    hide();
+                    cancelFlowButton.setVisibility(View.VISIBLE);
+                    return true;
+                }
+            } else {
+                if (bitRate != 0 && PolyvVideoUtil.validateMP3Audio(videoView.getCurrentVid(), bitRate) == null && !PolyvVideoUtil.validateLocalVideo(videoView.getCurrentVid(), bitRate).hasLocalVideo() ||
+                        (bitRate == 0 && PolyvVideoUtil.validateMP3Audio(videoView.getCurrentVid()).size() == 0 && !PolyvVideoUtil.validateLocalVideo(videoView.getCurrentVid()).hasLocalVideo())) {
+                    flowButton.setOnClickListener(onClickListener);
+                    flowPlayLayout.setVisibility(View.VISIBLE);
+                    hide();
+                    cancelFlowButton.setVisibility(View.VISIBLE);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     //重置选择码率的控件
-    private void resetBitRateView(int bitRate) {
+    private void resetBitRateView(final int bitRate) {
+        if (checkNetworkType(bitRate, fileType, new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                networkDetection.allowMobile();
+                flowPlayLayout.setVisibility(View.GONE);
+                resetBitRateView(bitRate);
+            }
+        })) {
+            videoView.pause(true);
+            return;
+        }
+
         boolean isChangeSuccess = false;
         if (videoView != null)
             isChangeSuccess = videoView.changeBitRate(bitRate);
@@ -1459,6 +1518,39 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         }
     }
 
+    //本地截图
+    private void localScreenshot() {
+        if (videoView != null) {
+            //该方法可能会稍微耗时，可以使用screenshot(width, height)较小的宽高来避免，也可以截图完成后弹出截取的图片，减少卡顿的感知
+            Bitmap bitmap = videoView.screenshot();
+            if (bitmap != null) {
+                String savePath = SDCardUtil.createPathPF(mContext, "polyvsnapshot");
+                String fileName = videoView.getCurrentVid() + "_" + PolyvTimeUtils.generateTime(videoView.getCurrentPosition()) + "_" + new SimpleDateFormat("yyyy-MM-dd_kk:mm:ss").format(new Date()) + ".jpg";
+                String filePath = new File(savePath, fileName).getAbsolutePath();
+
+                FileOutputStream fileOutputStream = null;
+                try {
+                    fileOutputStream = new FileOutputStream(filePath);
+                    boolean compressResult = bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+                    if (compressResult) {
+                        toastMsg("截图成功：" + filePath);
+                    } else {
+                        toastMsg("截图失败：bitmap compress fail");
+                    }
+                } catch (Exception e) {
+                    toastMsg("截图失败：" + e.getMessage());
+                } finally {
+                    IOUtil.closeIO(fileOutputStream);
+                }
+
+            } else {
+                toastMsg("截图失败：bitmap is null");
+            }
+        } else {
+            toastMsg("截图失败：videoView is null");
+        }
+    }
+
     //网络截图
     private void screenshot() {
         String vid = null;
@@ -1535,6 +1627,50 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     public boolean isLocked() {
         return PolyvScreenUtils.isLandscape(getContext()) &&
                 (polyvScreenLock.isSelected() || polyvScreenLockAudio.isSelected());
+    }
+
+    private void changeVideoMode() {
+        //如果当前已经是优先视频模式，则不再切换
+        if (videoView != null && !PolyvVideoVO.MODE_VIDEO.equals(videoView.getPriorityMode())) {
+            if (checkNetworkType(videoView.getBitRate(), PolyvDownloader.FILE_VIDEO, new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    networkDetection.allowMobile();
+                    flowPlayLayout.setVisibility(View.GONE);
+                    changeVideoMode();
+                }
+            })) {
+                videoView.pause(true);
+                return;
+            }
+
+            resetModeView(true);
+            showAudioLock(true);
+            videoView.changeMode(PolyvVideoVO.MODE_VIDEO);
+            if (coverView != null)
+                coverView.hide();
+        }
+    }
+
+    private void changeAudioMode() {
+        //如果当前已经是优先音频模式，则不再切换
+        if (videoView != null && !PolyvVideoVO.MODE_AUDIO.equals(videoView.getPriorityMode())) {
+            if (checkNetworkType(videoView.getBitRate(), PolyvDownloader.FILE_AUDIO, new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    networkDetection.allowMobile();
+                    flowPlayLayout.setVisibility(View.GONE);
+                    changeAudioMode();
+                }
+            })) {
+                videoView.pause(true);
+                return;
+            }
+
+            resetModeView(false);
+            showAudioLock(true);
+            videoView.changeMode(PolyvVideoVO.MODE_AUDIO);
+        }
     }
 
     @Override
@@ -1760,27 +1896,15 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                 sendDanmaku();
                 break;
             case R.id.iv_screens:
-                screenshot();
+                localScreenshot();
                 break;
             case R.id.iv_video:
             case R.id.iv_video_land:
-                //如果当前已经是优先视频模式，则不再切换
-                if (videoView != null && !PolyvVideoVO.MODE_VIDEO.equals(videoView.getPriorityMode())) {
-                    resetModeView(true);
-                    showAudioLock(true);
-                    videoView.changeMode(PolyvVideoVO.MODE_VIDEO);
-                    if (coverView != null)
-                        coverView.hide();
-                }
+                changeVideoMode();
                 break;
             case R.id.iv_audio:
             case R.id.iv_audio_land:
-                //如果当前已经是优先音频模式，则不再切换
-                if (videoView != null && !PolyvVideoVO.MODE_AUDIO.equals(videoView.getPriorityMode())) {
-                    resetModeView(false);
-                    showAudioLock(true);
-                    videoView.changeMode(PolyvVideoVO.MODE_AUDIO);
-                }
+                changeAudioMode();
                 break;
         }
         //如果控制栏不是处于一直显示的状态，那么重置控制栏隐藏的时间

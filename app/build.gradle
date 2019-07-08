@@ -69,14 +69,14 @@ dependencies {
     compile 'com.android.support:support-v4:23+'
     compile 'com.android.support:design:23+'
     compile 'com.android.support:multidex:1.0.1'//64K 引用限制
-    compile 'com.easefun.polyv:polyvPlayer:2.7.2'//SDK核心包
-    compile 'com.easefun.polyv:polyvPlayerABI:1.7.1'//SDK核心包
-    compile 'com.easefun.polyv:polyvDownload:2.7.1'//SDK下载功能
-    compile 'com.easefun.polyv:polyvUpload:2.2.2'//SDK上传功能
-    compile 'com.easefun.polyv:polyvScreencast:0.2.0'//SDK上传功能
+    compile 'com.easefun.polyv:polyvPlayer:2.8.4'//SDK核心包
+    compile 'com.easefun.polyv:polyvPlayerABI:1.8.0'//SDK核心包
+    compile 'com.easefun.polyv:polyvDownload:2.8.2'//SDK下载功能
+    compile 'com.easefun.polyv:polyvUpload:2.2.3'//SDK上传功能
+    compile 'com.easefun.polyv:polyvScreencast:0.2.1'//SDK投屏功能
     compile 'de.hdodenhof:circleimageview:2.2.0'//圆形imageview，音频封面图使用
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'//demo中图片使用
     compile "com.daimajia.swipelayout:library:1.2.0@aar"//demo中下载列表使用
     compile 'com.easefun.polyv:polyvGif:2.2.1'//demo中课程讨论区显示的内容里用到的包
-    compile 'com.easefun.polyv:polyvSub:2.5.2'//弹幕、截图功能中使用
+    compile 'com.easefun.polyv:polyvSub:2.8.0'//弹幕、截图功能中使用
 }

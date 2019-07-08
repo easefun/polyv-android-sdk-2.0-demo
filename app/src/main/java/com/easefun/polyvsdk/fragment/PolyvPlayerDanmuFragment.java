@@ -34,8 +34,6 @@ public class PolyvPlayerDanmuFragment extends Fragment {
     private static final String TAG = PolyvPlayerDanmuFragment.class.getSimpleName();
     private static final int SEEKTOFITTIME = 12;
     private static final int PAUSE = 13;
-    private boolean status_canauto_resume = true;
-    private boolean status_pause_fromuser = true;
     private boolean status_pause;
     //danmuLayoutView
     private View view;
@@ -217,10 +215,6 @@ public class PolyvPlayerDanmuFragment extends Fragment {
     }
 
     public void pause(boolean fromuser) {
-        if (!fromuser)
-            status_pause_fromuser = false;
-        else
-            status_canauto_resume = false;
         status_pause = true;
         if (iDanmakuView != null && iDanmakuView.isPrepared()) {
             iDanmakuView.pause();
@@ -232,16 +226,13 @@ public class PolyvPlayerDanmuFragment extends Fragment {
     }
 
     public void resume(boolean fromuser) {
-        if (status_pause_fromuser && fromuser || (!status_pause_fromuser && !fromuser)) {
+        if (status_pause) {
             status_pause = false;
             if (iDanmakuView != null && iDanmakuView.isPrepared()) {/*iDanmakuView.isPaused() pause后获取可能为false*/
-                if (!status_pause_fromuser) {
-                    status_pause_fromuser = true;
+                if (!fromuser) {
                     seekTo();
-                    if (status_canauto_resume)
-                        iDanmakuView.resume();
+                    iDanmakuView.resume();
                 } else {
-                    status_canauto_resume = true;
                     iDanmakuView.resume();
                 }
             }

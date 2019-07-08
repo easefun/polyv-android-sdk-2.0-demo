@@ -3,12 +3,16 @@ package com.easefun.polyvsdk.player;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,8 +27,12 @@ import com.easefun.polyvsdk.PolyvQuestionUtil;
 import com.easefun.polyvsdk.PolyvSDKUtil;
 import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.adapter.PolyvAnswerAdapter;
+import com.easefun.polyvsdk.fragment.PolyvPlayerDanmuFragment;
+import com.easefun.polyvsdk.question.PolyvQuestion;
 import com.easefun.polyvsdk.util.PolyvScreenUtils;
 import com.easefun.polyvsdk.video.PolyvVideoView;
+import com.easefun.polyvsdk.video.listener.IPolyvOnQuestionAnswerTipsCustomListener;
+import com.easefun.polyvsdk.video.listener.IPolyvOnQuestionAnswerTipsListener;
 import com.easefun.polyvsdk.vo.PolyvQAFormatVO;
 import com.easefun.polyvsdk.vo.PolyvQuestionChoicesVO;
 import com.easefun.polyvsdk.vo.PolyvQuestionVO;
@@ -57,8 +65,12 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
     private ImageView answerTipImg;
     private TextView polyvAnswerTipContent;
     private PolyvVideoView polyvVideoView;
+    private PolyvPlayerDanmuFragment danmuFragment;
     private static final int ANSWER_TIP_STAY_TIME = 3*1000;
     private DisplayImageOptions imageOptions;
+
+    //自定义问答的答题结果监听器
+    private IPolyvOnQuestionAnswerTipsCustomListener customQuestionAnswerListener;
 
     public PolyvPlayerAnswerView(Context context) {
         this(context, null);
@@ -126,14 +138,43 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
         polyvQuestionVO = questionVO;
         if (!questionVO.isSkip()) {
             polyvAnswerSkip.setVisibility(GONE);
+        }else {
+            polyvAnswerSkip.setVisibility(VISIBLE);
         }
-
-        setTitle(questionVO);
 
         initialChoiceStatus(questionVO);
 
+        setTitle(questionVO);
+
         intialAdapter(questionVO);
 
+    }
+
+    /**
+     * 显示用户自定义的问题，由用户调用
+     * @param questionVO
+     */
+    public void showCustomQuestion(PolyvQuestionVO questionVO){
+        //构建新的PolyvQuesion对象
+        final PolyvQuestion customQuestion=new PolyvQuestion(polyvVideoView);
+        customQuestion.setOnQuestionAnswerTipsListener(new IPolyvOnQuestionAnswerTipsListener() {
+            @Override
+            public void onTips(@NonNull String msg) {
+                showAnswerTips(msg);
+                customQuestion.removeCustomQuestion();
+            }
+
+            @Override
+            public void onTips(@NonNull String msg, int seek) {
+                showAnswerTips(msg,seek);
+                customQuestion.removeCustomQuestion();
+            }
+        });
+        polyvVideoView.getPolyvQuestion().setCustomQuestion(customQuestion);
+
+        polyvVideoView.pause(true);
+        customQuestion.insertCustomQuestion(questionVO);
+        showAnswerContent(questionVO);
     }
 
     private void intialAdapter(PolyvQuestionVO questionVO) {
@@ -226,7 +267,10 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
                 imgUrl = polyvQAFormatVO.getStr();
             }
         }
-        answerTitle.setText(title);
+        SpannableStringBuilder span = new SpannableStringBuilder(isMultiSelected ? "【多选题】" : "【单选题】");
+        span.setSpan(new ForegroundColorSpan(Color.parseColor("#4A90E2")), 0, 5, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        span.append(title);
+        answerTitle.setText(span);
 
         if (!TextUtils.isEmpty(questionVO.getIllustration()) && !"null".equals(questionVO.getIllustration())) {
             answerIllustration.setVisibility(VISIBLE);
@@ -255,6 +299,7 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
                 hide();
                 if (polyvVideoView != null) {
                     polyvVideoView.skipQuestion();
+                    danmuFragment.resume();
                 }
                 break;
             case R.id.polyv_answer_submit:
@@ -276,6 +321,7 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
             polyvVideoView.seekTo(seconds);
         }
         polyvVideoView.start();
+        danmuFragment.resume();
     }
 
     private void submitAnswer() {
@@ -294,7 +340,15 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
             return;
         }
         polyvVideoView.answerQuestion(rightAnswers.isEmpty() && wrongAnserSelect.isEmpty(),
-                rightAnswers.isEmpty() ? polyvQuestionVO.getAnswer() : polyvQuestionVO.getWrongAnswer());
+                rightAnswers.isEmpty() && wrongAnserSelect.isEmpty() ? polyvQuestionVO.getAnswer() : polyvQuestionVO.getWrongAnswer());
+        //自定义问答的答题结果回调
+        if (customQuestionAnswerListener !=null){
+            danmuFragment.resume();
+            customQuestionAnswerListener.onAnswerResult(polyvQuestionVO);
+        }
+    }
+    public void setCustomQuestionAnswerListener(IPolyvOnQuestionAnswerTipsCustomListener listener){
+        this.customQuestionAnswerListener=listener;
     }
 
     public void showAnswerTips(String msg) {
@@ -344,6 +398,9 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
 
     public void setPolyvVideoView(PolyvVideoView polyvVideoView) {
         this.polyvVideoView = polyvVideoView;
+    }
+    public void setDanmuFragment(PolyvPlayerDanmuFragment danmuFragment){
+        this.danmuFragment=danmuFragment;
     }
 
     public void hide() {

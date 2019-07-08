@@ -63,7 +63,7 @@ public class PolyvDownloadListViewAdapter extends BaseSwipeAdapter {
             PolyvDownloadInfo downloadInfo = lists.get(i);
             String vid = downloadInfo.getVid();
             int bitrate = downloadInfo.getBitrate();
-            PolyvDownloaderManager.getPolyvDownloader(vid, bitrate);
+            PolyvDownloaderManager.getPolyvDownloader(vid, bitrate, downloadInfo.getFileType());
         }
     }
 
@@ -82,7 +82,7 @@ public class PolyvDownloadListViewAdapter extends BaseSwipeAdapter {
             if (total != 0)
                 progress = (int) (percent * 100 / total);
             if (progress == 100)
-                finishKey.add(PolyvDownloaderManager.getKey(downloadInfo.getVid(), downloadInfo.getBitrate()));
+                finishKey.add(PolyvDownloaderManager.getKey(downloadInfo.getVid(), downloadInfo.getBitrate(), downloadInfo.getFileType()));
         }
         updateButtonStatus(false);
         PolyvDownloaderManager.startUnfinished(finishKey, context);
@@ -110,7 +110,7 @@ public class PolyvDownloadListViewAdapter extends BaseSwipeAdapter {
         for (int i = 0; i < lists.size(); i++) {
             PolyvDownloadInfo downloadInfo = lists.get(i);
             //移除任务
-            PolyvDownloader downloader = PolyvDownloaderManager.clearPolyvDownload(downloadInfo.getVid(), downloadInfo.getBitrate());
+            PolyvDownloader downloader = PolyvDownloaderManager.clearPolyvDownload(downloadInfo.getVid(), downloadInfo.getBitrate(), downloadInfo.getFileType());
             //删除文件
             downloader.deleteVideo();
             //移除数据库的下载信息
@@ -126,7 +126,7 @@ public class PolyvDownloadListViewAdapter extends BaseSwipeAdapter {
     public void deleteTask(int position) {
         PolyvDownloadInfo downloadInfo = lists.remove(position);
         //移除任务
-        PolyvDownloader downloader = PolyvDownloaderManager.clearPolyvDownload(downloadInfo.getVid(), downloadInfo.getBitrate());
+        PolyvDownloader downloader = PolyvDownloaderManager.clearPolyvDownload(downloadInfo.getVid(), downloadInfo.getBitrate(), downloadInfo.getFileType());
         //删除文件
         downloader.deleteVideo();
         //移除数据库的下载信息
@@ -211,12 +211,13 @@ public class PolyvDownloadListViewAdapter extends BaseSwipeAdapter {
         long total = downloadInfo.getTotal();
         String title = downloadInfo.getTitle();
         long filesize = downloadInfo.getFilesize();
+        int fileType = downloadInfo.getFileType();
         // 已下载的百分比
         int progress = 0;
         if (total != 0) {
             progress = (int) (percent * 100 / total);
         }
-        PolyvDownloader downloader = PolyvDownloaderManager.getPolyvDownloader(vid, bitrate);
+        PolyvDownloader downloader = PolyvDownloaderManager.getPolyvDownloader(vid, bitrate, fileType);
         viewHolder.pb_progress.setVisibility(View.VISIBLE);
         viewHolder.tv_speed.setVisibility(View.VISIBLE);
         viewHolder.tv_status.setSelected(false);
@@ -229,7 +230,7 @@ public class PolyvDownloadListViewAdapter extends BaseSwipeAdapter {
             viewHolder.iv_start.setImageResource(R.drawable.polyv_btn_dlpause);
             viewHolder.tv_status.setText(DOWNLOADING);
             viewHolder.tv_speed.setText("0.00B/S");
-        } else if (PolyvDownloaderManager.isWaitingDownload(vid, bitrate)) {
+        } else if (PolyvDownloaderManager.isWaitingDownload(vid, bitrate, fileType)) {
             viewHolder.iv_start.setImageResource(R.drawable.polyv_btn_download);
             viewHolder.tv_status.setText(WAITED);
             viewHolder.tv_status.setSelected(true);
@@ -293,6 +294,9 @@ public class PolyvDownloadListViewAdapter extends BaseSwipeAdapter {
         }
 
         private void removeToDownloadedQueue(int position) {
+            if(position >= lists.size()){
+                return;
+            }
             PolyvDownloadInfo downloadInfo = lists.remove(position);
             ((BaseSwipeAdapter) wr_lv_download.get().getAdapter()).notifyDataSetChanged();
             if (downloadSuccessListener != null) {
@@ -340,7 +344,7 @@ public class PolyvDownloadListViewAdapter extends BaseSwipeAdapter {
                 viewHolder.get().iv_start.setImageResource(R.drawable.polyv_btn_download);
                 showPauseSpeeView(downloadInfo, viewHolder.get().tv_speed);
                 String message = "第" + (position + 1) + "个任务";
-                message += PolyvErrorMessageUtils.getDownloaderErrorMessage(errorReason.getType());
+                message += PolyvErrorMessageUtils.getDownloaderErrorMessage(errorReason.getType(), downloadInfo.getFileType());
                 message += "(error code " + errorReason.getType().getCode() + ")";
 
 //                Toast.makeText(appContext, message, Toast.LENGTH_LONG).show();
@@ -451,9 +455,10 @@ public class PolyvDownloadListViewAdapter extends BaseSwipeAdapter {
         public void onClick(View v) {
             String vid = downloadInfo.getVid();
             int bitrate = downloadInfo.getBitrate();
-            final PolyvDownloader downloader = PolyvDownloaderManager.getPolyvDownloader(vid, bitrate);
+            int fileType = downloadInfo.getFileType();
+            final PolyvDownloader downloader = PolyvDownloaderManager.getPolyvDownloader(vid, bitrate, fileType);
             if (tv_status.getText().equals(DOWNLOADED)) {
-                Intent intent = PolyvPlayerActivity.newIntent(context, PolyvPlayerActivity.PlayMode.portrait, vid, bitrate, true, true);
+                Intent intent = PolyvPlayerActivity.newIntent(context, PolyvPlayerActivity.PlayMode.portrait, vid, bitrate, true, true, fileType);
                 // 在线视频和下载的视频播放的时候只显示播放器窗口，用该参数来控制
                 intent.putExtra(PolyvMainActivity.IS_VLMS_ONLINE, false);
                 context.startActivity(intent);
@@ -468,7 +473,7 @@ public class PolyvDownloadListViewAdapter extends BaseSwipeAdapter {
                 tv_status.setSelected(false);
                 iv_start.setImageResource(R.drawable.polyv_btn_dlpause);
                 downloader.start(context);
-                if (!downloader.isDownloading() && PolyvDownloaderManager.isWaitingDownload(vid, bitrate)) {
+                if (!downloader.isDownloading() && PolyvDownloaderManager.isWaitingDownload(vid, bitrate, fileType)) {
                     iv_start.setImageResource(R.drawable.polyv_btn_download);
                     tv_status.setText(WAITED);
                     tv_status.setSelected(true);
