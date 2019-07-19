@@ -12,7 +12,7 @@ SDK2.0.0demo是SDK2.0.0的demo示例Android studio项目工程，其中包含了
 * JDK 1.7 或以上
 * Android SDK 14 或以上
 * Android Studio 2.2.0 或以上
-* **abiFilters 建议配置为arm64-v8a、armeabi-v7a、x86。不要使用armeabi，仅使用armeabi可能会在部分机型上出现音画不同步等异常情况**
+* **abiFilters 建议配置为[arm64-v8a、armeabi-v7a、x86]。不要使用armeabi，仅使用armeabi可能会在部分机型上出现音画不同步等异常情况**
 ***
 #### 支持功能
 * 普通功能
