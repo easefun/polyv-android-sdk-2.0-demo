@@ -2,11 +2,11 @@ package com.easefun.polyvsdk.util;
 
 import android.support.annotation.NonNull;
 
-import com.easefun.polyvsdk.QuestionVO;
 import com.easefun.polyvsdk.player.PolyvPlayerAnswerView;
-import com.easefun.polyvsdk.video.listener.IPolyvOnQuestionAnswerTipsCustomListener;
+import com.easefun.polyvsdk.vo.PolyvQuestionChoicesVO;
 import com.easefun.polyvsdk.vo.PolyvQuestionVO;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,13 +27,13 @@ public class PolyvCustomQuestionBuilder {
     private int wrongTime = -1;
     private boolean skip = true;
     private String illustration;
+    private int showTime = 0;
 
-
-    private PolyvCustomQuestionBuilder(PolyvPlayerAnswerView answerView) {
+    private PolyvCustomQuestionBuilder(@NonNull PolyvPlayerAnswerView answerView) {
         this.answerView = answerView;
     }
 
-    public static PolyvCustomQuestionBuilder create(PolyvPlayerAnswerView answerView) {
+    public static PolyvCustomQuestionBuilder create(@NonNull PolyvPlayerAnswerView answerView) {
         return new PolyvCustomQuestionBuilder(answerView);
     }
 
@@ -85,21 +85,21 @@ public class PolyvCustomQuestionBuilder {
     }
 
     /**
+     * showTime 取值范围： 0~视频时长。
+     * 小于0或大于视频时长时不显示。
+     * 如果showtime小于当前播放的时间点，则直接弹出题目。比如播放到50s时去调用接口，而showtime = 40 时，直接弹出题目。
+     * @param showTime 预先设置题目显示的时间点，默认值0
+     */
+    public PolyvCustomQuestionBuilder showTime(int showTime) {
+        this.showTime = showTime;
+        return this;
+    }
+
+    /**
+     * 设置问答图片
      * @param illustration 问答图片
      */
     public PolyvCustomQuestionBuilder illustration(String illustration) {
-        if (illustration == null) {
-            return this;
-        }
-        String headHttps = "https:";
-        String headHttp = "http:";
-
-        //剪裁url。
-        if (illustration.startsWith(headHttps)) {
-            illustration = illustration.substring(headHttps.length());
-        } else if (illustration.startsWith(headHttp)) {
-            illustration = illustration.substring(headHttp.length());
-        }
         this.illustration = illustration;
         return this;
     }
@@ -109,13 +109,15 @@ public class PolyvCustomQuestionBuilder {
      *
      * @param listener 监听器
      */
-    public PolyvCustomQuestionBuilder listen(IPolyvOnQuestionAnswerTipsCustomListener listener) {
-        answerView.setCustomQuestionAnswerListener(listener);
+    public PolyvCustomQuestionBuilder listen(IPolyvOnCustomQuestionAnswerResultListener listener) {
+        this.answerView.setCustomQuestionAnswerResultListener(listener);
         return this;
     }
 
-
-    public void showQuestion() throws Exception {
+    /**
+     * 显示问答
+     */
+    public void showQuestion() throws InvalidParameterException {
         //检查AnswerView!=null
         checkNull(answerView, "answerView");
 
@@ -124,22 +126,41 @@ public class PolyvCustomQuestionBuilder {
         checkNull(question, "question");
         checkNull(choiceList, "choicesList");
 
-        PolyvQuestionVO polyvQuestionVO = new PolyvQuestionVO(examId, "", "", "", 0,
-                0, -1, question, new ArrayList<>(choiceList.getChoicesList()), rightAnswerTip, skip,
-                PolyvQuestionVO.TYPE_QUESTION, "", wrongTime, 1, 0,
-                0, false, wrongAnswerTip, illustration);
-
-        answerView.showCustomQuestion(polyvQuestionVO);
+        PolyvQuestionVO polyvQuestionVO = new PolyvQuestionVO(examId,
+                question,
+                choiceList.getChoicesList(),
+                rightAnswerTip,
+                skip,
+                PolyvQuestionVO.TYPE_QUESTION,
+                wrongTime,
+                wrongAnswerTip,
+                illustration);
+        polyvQuestionVO.setShowTime(showTime);
+        answerView.insertCustomQuestion(polyvQuestionVO);
     }
 
-    private void checkNull(Object mayNullObject, String paramName) throws Exception {
+    public PolyvQuestionVO toPolyvQuestionVO() {
+        PolyvQuestionVO polyvQuestionVO = new PolyvQuestionVO(examId,
+                question,
+                choiceList.getChoicesList(),
+                rightAnswerTip,
+                skip,
+                PolyvQuestionVO.TYPE_QUESTION,
+                wrongTime,
+                wrongAnswerTip,
+                illustration);
+        polyvQuestionVO.setShowTime(showTime);
+        return polyvQuestionVO;
+    }
+
+    private void checkNull(Object mayNullObject, String paramName) throws InvalidParameterException {
         if (mayNullObject == null) {
-            throw new Exception(paramName + "不可为Null");
+            throw new InvalidParameterException(paramName + "不可为Null");
         }
         if (mayNullObject instanceof String) {
             String mayBlank = (String) mayNullObject;
             if (mayBlank.length() == 0) {
-                throw new Exception(paramName + "不可为空字符");
+                throw new InvalidParameterException(paramName + "不可为空字符");
             }
         }
     }
@@ -147,12 +168,12 @@ public class PolyvCustomQuestionBuilder {
     public static class ChoiceList {
         private static final int MAX_CHOICE_NUM = 5;
 
-        private ArrayList<QuestionVO.ChoicesVO> choicesList = new ArrayList<>(MAX_CHOICE_NUM);
+        private ArrayList<PolyvQuestionChoicesVO> choicesList = new ArrayList<>(MAX_CHOICE_NUM);
 
         private boolean hasAtLeastOneRightChoice = false;
 
         public ChoiceList addChoice(String choiceName, boolean isRightChoice) {
-            choicesList.add(new QuestionVO.ChoicesVO(choiceName, isRightChoice ? 1 : 0));
+            choicesList.add(new PolyvQuestionChoicesVO(choiceName, isRightChoice));
             if (isRightChoice) {
                 hasAtLeastOneRightChoice = true;
             }
@@ -163,14 +184,26 @@ public class PolyvCustomQuestionBuilder {
             return this.addChoice(choiceName, false);
         }
 
-        List<QuestionVO.ChoicesVO> getChoicesList() throws Exception {
+        List<PolyvQuestionChoicesVO> getChoicesList() throws InvalidParameterException {
             if (choicesList.size() > MAX_CHOICE_NUM) {
-                throw new Exception("选项数量不可超过" + MAX_CHOICE_NUM + "个");
+                throw new InvalidParameterException("选项数量不可超过" + MAX_CHOICE_NUM + "个");
             }
             if (!hasAtLeastOneRightChoice) {
-                throw new Exception("至少得有一个正确选项");
+                throw new InvalidParameterException("至少得有一个正确选项");
             }
             return choicesList;
         }
+    }
+
+    /**
+     * 自定义问答的答题结果的回调
+     */
+    public interface IPolyvOnCustomQuestionAnswerResultListener {
+
+        /**
+         * 问答结果回调
+         * @param polyvQuestionVO 数据实体
+         */
+        void onAnswerResult(PolyvQuestionVO polyvQuestionVO);
     }
 }

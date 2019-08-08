@@ -17,8 +17,10 @@ import com.easefun.polyvsdk.sub.danmaku.auxiliary.BilibiliDanmakuTransfer;
 import com.easefun.polyvsdk.sub.danmaku.auxiliary.PolyvDanmakuTransfer;
 import com.easefun.polyvsdk.sub.danmaku.entity.PolyvDanmakuEntity;
 import com.easefun.polyvsdk.sub.danmaku.entity.PolyvDanmakuInfo;
+import com.easefun.polyvsdk.sub.danmaku.entity.PolyvDanmakuSendResult;
 import com.easefun.polyvsdk.sub.danmaku.main.PolyvDanmakuManager;
 import com.easefun.polyvsdk.video.PolyvVideoView;
+import com.google.gson.Gson;
 
 import java.util.HashMap;
 
@@ -136,7 +138,14 @@ public class PolyvPlayerDanmuFragment extends Fragment {
 
             @Override
             public void success(String s) {
-                toastMsg("发送成功");
+                Gson gson=new Gson();
+                PolyvDanmakuSendResult danmakuSendResult=gson.fromJson(s, PolyvDanmakuSendResult.class);
+                if (danmakuSendResult.getCode()==200){
+                    toastMsg("发送成功");
+                    int danmuId=danmakuSendResult.getDanmuId();
+                }else {
+                    toastMsg(danmakuSendResult.getMessage());
+                }
             }
         };
         callback = new DrawHandler.Callback() {

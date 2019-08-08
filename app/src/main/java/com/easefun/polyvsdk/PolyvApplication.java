@@ -3,20 +3,10 @@ package com.easefun.polyvsdk;
 import android.os.AsyncTask;
 import android.support.multidex.MultiDexApplication;
 import android.text.TextUtils;
-import android.util.Log;
 
-import com.easefun.polyvsdk.bean.PolyvDownloadInfo;
-import com.easefun.polyvsdk.database.PolyvDownloadSQLiteHelper;
 import com.easefun.polyvsdk.screencast.PolyvScreencastHelper;
-import com.easefun.polyvsdk.screencast.utils.PolyvToastUtil;
-import com.easefun.polyvsdk.util.PolyvStorageUtils;
-import com.easefun.polyvsdk.util.PolyvTaskExecutorUtils;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 //继承的类是为了解决64K 引用限制
 public class PolyvApplication extends MultiDexApplication {
@@ -58,7 +48,7 @@ public class PolyvApplication extends MultiDexApplication {
 //		openMultiAccount();
 
 		//使用SDK加密串来配置
-		client.setConfig("CMWht3MlpVkgpFzrLNAebYi4RdQDY/Nhvk3Kc+qWcck6chwHYKfl9o2aOVBvXVTRZD/14XFzVP7U5un43caq1FXwl0cYmTfimjTmNUYa1sZC1pkHE8gEsRpwpweQtEIiTGVEWrYVNo4/o5jI2/efzA==", aeskey, iv, getApplicationContext());
+		client.settingsWithConfigString("CMWht3MlpVkgpFzrLNAebYi4RdQDY/Nhvk3Kc+qWcck6chwHYKfl9o2aOVBvXVTRZD/14XFzVP7U5un43caq1FXwl0cYmTfimjTmNUYa1sZC1pkHE8gEsRpwpweQtEIiTGVEWrYVNo4/o5jI2/efzA==", aeskey, iv);
 		//初始化SDK设置
 		client.initSetting(getApplicationContext());
 		//启动Bugly

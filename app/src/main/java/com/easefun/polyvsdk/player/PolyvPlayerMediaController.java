@@ -700,6 +700,9 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     // 开启监听
     public void resume() {
         sensorHelper.enable();
+        if (PolyvScreenUtils.isLandscape(videoActivity)){
+            PolyvScreenUtils.hideNavigationBar(videoActivity);
+        }
     }
 
     /**
@@ -782,6 +785,8 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         PolyvScreenUtils.setLandscape(videoActivity);
         //初始为横屏时，状态栏需要隐藏
         PolyvScreenUtils.hideStatusBar(videoActivity);
+        //初始为横屏时，导航栏需要隐藏
+        PolyvScreenUtils.hideNavigationBar(videoActivity);
         //初始为横屏时，控制栏的宽高需要设置
         initLandScapeWH();
     }

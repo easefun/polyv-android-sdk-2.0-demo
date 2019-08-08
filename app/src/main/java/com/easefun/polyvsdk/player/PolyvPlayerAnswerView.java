@@ -5,6 +5,7 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,58 +25,93 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.easefun.polyvsdk.PolyvQuestionUtil;
-import com.easefun.polyvsdk.PolyvSDKUtil;
 import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.adapter.PolyvAnswerAdapter;
 import com.easefun.polyvsdk.fragment.PolyvPlayerDanmuFragment;
-import com.easefun.polyvsdk.question.PolyvQuestion;
+import com.easefun.polyvsdk.question.PolyvQuestionDoneAction;
+import com.easefun.polyvsdk.util.PolyvCustomQuestionBuilder;
 import com.easefun.polyvsdk.util.PolyvScreenUtils;
+import com.easefun.polyvsdk.video.IPolyvVideoView;
 import com.easefun.polyvsdk.video.PolyvVideoView;
-import com.easefun.polyvsdk.video.listener.IPolyvOnQuestionAnswerTipsCustomListener;
-import com.easefun.polyvsdk.video.listener.IPolyvOnQuestionAnswerTipsListener;
+import com.easefun.polyvsdk.video.listener.IPolyvOnQuestionListener;
 import com.easefun.polyvsdk.vo.PolyvQAFormatVO;
-import com.easefun.polyvsdk.vo.PolyvQuestionChoicesVO;
 import com.easefun.polyvsdk.vo.PolyvQuestionVO;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 
+import java.security.InvalidParameterException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * 问答视图
+ */
 public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClickListener {
+    // <editor-fold defaultstate="collapsed" desc="视图控件">
+    private LinearLayout answerContentLayout;
     private TextView answerTitle, answerResponseContent;
     private ScrollView answerResponseScroll;
     private ImageView answerIllustration;
     private RecyclerView answerList;
-    private TextView answerKonw;
+    private TextView answerKnow;
     private LinearLayout answerBottomLayout;
     private TextView polyvAnswerSkip;
     private TextView polyvAnswerSubmit;
 
-    private PolyvAnswerAdapter polyvAnswerAdapter;
-    private boolean isMultiSelected;
-    private int rightAnswerNum;
-    private LinkedList<Integer> rightAnswers = new LinkedList();
-    private LinkedList<Integer> wrongAnserSelect = new LinkedList();
-    private LinkedList<Integer> rightAnserSelect = new LinkedList();
-    private PolyvQuestionVO polyvQuestionVO;
-    private LinearLayout answerContentLayout, answerTipLayout;
+    private LinearLayout answerTipLayout;
     private ImageView answerTipImg;
     private TextView polyvAnswerTipContent;
-    private PolyvVideoView polyvVideoView;
-    private PolyvPlayerDanmuFragment danmuFragment;
-    private static final int ANSWER_TIP_STAY_TIME = 3*1000;
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="成员变量">
+    /**
+     * 回答选择
+     */
+    private LinkedList<Integer> answerSelect = new LinkedList<>();
+    /**
+     * 问答值对象
+     */
+    private PolyvQuestionVO polyvQuestionVO = null;
+    /**
+     * 播放器
+     */
+    private PolyvVideoView polyvVideoView = null;
+    /**
+     * 语音问答控件
+     */
+    private PolyvPlayerAuditionView auditionView = null;
+    /**
+     * 弹幕控件
+     */
+    private PolyvPlayerDanmuFragment danmuFragment = null;
+    /**
+     * 自定义问答的答题结果监听器
+     */
+    private PolyvCustomQuestionBuilder.IPolyvOnCustomQuestionAnswerResultListener answerResultListener = null;
+    /**
+     * 图片回答提示显示时间
+     */
+    private static final int ANSWER_TIP_STAY_TIME = 3 * 1000;
+
+    /**
+     * 我知道了逻辑使用，是否回答正确
+     */
+    private boolean isAnswerRight = false;
+    /**
+     * 我知道了逻辑使用，回退点，单位毫秒
+     */
+    private int seek = 0;
+
     private DisplayImageOptions imageOptions;
+    // </editor-fold>
 
-    //自定义问答的答题结果监听器
-    private IPolyvOnQuestionAnswerTipsCustomListener customQuestionAnswerListener;
-
+    // <editor-fold defaultstate="collapsed" desc="构造方法">
     public PolyvPlayerAnswerView(Context context) {
         this(context, null);
     }
-
 
     public PolyvPlayerAnswerView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
@@ -83,10 +119,12 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
 
     public PolyvPlayerAnswerView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        initView();
         initial();
+        initView();
     }
+    // </editor-fold>
 
+    // <editor-fold defaultstate="collapsed" desc="初始化方法">
     private void initial() {
         if (imageOptions == null) {
             imageOptions = new DisplayImageOptions.Builder().showImageOnLoading(R.drawable.polyv_avatar_def) // 设置图片在下载期间显示的图片
@@ -103,18 +141,17 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
     private void initView() {
         LayoutInflater.from(getContext()).inflate(R.layout.polyv_player_question_view_refactor, this);
 
+        answerContentLayout = (LinearLayout) findViewById(R.id.answer_content_layout);
         answerTitle = (TextView) findViewById(R.id.answer_title);
         answerResponseContent = (TextView) findViewById(R.id.answer_response_content);
         answerResponseScroll = (ScrollView) findViewById(R.id.answer_response_scroll);
         answerIllustration = (ImageView) findViewById(R.id.answer_illustration);
         answerList = (RecyclerView) findViewById(R.id.answer_list);
-        answerKonw = (TextView) findViewById(R.id.answer_konw);
+        answerKnow = (TextView) findViewById(R.id.answer_know);
         answerBottomLayout = (LinearLayout) findViewById(R.id.answer_bottom_layout);
         polyvAnswerSkip = (TextView) findViewById(R.id.polyv_answer_skip);
         polyvAnswerSubmit = (TextView) findViewById(R.id.polyv_answer_submit);
 
-
-        answerContentLayout = (LinearLayout) findViewById(R.id.answer_content_layout);
         answerTipLayout = (LinearLayout) findViewById(R.id.answer_tip_layout);
         answerTipImg = (ImageView) findViewById(R.id.answer_tip_img);
         polyvAnswerTipContent = (TextView) findViewById(R.id.polyv_answer_tip_content);
@@ -123,138 +160,82 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
     }
 
     private void addListener() {
-        answerKonw.setOnClickListener(this);
+        answerKnow.setOnClickListener(this);
         polyvAnswerSkip.setOnClickListener(this);
         polyvAnswerSubmit.setOnClickListener(this);
     }
+    // </editor-fold>
 
-    public void showAnswerContent(PolyvQuestionVO questionVO) {
-        if (questionVO == null || questionVO.getChoicesList2() == null) {
-            return;
-        }
-        show();
-        resetViewStatus();
-
-        polyvQuestionVO = questionVO;
-        if (!questionVO.isSkip()) {
-            polyvAnswerSkip.setVisibility(GONE);
-        }else {
-            polyvAnswerSkip.setVisibility(VISIBLE);
-        }
-
-        initialChoiceStatus(questionVO);
-
-        setTitle(questionVO);
-
-        intialAdapter(questionVO);
-
+    // <editor-fold defaultstate="collapsed" desc="功能方法">
+    /**
+     * 插入自定义的问答，详细请看{@link IPolyvVideoView#insertQuestion(PolyvQuestionVO)}方法注释。
+     * @param questionVO 问答值对象
+     */
+    public void insertCustomQuestion(@NonNull PolyvQuestionVO questionVO) {
+        polyvVideoView.insertQuestion(questionVO);
     }
 
     /**
-     * 显示用户自定义的问题，由用户调用
-     * @param questionVO
+     * 替换问答，详细请看{@link IPolyvVideoView#changeQuestion(int, ArrayList)}方法注释
+     * @param showTime 题目出现时间点
+     * @param questionVOList 问答值对象列表
      */
-    public void showCustomQuestion(PolyvQuestionVO questionVO){
-        //构建新的PolyvQuesion对象
-        final PolyvQuestion customQuestion=new PolyvQuestion(polyvVideoView);
-        customQuestion.setOnQuestionAnswerTipsListener(new IPolyvOnQuestionAnswerTipsListener() {
-            @Override
-            public void onTips(@NonNull String msg) {
-                showAnswerTips(msg);
-                customQuestion.removeCustomQuestion();
-            }
-
-            @Override
-            public void onTips(@NonNull String msg, int seek) {
-                showAnswerTips(msg,seek);
-                customQuestion.removeCustomQuestion();
-            }
-        });
-        polyvVideoView.getPolyvQuestion().setCustomQuestion(customQuestion);
-
-        polyvVideoView.pause(true);
-        customQuestion.insertCustomQuestion(questionVO);
-        showAnswerContent(questionVO);
+    public void changeQuestion(int showTime, @Nullable ArrayList<PolyvQuestionVO> questionVOList) {
+        polyvVideoView.changeQuestion(showTime, questionVOList);
     }
 
-    private void intialAdapter(PolyvQuestionVO questionVO) {
-        polyvAnswerAdapter = new PolyvAnswerAdapter(questionVO.getChoicesList2(), getContext(), isMultiSelected);
-        polyvAnswerAdapter.setAnswerSelectCallback(new PolyvAnswerAdapter.AnswerSelectCallback() {
-            @Override
-            public void onSelectAnswer(Integer pos, boolean isSelected) {
-
-                //如果是多选项累加，
-                //单选项 删除上一个 添加最新的
-                if (isSelected) {
-                    if (!rightAnswers.contains(pos)) {
-                        wrongAnserSelect.add(pos);
-                    } else {
-                        rightAnswers.remove(pos);
-                        rightAnserSelect.add(pos);
-                    }
-                } else {
-                    if (rightAnserSelect.contains(pos)) {
-                        rightAnserSelect.remove(pos);
-                        rightAnswers.add(pos);
-                    } else {
-                        wrongAnserSelect.remove(pos);
-                    }
-                }
-            }
-        });
-
-
-        if (answerIllustration.getVisibility() == VISIBLE || PolyvScreenUtils.isLandscape(getContext())) {
-            answerList.setLayoutManager(new LinearLayoutManager(getContext()));
-        } else {
-            answerList.setLayoutManager(new GridLayoutManager(getContext(), 2));
+    /**
+     * 显示问答
+     *
+     * @param questionVO 问答值对象
+     */
+    private void showQuestion(@NonNull PolyvQuestionVO questionVO) throws InvalidParameterException {
+        if (questionVO == null) {
+            throw new InvalidParameterException("参数错误");
         }
-        answerList.setAdapter(polyvAnswerAdapter);
+
+        if (questionVO.getChoicesList2() == null) {
+            throw new InvalidParameterException("请设置问答选项");
+        }
+
+        polyvQuestionVO = questionVO;
+
+        show();
+        resetViewStatus(questionVO);
+        resetProperty();
+        setTitle(questionVO);
+        intialAdapter(questionVO);
     }
 
-    private void resetViewStatus() {
+    /**
+     * 重置视图状态
+     */
+    private void resetViewStatus(@NonNull PolyvQuestionVO questionVO) {
         answerBottomLayout.setVisibility(VISIBLE);
-        answerKonw.setVisibility(GONE);
+        answerKnow.setVisibility(GONE);
         answerResponseScroll.setVisibility(GONE);
         answerIllustration.setVisibility(VISIBLE);
         answerList.setVisibility(VISIBLE);
+        polyvAnswerSkip.setVisibility(questionVO.isSkip() ? VISIBLE : GONE);
 
         answerContentLayout.setVisibility(VISIBLE);
         answerTipLayout.setVisibility(GONE);
     }
 
-    private void initialChoiceStatus(PolyvQuestionVO questionVO) {
-        if (questionVO == null) {
-            return;
-        }
-        resetStatus();
-
-        //单个正确答案是单选
-        //多个正确答案是多选
-        int rightAnswerNum = 0;
-        List<PolyvQuestionChoicesVO> choicesList = questionVO.getChoicesList2();
-        int length = choicesList.size();
-        for (int i = 0; i < length; i++) {
-            PolyvQuestionChoicesVO choicesVO = choicesList.get(i);
-            choicesVO.setSelected(false);
-            if (choicesVO.getRightAnswer() == 1) {
-                rightAnswerNum++;
-                rightAnswers.add(i);
-            }
-        }
-
-        this.rightAnswerNum = rightAnswerNum;
-        isMultiSelected = (rightAnswerNum > 1);
+    /**
+     * 重置属性
+     */
+    private void resetProperty() {
+        answerSelect.clear();
     }
 
-    private void resetStatus() {
-        rightAnswers.clear();
-        wrongAnserSelect.clear();
-        rightAnswerNum = 0;
-        isMultiSelected = false;
-    }
-
+    /**
+     * 设置标题
+     *
+     * @param questionVO
+     */
     private void setTitle(PolyvQuestionVO questionVO) {
+        //格式化问题，因为后台支持在问题中配置图片。
         List<PolyvQAFormatVO> list = PolyvQuestionUtil.parseQA2(questionVO.getQuestion());
         StringBuilder title = new StringBuilder();
         String imgUrl = "";
@@ -262,115 +243,137 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
             if (polyvQAFormatVO.getStringType().ordinal() == PolyvQAFormatVO.StringType.STRING.ordinal()) {
                 title.append(polyvQAFormatVO.getStr());
             }
+
             if (polyvQAFormatVO.getStringType().ordinal() == PolyvQAFormatVO.StringType.URL.ordinal()
                     && TextUtils.isEmpty(imgUrl)) {
+                //如果问题中配置了图片，只显示第一张图片
                 imgUrl = polyvQAFormatVO.getStr();
             }
         }
+
+        boolean isMultiSelected = questionVO.isMultiSelected();
         SpannableStringBuilder span = new SpannableStringBuilder(isMultiSelected ? "【多选题】" : "【单选题】");
         span.setSpan(new ForegroundColorSpan(Color.parseColor("#4A90E2")), 0, 5, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         span.append(title);
         answerTitle.setText(span);
 
-        if (!TextUtils.isEmpty(questionVO.getIllustration()) && !"null".equals(questionVO.getIllustration())) {
+        if (!questionVO.illustrationIsEmpty()) {
             answerIllustration.setVisibility(VISIBLE);
-            String url = String.format("http:%s",questionVO.getIllustration());
-            ImageLoader.getInstance().displayImage(url, answerIllustration,
+            ImageLoader.getInstance().displayImage(questionVO.getIllustration(), answerIllustration,
                     imageOptions, new PolyvAnimateFirstDisplayListener());
         } else if (!TextUtils.isEmpty(imgUrl)) {
             answerIllustration.setVisibility(VISIBLE);
             ImageLoader.getInstance().displayImage(imgUrl, answerIllustration,
-                    imageOptions,new PolyvAnimateFirstDisplayListener());
+                    imageOptions, new PolyvAnimateFirstDisplayListener());
         } else {
             answerIllustration.setVisibility(GONE);
         }
+    }
 
+    /**
+     * 初始化答题选项控件
+     *
+     * @param questionVO 问答值对象
+     */
+    private void intialAdapter(PolyvQuestionVO questionVO) {
+        final boolean isMultiSelected = questionVO.isMultiSelected();
+        PolyvAnswerAdapter polyvAnswerAdapter = new PolyvAnswerAdapter(questionVO.getChoicesList2(), getContext(), isMultiSelected);
+        polyvAnswerAdapter.setAnswerSelectCallback(new PolyvAnswerAdapter.AnswerSelectCallback() {
+            @Override
+            public void onSelectAnswer(Integer pos, boolean isSelected) {
+                //单选项，只能选择一个选项，如果是选中，要删除以前的选项
+                if (!isMultiSelected && isSelected) {
+                    answerSelect.clear();
+                }
+
+                //重选
+                if (answerSelect.contains(pos)) {
+                    answerSelect.remove(pos);
+                }
+
+                if (isSelected) {
+                    answerSelect.add(pos);
+                }
+            }
+        });
+
+        if (answerIllustration.getVisibility() == VISIBLE || PolyvScreenUtils.isLandscape(getContext())) {
+            answerList.setLayoutManager(new LinearLayoutManager(getContext()));
+        } else {
+            answerList.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        }
+
+        answerList.setAdapter(polyvAnswerAdapter);
     }
 
     @Override
     public void onClick(View v) {
         int id = v.getId();
         switch (id) {
-            case R.id.answer_konw:
-                hide();
-                continuePlay(0);
+            case R.id.answer_know:
+                iKnow();
                 break;
             case R.id.polyv_answer_skip:
-                hide();
-                if (polyvVideoView != null) {
-                    polyvVideoView.skipQuestion();
-                    danmuFragment.resume();
-                }
+                skip();
                 break;
             case R.id.polyv_answer_submit:
                 submitAnswer();
                 break;
         }
-
     }
 
-    private void continuePlay(int seek) {
-        int seconds = PolyvSDKUtil.formatToSecond(polyvQuestionVO.getHours(),
-                polyvQuestionVO.getMinutes(), polyvQuestionVO.getSeconds()) * 1000;
-
-        boolean answerRight = rightAnswers.isEmpty() && wrongAnserSelect.isEmpty();
-        if(!answerRight){
-             seconds =  polyvQuestionVO.getWrongTime() * 1000;
-        }
-        if(seconds >= 0){
-            polyvVideoView.seekTo(seconds);
-        }
-        polyvVideoView.start();
-        danmuFragment.resume();
+    /**
+     * 我知道了，继续播放
+     */
+    private void iKnow() {
+        seekPlay(seek);
+        polyvVideoView.doneQuestion(isAnswerRight ?
+                PolyvQuestionDoneAction.ANSWOER_SUCCESS : PolyvQuestionDoneAction.ANSWOER_FAILURE);
     }
 
+    /**
+     * 跳过当前问答
+     */
+    private void skip() {
+        polyvVideoView.skipQuestion2();
+    }
+
+    /**
+     * 提交答案
+     */
     private void submitAnswer() {
-        if (rightAnswers.size() == rightAnswerNum && wrongAnserSelect.isEmpty()) {
+        if (!isAnswer()) {
             Toast.makeText(getContext(), R.string.no_choice, Toast.LENGTH_LONG).show();
             return;
         }
 
-        changeRightAnswer();
-    }
-
-    private void changeRightAnswer() {
         hide();
 
         if (polyvQuestionVO == null) {
             return;
         }
-        polyvVideoView.answerQuestion(rightAnswers.isEmpty() && wrongAnserSelect.isEmpty(),
-                rightAnswers.isEmpty() && wrongAnserSelect.isEmpty() ? polyvQuestionVO.getAnswer() : polyvQuestionVO.getWrongAnswer());
-        //自定义问答的答题结果回调
-        if (customQuestionAnswerListener !=null){
-            danmuFragment.resume();
-            customQuestionAnswerListener.onAnswerResult(polyvQuestionVO);
-        }
-    }
-    public void setCustomQuestionAnswerListener(IPolyvOnQuestionAnswerTipsCustomListener listener){
-        this.customQuestionAnswerListener=listener;
-    }
 
-    public void showAnswerTips(String msg) {
-        showAnswerTips(msg,0);
+        polyvVideoView.answerQuestion2(answerSelect);
+        //自定义问答的答题结果回调
+        if (answerResultListener != null) {
+            answerResultListener.onAnswerResult(polyvQuestionVO);
+        }
     }
 
     /**
      * 显示答案提示
      *
-     * @param msg
+     * @param msg 内容
      */
-    public void showAnswerTips(String msg, final int seek) {
-
+    private void showAnswerTips(final boolean isAnswerRight, String msg, final int seek) {
         show();
         answerIllustration.setVisibility(GONE);
         answerList.setVisibility(GONE);
 
-        boolean answerRight = rightAnswers.isEmpty() && wrongAnserSelect.isEmpty();
-        if (TextUtils.isEmpty(msg)) {//如果没有正确错误的提示语
+        if (TextUtils.isEmpty(msg)) {//如果没有提示语
             answerContentLayout.setVisibility(GONE);
             answerTipLayout.setVisibility(VISIBLE);
-            if (answerRight) {//正确
+            if (isAnswerRight) {//正确
                 answerTipImg.setImageResource(R.drawable.polyv_answer_right);
                 polyvAnswerTipContent.setText(R.string.answer_right);
             } else {// 错误
@@ -381,40 +384,133 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
             answerTipLayout.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    setVisibility(GONE);
-                    continuePlay(seek);
+                    seekPlay(seek);
+                    PolyvPlayerAnswerView.this.polyvVideoView.doneQuestion(isAnswerRight ?
+                            PolyvQuestionDoneAction.ANSWOER_SUCCESS : PolyvQuestionDoneAction.ANSWOER_FAILURE);
                 }
             }, ANSWER_TIP_STAY_TIME);
         } else {
+            this.isAnswerRight = isAnswerRight;
+            this.seek = seek;
+
             answerBottomLayout.setVisibility(GONE);
-            answerKonw.setVisibility(VISIBLE);
+            answerKnow.setVisibility(VISIBLE);
             answerResponseScroll.setVisibility(VISIBLE);
 
             answerResponseContent.setText(msg);
-            answerTitle.setText(answerRight ? R.string.answer_right : R.string.answer_wrong);
+            answerTitle.setText(isAnswerRight ? R.string.answer_right : R.string.answer_wrong);
+        }
+    }
+
+    /**
+     * 设置播放器
+     *
+     * @param polyvVideoView
+     */
+    public void setPolyvVideoView(@NonNull PolyvVideoView polyvVideoView) {
+        this.polyvVideoView = polyvVideoView;
+        polyvVideoView.setOnQuestionListener(new IPolyvOnQuestionListener() {
+            @Override
+            public void onPopUp(@NonNull PolyvQuestionVO questionVO) {
+                switch (questionVO.getType()) {
+                    case PolyvQuestionVO.TYPE_QUESTION:
+                        showQuestion(questionVO);
+                        break;
+
+                    case PolyvQuestionVO.TYPE_AUDITION:
+                        if (auditionView != null) {
+                            auditionView.show(questionVO);
+                        }
+
+                        break;
+                }
+            }
+
+            @Override
+            public void onAnswerResult(final boolean isAnswerRight, @NonNull PolyvQuestionVO questionVO, @NonNull String msg, int seek) {
+                showAnswerTips(isAnswerRight, msg, seek);
+            }
+
+            @Override
+            public void onSkipCallback(@NonNull PolyvQuestionVO questionVO) {
+                play();
+                PolyvPlayerAnswerView.this.polyvVideoView.doneQuestion(PolyvQuestionDoneAction.SKIP_QUESTION);
+            }
+        });
+    }
+
+    /**
+     * 播放
+     */
+    private void play() {
+        hide();
+        polyvVideoView.start();
+        if (danmuFragment != null) {
+            danmuFragment.resume();
+        }
+    }
+
+    /**
+     * 跳跃播放
+     * @param seek
+     */
+    private void seekPlay(int seek) {
+        hide();
+        if (seek >= 0) {
+            polyvVideoView.seekTo(seek);
         }
 
+        polyvVideoView.start();
+        if (danmuFragment != null) {
+            danmuFragment.resume();
+        }
     }
 
-    public void setPolyvVideoView(PolyvVideoView polyvVideoView) {
-        this.polyvVideoView = polyvVideoView;
-    }
-    public void setDanmuFragment(PolyvPlayerDanmuFragment danmuFragment){
-        this.danmuFragment=danmuFragment;
+    /**
+     * 设置语音问答控件
+     *
+     * @param auditionView
+     */
+    public void setAuditionView(PolyvPlayerAuditionView auditionView) {
+        this.auditionView = auditionView;
     }
 
+    /**
+     * 设置弹幕控件
+     *
+     * @param danmuFragment
+     */
+    public void setDanmuFragment(PolyvPlayerDanmuFragment danmuFragment) {
+        this.danmuFragment = danmuFragment;
+    }
+
+    /**
+     * 隐藏视图
+     */
     public void hide() {
-        setVisibility(INVISIBLE);
+        setVisibility(GONE);
     }
 
+    /**
+     * 显示视图
+     */
     public void show() {
         setVisibility(VISIBLE);
+    }
+
+    /**
+     * 是否回答了问题
+     *
+     * @return {@code true}:正确，{@code false}:错误
+     */
+    private boolean isAnswer() {
+        return !answerSelect.isEmpty();
     }
 
     @Override
     protected void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        if(getChildCount() == 0){
+        if (getChildCount() == 0) {
             return;
         }
         if (PolyvScreenUtils.isLandscape(getContext())) {
@@ -438,11 +534,23 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
             answerTipLayoutParams.width = PolyvScreenUtils.dip2px(getContext(), 150);
             answerTipLayoutParams.height = PolyvScreenUtils.dip2px(getContext(), 150);
 
-            if(answerIllustration.getVisibility() == VISIBLE){
+            if (answerIllustration.getVisibility() == VISIBLE) {
                 answerList.setLayoutManager(new LinearLayoutManager(getContext()));
-            }else{
+            } else {
                 answerList.setLayoutManager(new GridLayoutManager(getContext(), 2));
             }
         }
     }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="设置监听回调">
+    /**
+     * 设置自定义问答的答题结果回调
+     *
+     * @param listener
+     */
+    public void setCustomQuestionAnswerResultListener(PolyvCustomQuestionBuilder.IPolyvOnCustomQuestionAnswerResultListener listener) {
+        this.answerResultListener = listener;
+    }
+    // </editor-fold>
 }
