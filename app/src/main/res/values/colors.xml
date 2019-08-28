@@ -30,5 +30,7 @@
     <color name="center_right_botton_color_purple">#dda0dd</color>
     <color name="center_left_text_color_gray">#aaaaaa</color>
     <color name="activity_color_translucence">#80000000</color>
+    <color name="top_text_color_black_alpha">#00000000</color>
+    <color name="top_layout_color_gray">#f9f9f9</color>
 
 </resources>

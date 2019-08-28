@@ -70,6 +70,7 @@ public class PolyvScreenUtils {
 	public static void reSetStatusBar(Activity activity) {
 		if (isLandscape(activity)) {
 			hideStatusBar(activity);
+			hideNavigationBar(activity);
 		} else {
 			setDecorVisible(activity);
 		}
@@ -100,6 +101,11 @@ public class PolyvScreenUtils {
 			int uiOptions = View.SYSTEM_UI_FLAG_VISIBLE;
 			decorView.setSystemUiVisibility(uiOptions);
 		}
+	}
+
+	public static void hideNavigationBar(Activity activity){
+		int uiOptions=activity.getWindow().getDecorView().getSystemUiVisibility();
+		activity.getWindow().getDecorView().setSystemUiVisibility(uiOptions|View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
 	}
 
 	public static int dip2px(Context context, float dpValue) {

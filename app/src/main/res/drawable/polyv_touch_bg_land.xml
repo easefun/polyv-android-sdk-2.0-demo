@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/center_left_text_color_gray" android:state_pressed="true" />
+    <item android:drawable="@color/center_left_text_color_gray" android:state_focused="true" />
+    <item android:drawable="@color/top_text_color_black_alpha" />
+</selector>

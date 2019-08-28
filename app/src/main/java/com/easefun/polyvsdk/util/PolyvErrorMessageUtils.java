@@ -343,6 +343,12 @@ public class PolyvErrorMessageUtils {
             case PolyvPlayErrorReason.VIDEO_JSON_SERVER_ERROR:
                 return "视频加载失败，请联系管理员";
 
+            case PolyvPlayErrorReason.QUESTION_CLIENT_ERROR:
+                return "视频加载失败，请检查网络设置";
+
+            case PolyvPlayErrorReason.QUESTION_SERVER_ERROR:
+                return "视频加载失败，请联系管理员";
+
             default:
                 return "当前视频无法播放，请向管理员反馈";
         }

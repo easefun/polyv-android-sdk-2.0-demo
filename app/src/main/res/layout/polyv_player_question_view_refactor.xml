@@ -33,7 +33,7 @@
                     android:layout_gravity="center"
                     android:layout_marginTop="20dp"
                     android:textSize="17sp"
-                    tools:text="zcds" />
+                    tools:text="标题" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -54,9 +54,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_weight="1">
-
                     </android.support.v7.widget.RecyclerView>
 
+                    <!-- 回答结果提示是文本时显示 -->
                     <ScrollView
                         android:id="@+id/answer_response_scroll"
                         android:layout_width="match_parent"
@@ -71,7 +71,6 @@
                             android:textSize="19sp" />
                     </ScrollView>
                 </LinearLayout>
-
             </LinearLayout>
         </ScrollView>
 
@@ -80,9 +79,8 @@
             android:layout_height="1dp"
             android:background="#f1f1f1" />
 
-
         <TextView
-            android:id="@+id/answer_konw"
+            android:id="@+id/answer_know"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:gravity="center"
@@ -124,6 +122,7 @@
         </LinearLayout>
     </LinearLayout>
 
+    <!-- 回答结果提示没有设置文本时，显示的图片视图 -->
     <LinearLayout
         android:id="@+id/answer_tip_layout"
         android:layout_width="150dp"

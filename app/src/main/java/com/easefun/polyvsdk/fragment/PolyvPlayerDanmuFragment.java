@@ -13,12 +13,17 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.easefun.polyvsdk.R;
+import com.easefun.polyvsdk.bean.PolyvAddDanmakuResult;
+import com.easefun.polyvsdk.log.PolyvCommonLog;
 import com.easefun.polyvsdk.sub.danmaku.auxiliary.BilibiliDanmakuTransfer;
 import com.easefun.polyvsdk.sub.danmaku.auxiliary.PolyvDanmakuTransfer;
 import com.easefun.polyvsdk.sub.danmaku.entity.PolyvDanmakuEntity;
 import com.easefun.polyvsdk.sub.danmaku.entity.PolyvDanmakuInfo;
+import com.easefun.polyvsdk.sub.danmaku.entity.PolyvDanmakuSendResult;
 import com.easefun.polyvsdk.sub.danmaku.main.PolyvDanmakuManager;
 import com.easefun.polyvsdk.video.PolyvVideoView;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 import java.util.HashMap;
 
@@ -136,7 +141,20 @@ public class PolyvPlayerDanmuFragment extends Fragment {
 
             @Override
             public void success(String s) {
-                toastMsg("发送成功");
+                Gson gson = new Gson();
+                PolyvAddDanmakuResult result=null;
+                try {
+                    result = gson.fromJson(s, PolyvAddDanmakuResult.class);
+                } catch (JsonSyntaxException e) {
+                    PolyvCommonLog.e(TAG,e.getMessage());
+                    return;
+                }
+                if (result.getCode() == 200) {
+                    toastMsg("发送成功");
+                    int danmuId = result.getData().getId();
+                } else {
+                    toastMsg(result.getMessage());
+                }
             }
         };
         callback = new DrawHandler.Callback() {

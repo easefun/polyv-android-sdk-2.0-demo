@@ -17,8 +17,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -47,6 +45,11 @@ import com.easefun.polyvsdk.player.PolyvPlayerPlayRouteView;
 import com.easefun.polyvsdk.player.PolyvPlayerPreviewView;
 import com.easefun.polyvsdk.player.PolyvPlayerProgressView;
 import com.easefun.polyvsdk.player.PolyvPlayerVolumeView;
+import com.easefun.polyvsdk.po.ppt.PolyvPptInfo;
+import com.easefun.polyvsdk.ppt.PolyvPPTDirLayout;
+import com.easefun.polyvsdk.ppt.PolyvPPTErrorLayout;
+import com.easefun.polyvsdk.ppt.PolyvPPTView;
+import com.easefun.polyvsdk.ppt.PolyvViceScreenLayout;
 import com.easefun.polyvsdk.screencast.PolyvScreencastHelper;
 import com.easefun.polyvsdk.srt.PolyvSRTItemVO;
 import com.easefun.polyvsdk.sub.vlms.entity.PolyvCoursesInfo;
@@ -73,12 +76,10 @@ import com.easefun.polyvsdk.video.listener.IPolyvOnGestureRightUpListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnGestureSwipeLeftListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnGestureSwipeRightListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnInfoListener2;
+import com.easefun.polyvsdk.video.listener.IPolyvOnPPTStatusListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnPlayPauseListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnPreloadPlayListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnPreparedListener2;
-import com.easefun.polyvsdk.video.listener.IPolyvOnQuestionAnswerTipsCustomListener;
-import com.easefun.polyvsdk.video.listener.IPolyvOnQuestionAnswerTipsListener;
-import com.easefun.polyvsdk.video.listener.IPolyvOnQuestionOutListener2;
 import com.easefun.polyvsdk.video.listener.IPolyvOnTeaserCountDownListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnTeaserOutListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnVideoPlayErrorListener2;
@@ -96,6 +97,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PolyvPlayerActivity extends FragmentActivity {
@@ -136,13 +138,9 @@ public class PolyvPlayerActivity extends FragmentActivity {
      */
     private TextView topSrtTextView = null;
     /**
-     * 普通问答界面
+     * 问答界面
      */
     private PolyvPlayerAnswerView questionView = null;
-    /**
-     * 用户自定义问答界面
-     */
-    private PolyvPlayerAnswerView customQuestionView = null;
     /**
      * 语音问答界面
      */
@@ -199,14 +197,17 @@ public class PolyvPlayerActivity extends FragmentActivity {
      * 线路切换界面
      */
     private PolyvPlayerPlayRouteView playRouteView = null;
+    //ppt
+    private PolyvViceScreenLayout viceScreenLayout;
+    private PolyvPPTView pptView;
+    private PolyvPPTDirLayout portPptDirLayout, landPptDirLayout;
+    private PolyvPPTErrorLayout landPptErrorLayout;
 
     private int fastForwardPos = 0;
     private boolean isPlay = false;
 
     private boolean isBackgroundPlay = false;
 
-    private LinearLayout videoErrorLayout;
-    private TextView videoErrorContent, videoErrorRetry;
     private String vid;
     private int bitrate;
     private boolean isMustFromLocal;
@@ -315,7 +316,6 @@ public class PolyvPlayerActivity extends FragmentActivity {
         srtTextView = (TextView) findViewById(R.id.srt);
         topSrtTextView = (TextView) findViewById(R.id.top_srt);
         questionView = (PolyvPlayerAnswerView) findViewById(R.id.polyv_player_question_view);
-        customQuestionView = (PolyvPlayerAnswerView) findViewById(R.id.polyv_player_custom_question_view);
         auditionView = (PolyvPlayerAuditionView) findViewById(R.id.polyv_player_audition_view);
         auxiliaryVideoView = (PolyvAuxiliaryVideoView) findViewById(R.id.polyv_auxiliary_video_view);
         auxiliaryLoadingProgress = (ProgressBar) findViewById(R.id.auxiliary_loading_progress);
@@ -336,6 +336,14 @@ public class PolyvPlayerActivity extends FragmentActivity {
         flowPlayLayout = (LinearLayout) findViewById(R.id.flow_play_layout);
         flowPlayButton = (TextView) findViewById(R.id.flow_play_button);
         cancelFlowPlayButton = (TextView) findViewById(R.id.cancel_flow_play_button);
+        //ppt相关view的初始化
+        portPptDirLayout = (PolyvPPTDirLayout) findViewById(R.id.ppt_dir_layout_port);
+        landPptDirLayout = (PolyvPPTDirLayout) findViewById(R.id.ppt_dir_layout_land);
+        landPptErrorLayout = (PolyvPPTErrorLayout) findViewById(R.id.ppt_error_layout_land);
+        landPptDirLayout.bindLandPptErrorLayout(landPptErrorLayout);
+        listenRegainPPTTask();
+        //添加副屏布局
+        addViceScreenLayout(videoView);
 
         iv_screencast_search = (ImageView) mediaController.findViewById(R.id.iv_screencast_search);
         iv_screencast_search_land = (ImageView) mediaController.findViewById(R.id.iv_screencast_search_land);
@@ -348,8 +356,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
         mediaController.setDanmuFragment(danmuFragment);
         questionView.setPolyvVideoView(videoView);
         questionView.setDanmuFragment(danmuFragment);
-        customQuestionView.setPolyvVideoView(videoView);
-        customQuestionView.setDanmuFragment(danmuFragment);
+        questionView.setAuditionView(auditionView);
         auditionView.setPolyvVideoView(videoView);
         auxiliaryVideoView.setPlayerBufferingIndicator(auxiliaryLoadingProgress);
         auxiliaryView.setPolyvVideoView(videoView);
@@ -538,18 +545,19 @@ public class PolyvPlayerActivity extends FragmentActivity {
             }
         });
 
-        videoView.setOnQuestionOutListener(new IPolyvOnQuestionOutListener2() {
+        videoView.setOnPPTStatusListener(new IPolyvOnPPTStatusListener() {
             @Override
-            public void onOut(@NonNull PolyvQuestionVO questionVO) {
-                switch (questionVO.getType()) {
-                    case PolyvQuestionVO.TYPE_QUESTION:
-                        questionView.showAnswerContent(questionVO);
-                        break;
-
-                    case PolyvQuestionVO.TYPE_AUDITION:
-                        auditionView.show(questionVO);
-                        break;
+            public void onPPTCallback(String vid, boolean hasPPT, PolyvPptInfo pptvo) {
+                if (!videoView.isPPTEnabled()) {
+                    hasPPT = false;
+                    pptvo = null;
                 }
+                if (viceScreenLayout != null) {
+                    viceScreenLayout.acceptPPTCallback(vid, hasPPT, pptvo);
+                }
+                portPptDirLayout.acceptPPTCallback(videoView, vid, hasPPT, pptvo);
+                landPptDirLayout.acceptPPTCallback(videoView, vid, hasPPT, pptvo);
+                landPptErrorLayout.acceptPPTCallback(videoView, vid, hasPPT, pptvo);
             }
         });
 
@@ -564,21 +572,6 @@ public class PolyvPlayerActivity extends FragmentActivity {
             @Override
             public void onEnd() {
                 auxiliaryView.hide();
-            }
-        });
-
-        videoView.setOnQuestionAnswerTipsListener(new IPolyvOnQuestionAnswerTipsListener() {
-
-            @Override
-            public void onTips(@NonNull String msg) {
-                danmuFragment.resume();
-                questionView.showAnswerTips(msg);
-            }
-
-            @Override
-            public void onTips(@NonNull String msg, int seek) {
-                danmuFragment.resume();
-                questionView.showAnswerTips(msg,seek);
             }
         });
 
@@ -795,6 +788,10 @@ public class PolyvPlayerActivity extends FragmentActivity {
                 videoView.start();
             }
         });
+
+        String customTeaserUrl="https://w.wallhaven.cc/full/13/wallhaven-13x79v.jpg";
+        int customTeaserDuration=3;
+        videoView.setCustomTeaser(customTeaserUrl,customTeaserDuration);
     }
 
     /**
@@ -876,6 +873,13 @@ public class PolyvPlayerActivity extends FragmentActivity {
             iv_screencast_search.setVisibility(View.GONE);
             iv_screencast_search_land.setVisibility(View.GONE);
         }
+
+        if (viceScreenLayout != null) {
+            viceScreenLayout.hide();
+        }
+        portPptDirLayout.setVisibility(View.GONE);
+        landPptErrorLayout.setVisibility(View.GONE);
+        landPptErrorLayout.setVisibility(View.GONE);
 
         videoView.release();
         srtTextView.setVisibility(View.GONE);
@@ -973,6 +977,55 @@ public class PolyvPlayerActivity extends FragmentActivity {
         fl_screencast_search_land.destroy();
         screencastHelper.release();
         networkDetection.destroy();
+        if (viceScreenLayout != null) {
+            viceScreenLayout.destroy();
+        }
+    }
+
+    //添加副屏布局
+    private void addViceScreenLayout(final PolyvVideoView videoView) {
+        videoView.post(new Runnable() {
+            @Override
+            public void run() {
+                //添加副屏布局
+                viceScreenLayout = PolyvViceScreenLayout.addViceLayoutInWindow(PolyvPlayerActivity.this, videoView.getBottom());
+                mediaController.setPPTLayout(viceScreenLayout, landPptDirLayout);
+                //添加ppt布局
+                pptView = new PolyvPPTView(PolyvPlayerActivity.this);
+                viceScreenLayout.addView(pptView);
+                viceScreenLayout.bindView(videoView, pptView);
+            }
+        });
+    }
+
+    private void listenRegainPPTTask() {
+        PolyvPPTErrorLayout.OnPPTRegainSuccessListener onPPTRegainSuccessListener = new PolyvPPTErrorLayout.OnPPTRegainSuccessListener() {
+            @Override
+            public void onFail(String vid, String tips, int errorReason) {
+                if (pptView != null) {
+                    pptView.acceptPPTCallback(videoView, vid, true, null);
+                }
+            }
+
+            @Override
+            public void onProgress(int progress) {
+                if (pptView != null) {
+                    pptView.acceptProgress(progress);
+                }
+            }
+
+            @Override
+            public void onSuccess(String vid, PolyvPptInfo pptvo) {
+                if (viceScreenLayout != null) {
+                    viceScreenLayout.acceptPPTCallback(vid, true, pptvo);
+                }
+                portPptDirLayout.acceptPPTCallback(videoView, vid, true, pptvo);
+                landPptDirLayout.acceptPPTCallback(videoView, vid, true, pptvo);
+                landPptErrorLayout.acceptPPTCallback(videoView, vid, true, pptvo);
+            }
+        };
+        landPptErrorLayout.setOnPPTRegainSuccessListener(onPPTRegainSuccessListener);
+        portPptDirLayout.getPptErrorLayout().setOnPPTRegainSuccessListener(onPPTRegainSuccessListener);
     }
 
     private void showScreencastTipsDialog(final String vid, final int bitrate, final boolean startNow, final boolean isMustFromLocal) {
@@ -998,27 +1051,106 @@ public class PolyvPlayerActivity extends FragmentActivity {
      * 显示自定义问答的示例代码
      */
     private void showCustomQuestion(){
+        //问题1
         PolyvCustomQuestionBuilder.ChoiceList choiceList = new PolyvCustomQuestionBuilder.ChoiceList();
         choiceList.addChoice("晴天", true)
                 .addChoice("雨天",true)
                 .addChoice("大雾");
         try {
-            PolyvCustomQuestionBuilder.create(customQuestionView)
-                    .mustParam("123", "今天天气怎么样",choiceList)
+            PolyvCustomQuestionBuilder.create(questionView)
+                    .mustParam("1231", "今天天气怎么样",choiceList)
                     .skip(true)
                     .illustration(null)
                     .rightAnswerTip("答对了")
                     .wrongAnswerTip("答错了")
-                    .listen(new IPolyvOnQuestionAnswerTipsCustomListener() {
+                    .listen(new PolyvCustomQuestionBuilder.IPolyvOnCustomQuestionAnswerResultListener() {
                         @Override
                         public void onAnswerResult(PolyvQuestionVO polyvQuestionVO) {
                             Log.d(TAG,polyvQuestionVO.getExamId());
                         }
                     })
+                    .showTime(-1)
                     .showQuestion();
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        //问题2，被替换问题
+        PolyvCustomQuestionBuilder.ChoiceList choiceList2 = new PolyvCustomQuestionBuilder.ChoiceList();
+        choiceList2.addChoice("晴天", true)
+                .addChoice("雨天")
+                .addChoice("刮风又打雷又下雨")
+                .addChoice("大雾")
+                .addChoice("潮汐");
+        try {
+            PolyvCustomQuestionBuilder.create(questionView)
+                    .mustParam("1232", "今天天气怎么样",choiceList2)
+                    .skip(true)
+                    .illustration(null)
+                    .listen(new PolyvCustomQuestionBuilder.IPolyvOnCustomQuestionAnswerResultListener() {
+                        @Override
+                        public void onAnswerResult(PolyvQuestionVO polyvQuestionVO) {
+                            Log.d(TAG,polyvQuestionVO.getExamId());
+                        }
+                    })
+                    .showTime(70)
+                    .showQuestion();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //问题3,替换问答
+        PolyvCustomQuestionBuilder.ChoiceList choiceList3 = new PolyvCustomQuestionBuilder.ChoiceList();
+        choiceList3.addChoice("无风")
+                .addChoice("软风")
+                .addChoice("微风")
+                .addChoice("强风")
+                .addChoice("疾风", true);
+        PolyvQuestionVO questionVO3 = null;
+        try {
+            questionVO3 = PolyvCustomQuestionBuilder.create(questionView)
+                    .mustParam("1233", "今天风力怎么样？",choiceList3)
+                    .skip(false)
+                    .wrongTime(60)
+                    .illustration(null)
+                    .listen(new PolyvCustomQuestionBuilder.IPolyvOnCustomQuestionAnswerResultListener() {
+                        @Override
+                        public void onAnswerResult(PolyvQuestionVO polyvQuestionVO) {
+                            Log.d(TAG,polyvQuestionVO.getExamId());
+                        }
+                    }).toPolyvQuestionVO();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //问题4,替换问答
+        PolyvCustomQuestionBuilder.ChoiceList choiceList4 = new PolyvCustomQuestionBuilder.ChoiceList();
+        choiceList4.addChoice("云点播", true)
+                .addChoice("云直播", true)
+                .addChoice("云课堂", true)
+                .addChoice("私有云", true);
+        PolyvQuestionVO questionVO4 = null;
+        try {
+            questionVO4 = PolyvCustomQuestionBuilder.create(questionView)
+                    .mustParam("1234", "POLYV产品有哪些", choiceList4)
+                    .skip(true)
+                    .illustration(null)
+                    .listen(new PolyvCustomQuestionBuilder.IPolyvOnCustomQuestionAnswerResultListener() {
+                        @Override
+                        public void onAnswerResult(PolyvQuestionVO polyvQuestionVO) {
+                            Log.d(TAG,polyvQuestionVO.getExamId());
+                        }
+                    })
+                    .showTime(50)
+                    .toPolyvQuestionVO();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        ArrayList<PolyvQuestionVO> questionVOS = new ArrayList<>();
+        questionVOS.add(questionVO3);
+        questionVOS.add(questionVO4);
+        questionView.changeQuestion(70, questionVOS);
     }
 
     private void initScreencast() {
@@ -1061,20 +1193,37 @@ public class PolyvPlayerActivity extends FragmentActivity {
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        if (ev.getAction() == MotionEvent.ACTION_DOWN && fl_screencast_search_land.getVisibility() == View.VISIBLE) {
+        if (hideViewOnTouchOutside(ev, fl_screencast_search_land)) {
+            return true;
+        } else if (hideViewOnTouchOutside(ev, landPptDirLayout)) {
+            return true;
+        }
+        return super.dispatchTouchEvent(ev);
+    }
+
+    private boolean hideViewOnTouchOutside(MotionEvent ev, View view) {
+        if (ev.getAction() == MotionEvent.ACTION_DOWN && view.getVisibility() == View.VISIBLE) {
             int[] location = new int[2];
-            fl_screencast_search_land.getLocationInWindow(location);
+            view.getLocationInWindow(location);
             if (ev.getX() < location[0]) {
-                fl_screencast_search_land.hide(true);
+                if (view instanceof PolyvScreencastSearchLayout) {
+                    ((PolyvScreencastSearchLayout) view).hide(true);
+                } else {
+                    view.setVisibility(View.GONE);
+                }
                 return true;
             }
         }
-        return super.dispatchTouchEvent(ev);
+        return false;
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (landPptDirLayout.getVisibility() == View.VISIBLE) {
+                landPptDirLayout.setVisibility(View.GONE);
+                return true;
+            }
             if (fl_screencast_search.getVisibility() == View.VISIBLE) {
                 fl_screencast_search.hide(true);
                 return true;

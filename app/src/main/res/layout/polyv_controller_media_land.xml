@@ -236,10 +236,22 @@
             android:layout_alignParentRight="true"
             android:src="@drawable/polyv_btn_exitfulls" />
 
+        <ImageView
+            android:id="@+id/iv_vice_status"
+            style="@style/iv_click_controller_land_bottom"
+            android:layout_toLeftOf="@id/iv_port"
+            android:src="@drawable/polyv_vice_selected" />
+
+        <TextView
+            android:id="@+id/tv_ppt_dir"
+            style="@style/tv_click_controller_land_bottom"
+            android:layout_toLeftOf="@id/iv_vice_status"
+            android:text="目录" />
+
         <TextView
             android:id="@+id/tv_route"
             style="@style/tv_click_controller_land_bottom"
-            android:layout_toLeftOf="@id/iv_port"
+            android:layout_toLeftOf="@id/tv_ppt_dir"
             android:text="线路"/>
 
         <TextView

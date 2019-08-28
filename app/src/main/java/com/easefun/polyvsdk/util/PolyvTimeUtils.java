@@ -94,6 +94,7 @@ public class PolyvTimeUtils {
      * @return
      */
     public static String generateTime(long millisecond, boolean fit) {
+        millisecond = Math.max(0,millisecond);
         int totalSeconds = (int) (millisecond / 1000);
 
         int seconds = totalSeconds % 60;

@@ -27,6 +27,7 @@ import com.easefun.polyvsdk.screencast.PolyvIUIUpdateListener;
 import com.easefun.polyvsdk.screencast.PolyvScreencastHelper;
 import com.easefun.polyvsdk.screencast.utils.PolyvLogger;
 import com.easefun.polyvsdk.screencast.utils.PolyvToastUtil;
+import com.easefun.polyvsdk.util.PolyvNetworkUtils;
 import com.easefun.polyvsdk.video.PolyvVideoType;
 import com.easefun.polyvsdk.vo.PolyvVideoVO;
 import com.hpplay.common.utils.NetworkUtil;
@@ -237,18 +238,31 @@ public class PolyvScreencastSearchLayout extends FrameLayout implements View.OnC
     }
 
     public void disConnect() {
+        disConnect(true);
+    }
+
+    public void disConnect(boolean isSelectNull) {
         LelinkServiceInfo selectInfo = screencastDeviceListAdapter.getSelectInfo();
         if (null != screencastHelper && null != selectInfo) {
             PolyvLogger.test(TAG, "disConnect click:" + selectInfo.getName());
             screencastHelper.disConnect(selectInfo);
         }
 
+        if (isSelectNull)
+            selectNull();
+    }
+
+    public void selectNull() {
         screencastDeviceListAdapter.setSelectInfo(null);
         screencastDeviceListAdapter.notifyDataSetChanged();
     }
 
     public void refreshWifiName() {
         String netWorkName = NetworkUtil.getNetWorkName(getApplicationContext());
+        boolean isWifi = PolyvNetworkUtils.NETWORK_WIFI == PolyvNetworkUtils.getNetWorkType(getApplicationContext());
+        if (isWifi) {
+            netWorkName = PolyvNetworkUtils.getWIFISSID(getApplicationContext());
+        }
         if ("网络错误".equals(netWorkName)
                 || "有线网络".equals(netWorkName)) {
             iv_wifi_icon.setSelected(false);
@@ -313,6 +327,10 @@ public class PolyvScreencastSearchLayout extends FrameLayout implements View.OnC
     private void browse() {
         PolyvLogger.test(TAG, "btn_browse click");
         String netWorkName = NetworkUtil.getNetWorkName(getApplicationContext());
+        boolean isWifi = PolyvNetworkUtils.NETWORK_WIFI == PolyvNetworkUtils.getNetWorkType(getApplicationContext());
+        if (isWifi) {
+            netWorkName = PolyvNetworkUtils.getWIFISSID(getApplicationContext());
+        }
         if ("网络错误".equals(netWorkName) || "有线网络".equals(netWorkName)) {
             return;
         }

@@ -1,20 +1,5 @@
 package com.easefun.polyvsdk.player;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.json.JSONException;
-
-import com.easefun.polyvsdk.PolyvQuestionUtil;
-import com.easefun.polyvsdk.R;
-import com.easefun.polyvsdk.video.PolyvVideoView;
-import com.easefun.polyvsdk.vo.PolyvQAFormatVO;
-import com.easefun.polyvsdk.vo.PolyvQuestionChoicesVO;
-import com.easefun.polyvsdk.vo.PolyvQuestionVO;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.ImageScaleType;
-import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -39,10 +24,26 @@ import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.easefun.polyvsdk.PolyvQuestionUtil;
+import com.easefun.polyvsdk.R;
+import com.easefun.polyvsdk.video.PolyvVideoView;
+import com.easefun.polyvsdk.vo.PolyvQAFormatVO;
+import com.easefun.polyvsdk.vo.PolyvQuestionChoicesVO;
+import com.easefun.polyvsdk.vo.PolyvQuestionVO;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * 问答视图
+ * 问答视图，已经废弃
  * @author TanQu 2016-1-25
+ * @see PolyvPlayerAnswerView
  */
+@Deprecated
 public class PolyvPlayerQuestionView extends RelativeLayout implements OnCheckedChangeListener {
 
 	private Context context = null;

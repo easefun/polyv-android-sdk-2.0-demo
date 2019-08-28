@@ -13,9 +13,11 @@ import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.util.PolyvDownloadDirUtil;
+import com.easefun.polyvsdk.util.PolyvScreenUtils;
 import com.easefun.polyvsdk.video.PolyvVideoView;
 import com.easefun.polyvsdk.vo.PolyvVideoVO;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -112,6 +114,20 @@ public class PolyvPlayerAudioCoverView extends FrameLayout {
         fl_cover.setVisibility(View.GONE);
         iv_audio_cover.setVisibility(View.GONE);
         iv_audio_cover_m.setVisibility(View.GONE);
+    }
+
+    public void fitLocationChange(boolean isInMainScreen) {
+        if (fl_cover == null)
+            return;
+        RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) fl_cover.getLayoutParams();
+        if (isInMainScreen) {
+            rlp.width = PolyvScreenUtils.dip2px(getContext(), 150);
+            rlp.height = PolyvScreenUtils.dip2px(getContext(),150);
+        } else {
+            rlp.width = PolyvScreenUtils.dip2px(getContext(), 70);
+            rlp.height = PolyvScreenUtils.dip2px(getContext(), 70);
+        }
+        fl_cover.setLayoutParams(rlp);
     }
 
     //用于mp3源文件播放
