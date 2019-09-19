@@ -4,7 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.telephony.TelephonyManager;
+
+import java.util.List;
 
 public class PolyvNetworkUtils {
 
@@ -45,7 +50,7 @@ public class PolyvNetworkUtils {
     private static NetworkInfo getActiveNetworkInfo(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
-        return cm.getActiveNetworkInfo();
+        return cm != null ? cm.getActiveNetworkInfo() : null;
     }
 
     /**
@@ -91,7 +96,8 @@ public class PolyvNetworkUtils {
     public static boolean isWifiConnected(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
-        return cm != null && cm.getActiveNetworkInfo().getType() == ConnectivityManager.TYPE_WIFI;
+        //cm.getActiveNetworkInfo may null
+        return cm != null && cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().getType() == ConnectivityManager.TYPE_WIFI;
     }
 
     /**
@@ -151,7 +157,7 @@ public class PolyvNetworkUtils {
             } else if (info.getType() == ConnectivityManager.TYPE_MOBILE) {
                 switch (info.getSubtype()) {
 
-                    case NETWORK_TYPE_GSM:
+                    case TelephonyManager.NETWORK_TYPE_GSM:
                     case TelephonyManager.NETWORK_TYPE_GPRS:
                     case TelephonyManager.NETWORK_TYPE_CDMA:
                     case TelephonyManager.NETWORK_TYPE_EDGE:
@@ -160,7 +166,7 @@ public class PolyvNetworkUtils {
                         netType = NETWORK_2G;
                         break;
 
-                    case NETWORK_TYPE_TD_SCDMA:
+                    case TelephonyManager.NETWORK_TYPE_TD_SCDMA:
                     case TelephonyManager.NETWORK_TYPE_EVDO_A:
                     case TelephonyManager.NETWORK_TYPE_UMTS:
                     case TelephonyManager.NETWORK_TYPE_EVDO_0:
@@ -173,7 +179,7 @@ public class PolyvNetworkUtils {
                         netType = NETWORK_3G;
                         break;
 
-                    case NETWORK_TYPE_IWLAN:
+                    case TelephonyManager.NETWORK_TYPE_IWLAN://monitor is this...
                     case TelephonyManager.NETWORK_TYPE_LTE:
                         netType = NETWORK_4G;
                         break;
@@ -226,5 +232,29 @@ public class PolyvNetworkUtils {
             default:
                 return "NETWORK_UNKNOWN";
         }
+    }
+
+    public static String getWIFISSID(Context context) {
+        String ssid = "";
+        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        if (null != wifiManager) {
+            WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+            if (null != wifiInfo) {
+                int networkId = wifiInfo.getNetworkId();
+                List<WifiConfiguration> wifiConfigurations = wifiManager.getConfiguredNetworks();
+                if (null != wifiConfigurations) {
+                    for (WifiConfiguration wifiConfiguration : wifiConfigurations) {
+                        if (null != wifiConfiguration && wifiConfiguration.networkId == networkId) {
+                            ssid = wifiConfiguration.SSID;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if (null != ssid && ssid.contains("\"")) {
+            ssid = ssid.replace("\"", "");
+        }
+        return ssid;
     }
 }

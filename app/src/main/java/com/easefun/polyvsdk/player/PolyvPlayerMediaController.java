@@ -27,6 +27,8 @@ import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.fragment.PolyvPlayerDanmuFragment;
 import com.easefun.polyvsdk.fragment.PolyvPlayerTopFragment;
 import com.easefun.polyvsdk.ijk.PolyvPlayerScreenRatio;
+import com.easefun.polyvsdk.ppt.PolyvPPTDirLayout;
+import com.easefun.polyvsdk.ppt.PolyvViceScreenLayout;
 import com.easefun.polyvsdk.sub.auxilliary.IOUtil;
 import com.easefun.polyvsdk.sub.auxilliary.SDCardUtil;
 import com.easefun.polyvsdk.sub.danmaku.entity.PolyvDanmakuInfo;
@@ -76,7 +78,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     // 竖屏的控制栏
     private RelativeLayout rl_port;
     // 竖屏的切屏按钮，竖屏的播放/暂停按钮
-    private ImageView iv_land, iv_play;
+    private ImageView iv_land, iv_play, iv_vice_status_portrait;
     // 竖屏的显示播放进度控件，切换清晰度按钮，切换倍速按钮，切换线路按钮
     private TextView tv_curtime, tv_tottime, tv_bit_portrait, tv_speed_portrait, tv_route_portrait;
     // 竖屏的进度条
@@ -108,9 +110,9 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     //横屏的控制栏，顶部布局，底部布局
     private RelativeLayout rl_land, rl_top, rl_bot;
     //横屏的切屏按钮，横屏的播放/暂停按钮,横屏的返回按钮，设置按钮，分享按钮，弹幕开关
-    private ImageView iv_port, iv_play_land, iv_finish, iv_set, iv_share, iv_dmswitch;
+    private ImageView iv_port, iv_play_land, iv_finish, iv_set, iv_share, iv_dmswitch, iv_vice_status;
     // 横屏的显示播放进度控件,视频的标题,选择播放速度按钮，选择码率按钮，选择线路按钮
-    private TextView tv_curtime_land, tv_tottime_land, tv_title, tv_speed, tv_bit, tv_route;
+    private TextView tv_curtime_land, tv_tottime_land, tv_title, tv_speed, tv_bit, tv_route, tv_ppt_dir;
     // 横屏的进度条
     private PolyvTickSeekBar sb_play_land;
     /**
@@ -201,10 +203,15 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
 
     private ImageView polyvScreenLock, polyvScreenLockAudio;
 
+    //网络监测
     private PolyvNetworkDetection networkDetection;
     private LinearLayout flowPlayLayout;
     private View flowButton, cancelFlowButton;
     private int fileType;
+
+    //副屏布局
+    private PolyvViceScreenLayout viceLayout;
+    private PolyvPPTDirLayout landPptDirLayout;
 
     //用于处理控制栏的显示状态
     private Handler handler = new Handler() {
@@ -289,6 +296,11 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         this.fileType = fileType;
     }
 
+    public void setPPTLayout(PolyvViceScreenLayout viceLayout, PolyvPPTDirLayout landPptDirLayout) {
+        this.viceLayout = viceLayout;
+        this.landPptDirLayout = landPptDirLayout;
+    }
+
     public void setDanmuFragment(PolyvPlayerDanmuFragment danmuFragment) {
         this.danmuFragment = danmuFragment;
     }
@@ -302,6 +314,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         rl_port = (RelativeLayout) view.findViewById(R.id.rl_port);
         iv_land = (ImageView) view.findViewById(R.id.iv_land);
         iv_play = (ImageView) view.findViewById(R.id.iv_play);
+        iv_vice_status_portrait = (ImageView) view.findViewById(R.id.iv_vice_status_portrait);
         tv_curtime = (TextView) view.findViewById(R.id.tv_curtime);
         tv_tottime = (TextView) view.findViewById(R.id.tv_tottime);
         tv_bit_portrait = (TextView) view.findViewById(R.id.tv_bit_portrait);
@@ -333,6 +346,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         iv_port = (ImageView) view.findViewById(R.id.iv_port);
         iv_play_land = (ImageView) view.findViewById(R.id.iv_play_land);
         iv_finish = (ImageView) view.findViewById(R.id.iv_finish);
+        iv_vice_status = (ImageView) view.findViewById(R.id.iv_vice_status);
         tv_curtime_land = (TextView) view.findViewById(R.id.tv_curtime_land);
         tv_tottime_land = (TextView) view.findViewById(R.id.tv_tottime_land);
         sb_play_land = (PolyvTickSeekBar) view.findViewById(R.id.sb_play_land);
@@ -343,6 +357,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         tv_speed = (TextView) view.findViewById(R.id.tv_speed);
         tv_bit = (TextView) view.findViewById(R.id.tv_bit);
         tv_route = (TextView) view.findViewById(R.id.tv_route);
+        tv_ppt_dir = (TextView) view.findViewById(R.id.tv_ppt_dir);
         //设置布局的view
         rl_center_set = (RelativeLayout) view.findViewById(R.id.rl_center_set);
         sb_light = (SeekBar) view.findViewById(R.id.sb_light);
@@ -539,6 +554,9 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         tv_route3.setOnClickListener(this);
         tv_route3_portrait.setOnClickListener(this);
         iv_close_route.setOnClickListener(this);
+        iv_vice_status_portrait.setOnClickListener(this);
+        iv_vice_status.setOnClickListener(this);
+        tv_ppt_dir.setOnClickListener(this);
     }
 
     //是否显示左侧边的切换音视频的布局
@@ -643,6 +661,18 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                 } else {
                     resetModeView(false);
                 }
+            } else {
+                resetLeftSideView(View.GONE);
+            }
+            //ppt状态
+            if (videoVO != null && videoVO.hasPPT() && videoView.isPPTEnabled()) {
+                iv_vice_status_portrait.setVisibility(View.VISIBLE);
+                iv_vice_status.setVisibility(View.VISIBLE);
+                tv_ppt_dir.setVisibility(View.VISIBLE);
+            } else {
+                iv_vice_status_portrait.setVisibility(View.GONE);
+                iv_vice_status.setVisibility(View.GONE);
+                tv_ppt_dir.setVisibility(View.GONE);
             }
         }
         // 视频准备完成后，开启随手势自动切换屏幕
@@ -1527,7 +1557,12 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     private void localScreenshot() {
         if (videoView != null) {
             //该方法可能会稍微耗时，可以使用screenshot(width, height)较小的宽高来避免，也可以截图完成后弹出截取的图片，减少卡顿的感知
-            Bitmap bitmap = videoView.screenshot();
+            Bitmap bitmap = null;
+            if (viceLayout != null && viceLayout.isPPTInMinScreen() && viceLayout.getPPTView() != null) {
+                bitmap = viceLayout.getPPTView().getImg();
+            } else {
+                bitmap = videoView.screenshot();
+            }
             if (bitmap != null) {
                 String savePath = SDCardUtil.createPathPF(mContext, "polyvsnapshot");
                 String fileName = videoView.getCurrentVid() + "_" + PolyvTimeUtils.generateTime(videoView.getCurrentPosition()) + "_" + new SimpleDateFormat("yyyy-MM-dd_kk:mm:ss").format(new Date()) + ".jpg";
@@ -1910,6 +1945,24 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             case R.id.iv_audio:
             case R.id.iv_audio_land:
                 changeAudioMode();
+                break;
+            case R.id.iv_vice_status_portrait:
+            case R.id.iv_vice_status:
+                if (viceLayout != null) {
+                    if (viceLayout.getVisibility() == View.VISIBLE) {
+                        viceLayout.fromUserHide();
+                    } else {
+                        viceLayout.fromUserShow();
+                    }
+                    iv_vice_status_portrait.setSelected(viceLayout.getVisibility() != View.VISIBLE);
+                    iv_vice_status.setSelected(viceLayout.getVisibility() != View.VISIBLE);
+                }
+                break;
+            case R.id.tv_ppt_dir:
+                if (landPptDirLayout != null) {
+                    landPptDirLayout.showLandLayout();
+                    hide();
+                }
                 break;
         }
         //如果控制栏不是处于一直显示的状态，那么重置控制栏隐藏的时间

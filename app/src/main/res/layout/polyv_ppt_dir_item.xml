@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/polyv_touch_bg">
+
+    <FrameLayout
+        android:id="@+id/ppt_img_layout"
+        android:layout_width="160dp"
+        android:layout_height="90dp">
+
+        <ImageView
+            android:id="@+id/ppt_img"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/ppt_index"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|bottom"
+            android:background="@drawable/polyv_ppt_index_bg"
+            android:gravity="center"
+            android:text="1"
+            android:textColor="#ffffff"
+            android:textSize="13sp" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/ppt_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_toRightOf="@id/ppt_img_layout"
+        android:maxLines="3"
+        android:text="test"
+        android:textColor="#333333"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/ppt_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/ppt_title"
+        android:layout_below="@id/ppt_title"
+        android:layout_marginTop="2dp"
+        android:text="00:00:00"
+        android:textColor="#999999"
+        android:textSize="13sp" />
+</RelativeLayout>

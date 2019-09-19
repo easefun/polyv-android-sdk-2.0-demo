@@ -78,11 +78,17 @@
             android:layout_alignParentRight="true"
             android:src="@drawable/polyv_btn_fullscreen" />
 
+        <ImageView
+            android:id="@+id/iv_vice_status_portrait"
+            style="@style/iv_click_controller_port_bottom"
+            android:layout_toLeftOf="@id/iv_land"
+            android:src="@drawable/polyv_vice_selected" />
+
         <TextView
             android:id="@+id/tv_route_portrait"
             android:layout_width="@dimen/bottom_layout_height"
             android:layout_height="match_parent"
-            android:layout_toLeftOf="@+id/iv_land"
+            android:layout_toLeftOf="@+id/iv_vice_status_portrait"
             android:background="@drawable/polyv_commom_click_color_gray"
             android:gravity="center"
             android:text="线路"

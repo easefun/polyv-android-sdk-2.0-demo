@@ -10,4 +10,22 @@
     <declare-styleable name="PolyvPlayerAudioCoverView">
         <attr name="show_film" format="boolean" />
     </declare-styleable>
+
+    <declare-styleable name="CircleProgressView">
+        <!--画笔宽度-->
+        <attr name="progress_paint_width" format="dimension" />
+        <!--画笔颜色-->
+        <attr name="progress_paint_color" format="color" />
+        <!--字体颜色-->
+        <attr name="progress_text_color" format="color" />
+        <!--字体尺寸-->
+        <attr name="progress_text_size" format="dimension" />
+        <!--加载进度的开始位置-->
+        <attr name="location" format="enum">
+            <enum name="left" value="1" />
+            <enum name="top" value="2" />
+            <enum name="right" value="3" />
+            <enum name="bottom" value="4" />
+        </attr>
+    </declare-styleable>
 </resources>

@@ -32,7 +32,6 @@ import com.easefun.polyvsdk.fragment.PolyvPlayerDanmuFragment;
 import com.easefun.polyvsdk.fragment.PolyvPlayerTabFragment;
 import com.easefun.polyvsdk.fragment.PolyvPlayerTopFragment;
 import com.easefun.polyvsdk.fragment.PolyvPlayerViewPagerFragment;
-import com.easefun.polyvsdk.log.PolyvCommonLog;
 import com.easefun.polyvsdk.marquee.PolyvMarqueeItem;
 import com.easefun.polyvsdk.marquee.PolyvMarqueeView;
 import com.easefun.polyvsdk.player.PolyvPlayerAnswerView;
@@ -46,6 +45,11 @@ import com.easefun.polyvsdk.player.PolyvPlayerPlayRouteView;
 import com.easefun.polyvsdk.player.PolyvPlayerPreviewView;
 import com.easefun.polyvsdk.player.PolyvPlayerProgressView;
 import com.easefun.polyvsdk.player.PolyvPlayerVolumeView;
+import com.easefun.polyvsdk.po.ppt.PolyvPptInfo;
+import com.easefun.polyvsdk.ppt.PolyvPPTDirLayout;
+import com.easefun.polyvsdk.ppt.PolyvPPTErrorLayout;
+import com.easefun.polyvsdk.ppt.PolyvPPTView;
+import com.easefun.polyvsdk.ppt.PolyvViceScreenLayout;
 import com.easefun.polyvsdk.screencast.PolyvScreencastHelper;
 import com.easefun.polyvsdk.srt.PolyvSRTItemVO;
 import com.easefun.polyvsdk.sub.vlms.entity.PolyvCoursesInfo;
@@ -72,6 +76,7 @@ import com.easefun.polyvsdk.video.listener.IPolyvOnGestureRightUpListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnGestureSwipeLeftListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnGestureSwipeRightListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnInfoListener2;
+import com.easefun.polyvsdk.video.listener.IPolyvOnPPTStatusListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnPlayPauseListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnPreloadPlayListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnPreparedListener2;
@@ -82,6 +87,7 @@ import com.easefun.polyvsdk.video.listener.IPolyvOnVideoSRTListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnVideoSRTPreparedListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnVideoStatusListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnVideoTimeoutListener;
+import com.easefun.polyvsdk.view.PolyvLoadingLayout;
 import com.easefun.polyvsdk.view.PolyvScreencastSearchLayout;
 import com.easefun.polyvsdk.view.PolyvScreencastStatusLayout;
 import com.easefun.polyvsdk.vo.PolyvADMatterVO;
@@ -183,7 +189,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
     /**
      * 视频加载缓冲视图
      */
-    private ProgressBar loadingProgress = null;
+    private PolyvLoadingLayout loadingLayout = null;
     /**
      * 视频播放错误提示界面
      */
@@ -192,6 +198,11 @@ public class PolyvPlayerActivity extends FragmentActivity {
      * 线路切换界面
      */
     private PolyvPlayerPlayRouteView playRouteView = null;
+    //ppt
+    private PolyvViceScreenLayout viceScreenLayout;
+    private PolyvPPTView pptView;
+    private PolyvPPTDirLayout portPptDirLayout, landPptDirLayout;
+    private PolyvPPTErrorLayout landPptErrorLayout;
 
     private int fastForwardPos = 0;
     private boolean isPlay = false;
@@ -315,7 +326,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
         lightView = (PolyvPlayerLightView) findViewById(R.id.polyv_player_light_view);
         volumeView = (PolyvPlayerVolumeView) findViewById(R.id.polyv_player_volume_view);
         progressView = (PolyvPlayerProgressView) findViewById(R.id.polyv_player_progress_view);
-        loadingProgress = (ProgressBar) findViewById(R.id.loading_progress);
+        loadingLayout = (PolyvLoadingLayout) findViewById(R.id.loading_layout);
         coverView = (PolyvPlayerAudioCoverView) findViewById(R.id.polyv_cover_view);
         audioSourceCoverView = (PolyvPlayerAudioCoverView) findViewById(R.id.polyv_source_audio_cover);
         fl_screencast_search = (PolyvScreencastSearchLayout) findViewById(R.id.fl_screencast_search);
@@ -326,6 +337,14 @@ public class PolyvPlayerActivity extends FragmentActivity {
         flowPlayLayout = (LinearLayout) findViewById(R.id.flow_play_layout);
         flowPlayButton = (TextView) findViewById(R.id.flow_play_button);
         cancelFlowPlayButton = (TextView) findViewById(R.id.cancel_flow_play_button);
+        //ppt相关view的初始化
+        portPptDirLayout = (PolyvPPTDirLayout) findViewById(R.id.ppt_dir_layout_port);
+        landPptDirLayout = (PolyvPPTDirLayout) findViewById(R.id.ppt_dir_layout_land);
+        landPptErrorLayout = (PolyvPPTErrorLayout) findViewById(R.id.ppt_error_layout_land);
+        landPptDirLayout.bindLandPptErrorLayout(landPptErrorLayout);
+        listenRegainPPTTask();
+        //添加副屏布局
+        addViceScreenLayout(videoView);
 
         iv_screencast_search = (ImageView) mediaController.findViewById(R.id.iv_screencast_search);
         iv_screencast_search_land = (ImageView) mediaController.findViewById(R.id.iv_screencast_search_land);
@@ -345,7 +364,8 @@ public class PolyvPlayerActivity extends FragmentActivity {
         auxiliaryView.setDanmakuFragment(danmuFragment);
         videoView.setMediaController(mediaController);
         videoView.setAuxiliaryVideoView(auxiliaryVideoView);
-        videoView.setPlayerBufferingIndicator(loadingProgress);
+        videoView.setPlayerBufferingIndicator(loadingLayout);
+        loadingLayout.bindVideoView(videoView);
         // 设置跑马灯
         videoView.setMarqueeView(marqueeView, marqueeItem = new PolyvMarqueeItem()
                 .setStyle(PolyvMarqueeItem.STYLE_ROLL) //样式
@@ -524,6 +544,22 @@ public class PolyvPlayerActivity extends FragmentActivity {
                     intent.setData(Uri.parse(adMatter.getAddrUrl()));
                     startActivity(intent);
                 }
+            }
+        });
+
+        videoView.setOnPPTStatusListener(new IPolyvOnPPTStatusListener() {
+            @Override
+            public void onPPTCallback(String vid, boolean hasPPT, PolyvPptInfo pptvo) {
+                if (!videoView.isPPTEnabled()) {
+                    hasPPT = false;
+                    pptvo = null;
+                }
+                if (viceScreenLayout != null) {
+                    viceScreenLayout.acceptPPTCallback(vid, hasPPT, pptvo);
+                }
+                portPptDirLayout.acceptPPTCallback(videoView, vid, hasPPT, pptvo);
+                landPptDirLayout.acceptPPTCallback(videoView, vid, hasPPT, pptvo);
+                landPptErrorLayout.acceptPPTCallback(videoView, vid, hasPPT, pptvo);
             }
         });
 
@@ -840,12 +876,19 @@ public class PolyvPlayerActivity extends FragmentActivity {
             iv_screencast_search_land.setVisibility(View.GONE);
         }
 
+        if (viceScreenLayout != null) {
+            viceScreenLayout.hide();
+        }
+        portPptDirLayout.setVisibility(View.GONE);
+        landPptErrorLayout.setVisibility(View.GONE);
+        landPptErrorLayout.setVisibility(View.GONE);
+
         videoView.release();
         srtTextView.setVisibility(View.GONE);
         topSrtTextView.setVisibility(View.GONE);
         mediaController.hide();
         mediaController.resetView();
-        loadingProgress.setVisibility(View.GONE);
+        loadingLayout.setVisibility(View.GONE);
         questionView.hide();
         auditionView.hide();
         auxiliaryVideoView.hide();
@@ -936,6 +979,55 @@ public class PolyvPlayerActivity extends FragmentActivity {
         fl_screencast_search_land.destroy();
         screencastHelper.release();
         networkDetection.destroy();
+        if (viceScreenLayout != null) {
+            viceScreenLayout.destroy();
+        }
+    }
+
+    //添加副屏布局
+    private void addViceScreenLayout(final PolyvVideoView videoView) {
+        videoView.post(new Runnable() {
+            @Override
+            public void run() {
+                //添加副屏布局
+                viceScreenLayout = PolyvViceScreenLayout.addViceLayoutInWindow(PolyvPlayerActivity.this, videoView.getBottom());
+                mediaController.setPPTLayout(viceScreenLayout, landPptDirLayout);
+                //添加ppt布局
+                pptView = new PolyvPPTView(PolyvPlayerActivity.this);
+                viceScreenLayout.addView(pptView);
+                viceScreenLayout.bindView(videoView, pptView);
+            }
+        });
+    }
+
+    private void listenRegainPPTTask() {
+        PolyvPPTErrorLayout.OnPPTRegainSuccessListener onPPTRegainSuccessListener = new PolyvPPTErrorLayout.OnPPTRegainSuccessListener() {
+            @Override
+            public void onFail(String vid, String tips, int errorReason) {
+                if (pptView != null) {
+                    pptView.acceptPPTCallback(videoView, vid, true, null);
+                }
+            }
+
+            @Override
+            public void onProgress(int progress) {
+                if (pptView != null) {
+                    pptView.acceptProgress(progress);
+                }
+            }
+
+            @Override
+            public void onSuccess(String vid, PolyvPptInfo pptvo) {
+                if (viceScreenLayout != null) {
+                    viceScreenLayout.acceptPPTCallback(vid, true, pptvo);
+                }
+                portPptDirLayout.acceptPPTCallback(videoView, vid, true, pptvo);
+                landPptDirLayout.acceptPPTCallback(videoView, vid, true, pptvo);
+                landPptErrorLayout.acceptPPTCallback(videoView, vid, true, pptvo);
+            }
+        };
+        landPptErrorLayout.setOnPPTRegainSuccessListener(onPPTRegainSuccessListener);
+        portPptDirLayout.getPptErrorLayout().setOnPPTRegainSuccessListener(onPPTRegainSuccessListener);
     }
 
     private void showScreencastTipsDialog(final String vid, final int bitrate, final boolean startNow, final boolean isMustFromLocal) {
@@ -959,6 +1051,8 @@ public class PolyvPlayerActivity extends FragmentActivity {
 
     /**
      * 显示自定义问答的示例代码
+     * 自定义问答必须在视频加载完成{@link PolyvVideoView#setOnPreparedListener(IPolyvOnPreparedListener2)}后才能设置，
+     * 只有视频加载完成后才能知道视频本身是否有问答。视频本身问答加载后再加入自定义问答保证程序一致性。
      */
     private void showCustomQuestion(){
         //问题1
@@ -1103,20 +1197,37 @@ public class PolyvPlayerActivity extends FragmentActivity {
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        if (ev.getAction() == MotionEvent.ACTION_DOWN && fl_screencast_search_land.getVisibility() == View.VISIBLE) {
+        if (hideViewOnTouchOutside(ev, fl_screencast_search_land)) {
+            return true;
+        } else if (hideViewOnTouchOutside(ev, landPptDirLayout)) {
+            return true;
+        }
+        return super.dispatchTouchEvent(ev);
+    }
+
+    private boolean hideViewOnTouchOutside(MotionEvent ev, View view) {
+        if (ev.getAction() == MotionEvent.ACTION_DOWN && view.getVisibility() == View.VISIBLE) {
             int[] location = new int[2];
-            fl_screencast_search_land.getLocationInWindow(location);
+            view.getLocationInWindow(location);
             if (ev.getX() < location[0]) {
-                fl_screencast_search_land.hide(true);
+                if (view instanceof PolyvScreencastSearchLayout) {
+                    ((PolyvScreencastSearchLayout) view).hide(true);
+                } else {
+                    view.setVisibility(View.GONE);
+                }
                 return true;
             }
         }
-        return super.dispatchTouchEvent(ev);
+        return false;
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (landPptDirLayout.getVisibility() == View.VISIBLE) {
+                landPptDirLayout.setVisibility(View.GONE);
+                return true;
+            }
             if (fl_screencast_search.getVisibility() == View.VISIBLE) {
                 fl_screencast_search.hide(true);
                 return true;

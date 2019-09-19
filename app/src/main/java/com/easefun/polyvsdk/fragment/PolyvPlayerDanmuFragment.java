@@ -160,6 +160,8 @@ public class PolyvPlayerDanmuFragment extends Fragment {
         callback = new DrawHandler.Callback() {
             @Override
             public void prepared() {
+                if (videoView != null && !videoView.isPlaying())
+                    return;
                 if (iDanmakuView != null) {
                     iDanmakuView.start((long) videoView.getCurrentPosition());
                     if (status_pause)
@@ -203,6 +205,8 @@ public class PolyvPlayerDanmuFragment extends Fragment {
 
     //开始弹幕
     public void start() {
+        if (videoView != null && !videoView.isPlaying())
+            return;
         if (iDanmakuView != null) {
             if (!iDanmakuView.isPrepared()) {
                 iDanmakuView.setCallback(callback);
@@ -244,6 +248,8 @@ public class PolyvPlayerDanmuFragment extends Fragment {
     }
 
     public void resume(boolean fromuser) {
+        if (videoView != null && !videoView.isPlaying())
+            return;
         if (status_pause) {
             status_pause = false;
             if (iDanmakuView != null && iDanmakuView.isPrepared()) {/*iDanmakuView.isPaused() pause后获取可能为false*/

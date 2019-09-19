@@ -119,6 +119,7 @@ public class PolyvScreencastStatusLayout extends FrameLayout implements View.OnC
         findViewById(R.id.tv_route_portrait).setVisibility(View.GONE);
         findViewById(R.id.tv_bit_portrait).setVisibility(View.GONE);
         findViewById(R.id.tv_speed_portrait).setVisibility(View.GONE);
+        findViewById(R.id.iv_vice_status_portrait).setVisibility(View.GONE);
         iv_play = (ImageView) findViewById(R.id.iv_play);
         iv_play.setOnClickListener(this);
         iv_land = (ImageView) findViewById(R.id.iv_land);
@@ -242,7 +243,8 @@ public class PolyvScreencastStatusLayout extends FrameLayout implements View.OnC
         setVisibility(View.GONE);
         if (isStop) {
             getScreencastSearchLayout().stop();
-            getScreencastSearchLayout().disConnect();
+            screencastSearchLayout.disConnect();
+            landScreencastSearchLayout.disConnect();
         }
     }
 
