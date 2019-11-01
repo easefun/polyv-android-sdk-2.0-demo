@@ -91,4 +91,4 @@ SDK1.0demo和SDK1.0不再进行功能更新。
 ***
 #### 更多关于SDK2.0.0demo和SDK2.0.0的详细介绍请看[Wiki](https://github.com/easefun/polyv-android-sdk-2.0-demo/wiki)。
 
-#### 相关 API 可查看 [API 文档](https://github.com/easefun/polyv-android-sdk-2.0-demo/edit/master/API文档目录.md)
+#### 相关 API 可查看 [API 文档](https://github.com/easefun/polyv-android-sdk-2.0-demo/blob/master/API%E6%96%87%E6%A1%A3%E7%9B%AE%E5%BD%95.md)
