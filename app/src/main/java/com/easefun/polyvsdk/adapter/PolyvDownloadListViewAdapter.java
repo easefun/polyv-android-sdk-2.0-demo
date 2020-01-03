@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.text.format.Formatter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,9 +26,10 @@ import com.easefun.polyvsdk.activity.PolyvMainActivity;
 import com.easefun.polyvsdk.activity.PolyvPlayerActivity;
 import com.easefun.polyvsdk.bean.PolyvDownloadInfo;
 import com.easefun.polyvsdk.database.PolyvDownloadSQLiteHelper;
-import com.easefun.polyvsdk.download.listener.IPolyvDownloaderProgressListener;
+import com.easefun.polyvsdk.download.listener.IPolyvDownloaderProgressListener2;
 import com.easefun.polyvsdk.download.listener.IPolyvDownloaderSpeedListener;
-import com.easefun.polyvsdk.download.listener.IPolyvDownloaderStartListener;
+import com.easefun.polyvsdk.download.listener.IPolyvDownloaderStartListener2;
+import com.easefun.polyvsdk.download.listener.IPolyvDownloaderWaitingListener;
 import com.easefun.polyvsdk.util.PolyvErrorMessageUtils;
 
 import java.lang.ref.WeakReference;
@@ -270,7 +272,7 @@ public class PolyvDownloadListViewAdapter extends BaseSwipeAdapter {
         this.downloadSuccessListener = downloadSuccessListener;
     }
 
-    private static class MyDownloadListener implements IPolyvDownloaderProgressListener {
+    private static class MyDownloadListener implements IPolyvDownloaderProgressListener2 {
         private WeakReference<Context> contextWeakReference;
         private WeakReference<ListView> wr_lv_download;
         private WeakReference<ViewHolder> viewHolder;
@@ -318,7 +320,7 @@ public class PolyvDownloadListViewAdapter extends BaseSwipeAdapter {
         }
 
         @Override
-        public void onDownloadSuccess() {
+        public void onDownloadSuccess(int bitrate) {
             if (total == 0)
                 total = 1;
             downloadInfo.setPercent(total);
@@ -368,7 +370,7 @@ public class PolyvDownloadListViewAdapter extends BaseSwipeAdapter {
         private PolyvDownloader downloader;
         private int position;
 
-        public MyDownloadSpeedListener(ListView lv_download, ViewHolder viewHolder, PolyvDownloader downloader, int position) {
+        MyDownloadSpeedListener(ListView lv_download, ViewHolder viewHolder, PolyvDownloader downloader, int position) {
             this.wr_lv_download = new WeakReference<ListView>(lv_download);
             this.viewHolder = new WeakReference<ViewHolder>(viewHolder);
             this.downloader = downloader;
@@ -388,12 +390,12 @@ public class PolyvDownloadListViewAdapter extends BaseSwipeAdapter {
         }
     }
 
-    private static class MyDownloaderStartListener implements IPolyvDownloaderStartListener {
+    private static class MyDownloaderStartListener implements IPolyvDownloaderStartListener2 {
         private WeakReference<ListView> wr_lv_download;
         private WeakReference<ViewHolder> viewHolder;
         private int position;
 
-        public MyDownloaderStartListener(ListView lv_download, ViewHolder viewHolder, int position) {
+        MyDownloaderStartListener(ListView lv_download, ViewHolder viewHolder, int position) {
             this.wr_lv_download = new WeakReference<ListView>(lv_download);
             this.viewHolder = new WeakReference<ViewHolder>(viewHolder);
             this.position = position;
@@ -410,6 +412,32 @@ public class PolyvDownloadListViewAdapter extends BaseSwipeAdapter {
                 viewHolder.get().iv_start.setImageResource(R.drawable.polyv_btn_dlpause);
                 viewHolder.get().tv_status.setText(DOWNLOADING);
                 viewHolder.get().tv_status.setSelected(false);
+            }
+        }
+    }
+
+    private static class MyDownloaderWaitingListener implements IPolyvDownloaderWaitingListener {
+        private WeakReference<ListView> wr_lv_download;
+        private WeakReference<ViewHolder> viewHolder;
+        private int position;
+
+        MyDownloaderWaitingListener(ListView lv_download, ViewHolder viewHolder, int position) {
+            this.wr_lv_download = new WeakReference<ListView>(lv_download);
+            this.viewHolder = new WeakReference<ViewHolder>(viewHolder);
+            this.position = position;
+        }
+
+        private boolean canUpdateView() {
+            ListView lv_download = wr_lv_download.get();
+            return lv_download != null && viewHolder.get() != null && lv_download.getChildAt(position - lv_download.getFirstVisiblePosition()) != null;
+        }
+
+        @Override
+        public void onEnterWaiting() {
+            if (canUpdateView()) {
+                viewHolder.get().iv_start.setImageResource(R.drawable.polyv_btn_download);
+                viewHolder.get().tv_status.setText(WAITED);
+                viewHolder.get().tv_status.setSelected(true);
             }
         }
     }
@@ -433,8 +461,9 @@ public class PolyvDownloadListViewAdapter extends BaseSwipeAdapter {
 
         public void setDownloadListener(PolyvDownloader downloader, final PolyvDownloadInfo downloadInfo, final int position, List<PolyvDownloadInfo> lists) {
             downloader.setPolyvDownloadSpeedListener(new MyDownloadSpeedListener(lv_download, this, downloader, position));
-            downloader.setPolyvDownloadProressListener(new MyDownloadListener(context, lv_download, this, downloadInfo, position, lists));
-            downloader.setPolyvDownloadStartListener(new MyDownloaderStartListener(lv_download, this, position));
+            downloader.setPolyvDownloadProressListener2(new MyDownloadListener(context, lv_download, this, downloadInfo, position, lists));
+            downloader.setPolyvDownloadStartListener2(new MyDownloaderStartListener(lv_download, this, position));
+            downloader.setPolyvDownloadWaitingListener(new MyDownloaderWaitingListener(lv_download, this, position));
         }
     }
 
@@ -473,11 +502,6 @@ public class PolyvDownloadListViewAdapter extends BaseSwipeAdapter {
                 tv_status.setSelected(false);
                 iv_start.setImageResource(R.drawable.polyv_btn_dlpause);
                 downloader.start(context);
-                if (!downloader.isDownloading() && PolyvDownloaderManager.isWaitingDownload(vid, bitrate, fileType)) {
-                    iv_start.setImageResource(R.drawable.polyv_btn_download);
-                    tv_status.setText(WAITED);
-                    tv_status.setSelected(true);
-                }
             }
         }
     }

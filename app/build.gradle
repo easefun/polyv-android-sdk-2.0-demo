@@ -67,9 +67,9 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:support-v4:27.1.1'
     implementation 'com.android.support:design:27.1.1'
-    implementation 'com.easefun.polyv:polyvPlayer:2.10.0'//SDK核心包
+    implementation 'com.easefun.polyv:polyvPlayer:2.11.0'//SDK核心包
     implementation 'com.easefun.polyv:polyvPlayerABI:1.8.0'//SDK核心包
-    implementation 'com.easefun.polyv:polyvDownload:2.9.0'//SDK下载功能
+    implementation 'com.easefun.polyv:polyvDownload:2.11.0'//SDK下载功能
     implementation 'com.easefun.polyv:polyvUpload:2.2.3'//SDK上传功能
     implementation 'com.easefun.polyv:polyvScreencast:0.2.1'//SDK投屏功能
     implementation 'de.hdodenhof:circleimageview:2.2.0'//圆形imageview，音频封面图使用

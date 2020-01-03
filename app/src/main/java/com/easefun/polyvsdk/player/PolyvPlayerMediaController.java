@@ -1,12 +1,20 @@
 package com.easefun.polyvsdk.player;
 
 import android.app.Activity;
+import android.app.PendingIntent;
+import android.app.PictureInPictureParams;
+import android.app.RemoteAction;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.Icon;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.DrawableRes;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
@@ -78,7 +86,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     // 竖屏的控制栏
     private RelativeLayout rl_port;
     // 竖屏的切屏按钮，竖屏的播放/暂停按钮
-    private ImageView iv_land, iv_play, iv_vice_status_portrait;
+    private ImageView iv_land, iv_play, iv_vice_status_portrait, iv_pip_portrait;
     // 竖屏的显示播放进度控件，切换清晰度按钮，切换倍速按钮，切换线路按钮
     private TextView tv_curtime, tv_tottime, tv_bit_portrait, tv_speed_portrait, tv_route_portrait;
     // 竖屏的进度条
@@ -110,7 +118,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     //横屏的控制栏，顶部布局，底部布局
     private RelativeLayout rl_land, rl_top, rl_bot;
     //横屏的切屏按钮，横屏的播放/暂停按钮,横屏的返回按钮，设置按钮，分享按钮，弹幕开关
-    private ImageView iv_port, iv_play_land, iv_finish, iv_set, iv_share, iv_dmswitch, iv_vice_status;
+    private ImageView iv_port, iv_play_land, iv_finish, iv_set, iv_share, iv_dmswitch, iv_vice_status, iv_pip;
     // 横屏的显示播放进度控件,视频的标题,选择播放速度按钮，选择码率按钮，选择线路按钮
     private TextView tv_curtime_land, tv_tottime_land, tv_title, tv_speed, tv_bit, tv_route, tv_ppt_dir;
     // 横屏的进度条
@@ -212,6 +220,9 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     //副屏布局
     private PolyvViceScreenLayout viceLayout;
     private PolyvPPTDirLayout landPptDirLayout;
+
+    private PictureInPictureParams.Builder pipBuilder;
+    private boolean isViceHideInPipMode;
 
     //用于处理控制栏的显示状态
     private Handler handler = new Handler() {
@@ -315,6 +326,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         iv_land = (ImageView) view.findViewById(R.id.iv_land);
         iv_play = (ImageView) view.findViewById(R.id.iv_play);
         iv_vice_status_portrait = (ImageView) view.findViewById(R.id.iv_vice_status_portrait);
+        iv_pip_portrait = (ImageView) view.findViewById(R.id.iv_pip_portrait);
         tv_curtime = (TextView) view.findViewById(R.id.tv_curtime);
         tv_tottime = (TextView) view.findViewById(R.id.tv_tottime);
         tv_bit_portrait = (TextView) view.findViewById(R.id.tv_bit_portrait);
@@ -347,6 +359,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         iv_play_land = (ImageView) view.findViewById(R.id.iv_play_land);
         iv_finish = (ImageView) view.findViewById(R.id.iv_finish);
         iv_vice_status = (ImageView) view.findViewById(R.id.iv_vice_status);
+        iv_pip = (ImageView) view.findViewById(R.id.iv_pip);
         tv_curtime_land = (TextView) view.findViewById(R.id.tv_curtime_land);
         tv_tottime_land = (TextView) view.findViewById(R.id.tv_tottime_land);
         sb_play_land = (PolyvTickSeekBar) view.findViewById(R.id.sb_play_land);
@@ -452,6 +465,12 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
 
         polyvScreenLock = (ImageView) view.findViewById(R.id.polyv_screen_lock);
         polyvScreenLockAudio = (ImageView) view.findViewById(R.id.polyv_screen_lock_audio);
+
+        if (Build.VERSION.SDK_INT >= 26) {
+            pipBuilder = new PictureInPictureParams.Builder();
+            iv_pip_portrait.setVisibility(View.VISIBLE);
+            iv_pip.setVisibility(View.VISIBLE);
+        }
     }
 
     public void showAudioLock(boolean show) {
@@ -557,6 +576,8 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         iv_vice_status_portrait.setOnClickListener(this);
         iv_vice_status.setOnClickListener(this);
         tv_ppt_dir.setOnClickListener(this);
+        iv_pip_portrait.setOnClickListener(this);
+        iv_pip.setOnClickListener(this);
     }
 
     //是否显示左侧边的切换音视频的布局
@@ -1713,6 +1734,40 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         }
     }
 
+    public void updatePictureInPictureActions(@DrawableRes int iconId, String title, int controlType, int requestCode) {
+        if (Build.VERSION.SDK_INT < 26)
+            return;
+        final ArrayList<RemoteAction> actions = new ArrayList<>();
+
+        // This is the PendingIntent that is invoked when a user clicks on the action item.
+        // You need to use distinct request codes for play and pause, or the PendingIntent won't
+        // be properly updated.
+        final PendingIntent intent =
+                PendingIntent.getBroadcast(
+                        videoActivity,
+                        requestCode,
+                        new Intent("media_control").putExtra("control_type", controlType),
+                        0);
+        final Icon icon = Icon.createWithResource(videoActivity, iconId);
+        actions.add(new RemoteAction(icon, title, title, intent));
+
+        pipBuilder.setActions(actions);
+
+        // This is how you can update action items (or aspect ratio) for Picture-in-Picture mode.
+        // Note this call can happen even when the app is not in PiP mode. In that case, the
+        // arguments will be used for at the next call of #enterPictureInPictureMode.
+        try {
+            if (!videoActivity.isDestroyed()) {
+                videoActivity.setPictureInPictureParams(pipBuilder.build());
+            }
+        } catch (Exception e) {
+        }
+    }
+
+    public boolean isViceHideInPipMode() {
+        return isViceHideInPipMode;
+    }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -1962,6 +2017,27 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                 if (landPptDirLayout != null) {
                     landPptDirLayout.showLandLayout();
                     hide();
+                }
+                break;
+            case R.id.iv_pip_portrait:
+            case R.id.iv_pip:
+                if (Build.VERSION.SDK_INT < 26)
+                    return;
+                boolean result = videoActivity.enterPictureInPictureMode(pipBuilder.build());
+                if (!result) {
+                    Toast.makeText(videoActivity, "请允许画中画权限后重试！", Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent("android.settings.PICTURE_IN_PICTURE_SETTINGS");
+                    Uri uri = Uri.fromParts("package", videoActivity.getPackageName(), null);
+                    intent.setData(uri);
+                    videoActivity.startActivityForResult(intent, 3);
+                } else {
+                    if (viceLayout != null) {
+                        if (viceLayout.isPPTInMinScreen()) {
+                            viceLayout.switchLocation(false);
+                        }
+                        isViceHideInPipMode = viceLayout.isVisibible();
+                        viceLayout.hide();
+                    }
                 }
                 break;
         }

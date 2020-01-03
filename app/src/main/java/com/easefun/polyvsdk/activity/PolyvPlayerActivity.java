@@ -1,12 +1,19 @@
 package com.easefun.polyvsdk.activity;
 
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
@@ -51,6 +58,7 @@ import com.easefun.polyvsdk.ppt.PolyvPPTErrorLayout;
 import com.easefun.polyvsdk.ppt.PolyvPPTView;
 import com.easefun.polyvsdk.ppt.PolyvViceScreenLayout;
 import com.easefun.polyvsdk.screencast.PolyvScreencastHelper;
+import com.easefun.polyvsdk.service.PolyvBackgroundPlayService;
 import com.easefun.polyvsdk.srt.PolyvSRTItemVO;
 import com.easefun.polyvsdk.sub.vlms.entity.PolyvCoursesInfo;
 import com.easefun.polyvsdk.util.PolyvCustomQuestionBuilder;
@@ -207,7 +215,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
     private int fastForwardPos = 0;
     private boolean isPlay = false;
 
-    private boolean isBackgroundPlay = false;
+    private boolean isBackgroundPlay = true;
 
     private String vid;
     private int bitrate;
@@ -218,6 +226,13 @@ public class PolyvPlayerActivity extends FragmentActivity {
     private LinearLayout flowPlayLayout;
     private TextView flowPlayButton, cancelFlowPlayButton;
     private View.OnClickListener flowButtonOnClickListener;
+
+    private BroadcastReceiver pipReceiver;
+    private boolean isInPictureInPictureMode;
+
+    private boolean isOnBackKeyPressed;
+    private ServiceConnection playConnection;
+    private PolyvBackgroundPlayService.PlayBinder playBinder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -253,6 +268,42 @@ public class PolyvPlayerActivity extends FragmentActivity {
         }
 
         initNetworkDetection(fileType);
+
+        PolyvBackgroundPlayService.bindService(this, playConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                playBinder = (PolyvBackgroundPlayService.PlayBinder) service;
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+            }
+        });
+
+        play(vid, bitrate, startNow, isMustFromLocal);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        int playModeCode = intent.getIntExtra("playMode", PlayMode.portrait.getCode());
+        PlayMode playMode = PlayMode.getPlayMode(playModeCode);
+        if (playMode == null)
+            playMode = PlayMode.portrait;
+        vid = intent.getStringExtra("value");
+        bitrate = intent.getIntExtra("bitrate", PolyvBitRate.ziDong.getNum());
+        boolean startNow = intent.getBooleanExtra("startNow", false);
+        isMustFromLocal = intent.getBooleanExtra("isMustFromLocal", false);
+        fileType = intent.getIntExtra("fileType", PolyvDownloader.FILE_VIDEO);
+
+        switch (playMode) {
+            case landScape:
+                mediaController.changeToLandscape();
+                break;
+            case portrait:
+                mediaController.changeToPortrait();
+                break;
+        }
 
         play(vid, bitrate, startNow, isMustFromLocal);
     }
@@ -445,17 +496,20 @@ public class PolyvPlayerActivity extends FragmentActivity {
             public void onPause() {
                 coverView.stopAnimation();
                 danmuFragment.pause();
+                mediaController.updatePictureInPictureActions(R.drawable.polyv_btn_play_port, "pause", 1, 1);
             }
 
             @Override
             public void onPlay() {
                 coverView.startAnimation();
                 danmuFragment.resume();
+                mediaController.updatePictureInPictureActions(R.drawable.polyv_btn_pause_port, "start", 2, 2);
             }
 
             @Override
             public void onCompletion() {
                 coverView.stopAnimation();
+                mediaController.updatePictureInPictureActions(R.drawable.polyv_btn_play_port, "pause", 1, 1);
             }
         });
 
@@ -914,14 +968,8 @@ public class PolyvPlayerActivity extends FragmentActivity {
 
                 @Override
                 public void onClickStart() {
-                    /**
-                     * 调用setVid方法视频会自动播放
-                     * 如果是有学员登陆的播放，可以在登陆的时候通过
-                     * {@link com.easefun.polyvsdk.PolyvSDKClient.getinstance().setViewerId()}设置学员id
-                     * 或者调用{@link videoView.setVidWithStudentId}传入学员id进行播放
-                     */
-
-                    videoView.setVidWithStudentId(vid, bitrate, isMustFromLocal,"123");
+                    //在播放视频时设置viewerId方法使用示例
+                    videoView.setVidWithViewerId(vid, bitrate, isMustFromLocal,"123");
                 }
             });
 
@@ -941,28 +989,37 @@ public class PolyvPlayerActivity extends FragmentActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!isBackgroundPlay) {
-            //回来后继续播放
-            if (isPlay) {
-                videoView.onActivityResume();
-                danmuFragment.resume();
-                if (auxiliaryView.isPauseAdvert()) {
-                    auxiliaryView.hide();
+        if (!isInPipMode()) {
+            if (!isBackgroundPlay) {
+                //回来后继续播放
+                if (isPlay) {
+                    videoView.onActivityResume();
+                    danmuFragment.resume();
+                    if (auxiliaryView.isPauseAdvert()) {
+                        auxiliaryView.hide();
+                    }
                 }
+            } else if (playBinder != null) {
+                playBinder.stop();
             }
         }
         mediaController.resume();
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onStop() {
+        super.onStop();
         mediaController.pause();
-        if (!isBackgroundPlay) {
-            //弹出去暂停
-            isPlay = videoView.onActivityStop();
-            danmuFragment.pause();
+        if (!isInPipMode()) {
+            if (!isBackgroundPlay || isInPictureInPictureMode) {
+                //弹出去暂停
+                isPlay = videoView.onActivityStop();
+                danmuFragment.pause();
+            } else if (playBinder != null && !isOnBackKeyPressed) {
+                playBinder.start("正在后台播放视频", "点击进入播放页面", R.mipmap.ic_launcher);
+            }
         }
+        PolyvScreenUtils.removePIPSingleInstanceTask(this, PolyvPlayerActivity.class.getName(), isInPictureInPictureMode);
     }
 
     @Override
@@ -982,6 +1039,66 @@ public class PolyvPlayerActivity extends FragmentActivity {
         if (viceScreenLayout != null) {
             viceScreenLayout.destroy();
         }
+        if (playBinder != null) {
+            playBinder.stop();
+        }
+        unbindService(playConnection);
+    }
+
+    @Override
+    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, Configuration newConfig) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
+        this.isInPictureInPictureMode = isInPictureInPictureMode;
+        if (isInPictureInPictureMode) {
+            // Starts receiving events from action items in PiP mode.
+            pipReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    if (intent == null
+                            || !"media_control".equals(intent.getAction())
+                            || !(videoView.isInPlaybackState() || videoView.isExceptionCompleted())) {
+                        return;
+                    }
+
+                    // This is where we are called back from Picture-in-Picture action
+                    // items.
+                    final int controlType = intent.getIntExtra("control_type", 0);
+                    switch (controlType) {
+                        case 1:
+                            videoView.start();
+                            break;
+                        case 2:
+                            videoView.pause();
+                            break;
+                    }
+                }
+            };
+            registerReceiver(pipReceiver, new IntentFilter("media_control"));
+
+            if (playBinder != null) {
+                playBinder.start("正在小窗播放视频", "点击进入播放页面", R.mipmap.ic_launcher);
+            }
+        } else {
+            // We are out of PiP mode. We can stop receiving events from it.
+            if (pipReceiver != null) {
+                unregisterReceiver(pipReceiver);
+                pipReceiver = null;
+            }
+            if (mediaController.isViceHideInPipMode()) {
+                viceScreenLayout.show();
+            }
+
+            if (playBinder != null) {
+                playBinder.stop();
+            }
+        }
+    }
+
+    private boolean isInPipMode() {
+        if (Build.VERSION.SDK_INT >= 26) {
+            return isInPictureInPictureMode();
+        }
+        return false;
     }
 
     //添加副屏布局
@@ -1247,6 +1364,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
                 viewPagerFragment.setSideIconVisible(false);
                 return true;
             }
+            isOnBackKeyPressed = true;
         }
 
         return super.onKeyDown(keyCode, event);

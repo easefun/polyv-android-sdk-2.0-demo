@@ -1,6 +1,7 @@
 package com.easefun.polyvsdk.util;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -9,6 +10,8 @@ import android.os.Build;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.WindowManager;
+
+import java.util.List;
 
 /**
  * 与屏幕相关的工具类
@@ -100,6 +103,28 @@ public class PolyvScreenUtils {
 			activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 			int uiOptions = View.SYSTEM_UI_FLAG_VISIBLE;
 			decorView.setSystemUiVisibility(uiOptions);
+		}
+	}
+
+	//由于画中画的activity为singleInstance模式，如果需要在画中画的activity退出时退出singleInstance模式，那么可以调用该方法
+	public static void removePIPSingleInstanceTask(Context context, String pipActivityName, boolean isInPictureInPictureMode) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			ActivityManager activityManager = (ActivityManager) context.getSystemService(Activity.ACTIVITY_SERVICE);
+			if (activityManager == null)
+				return;
+			List<ActivityManager.AppTask> tasks = activityManager.getAppTasks();
+			if (tasks == null)
+			    return;
+			for (ActivityManager.AppTask task : tasks) {
+				ActivityManager.RecentTaskInfo info = task.getTaskInfo();
+				if (info != null && info.baseIntent != null && info.baseIntent.getComponent() != null) {
+					if (pipActivityName.equals(info.baseIntent.getComponent().getClassName())) {
+						if (isInPictureInPictureMode || info.numActivities == 0) {
+							task.finishAndRemoveTask();
+						}
+					}
+				}
+			}
 		}
 	}
 

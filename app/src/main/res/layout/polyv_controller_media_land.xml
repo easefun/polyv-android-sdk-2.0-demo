@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/rl_land"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@null"
-                android:visibility="gone">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rl_land"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@null"
+    android:visibility="gone"
+    tools:visibility="visible">
 
     <RelativeLayout
         android:id="@+id/rl_top"
@@ -39,6 +41,14 @@
             android:layout_toLeftOf="@id/iv_share"
             android:src="@drawable/polyv_btn_proj_q_android" />
 
+        <ImageView
+            android:id="@+id/iv_pip"
+            style="@style/iv_click_controller_land_top"
+            android:layout_marginRight="@dimen/common_margin_lr"
+            android:layout_toLeftOf="@id/iv_screencast_search_land"
+            android:src="@drawable/polyv_btn_pip_l"
+            android:visibility="gone" />
+
         <TextView
             android:id="@+id/tv_title"
             android:layout_width="wrap_content"
@@ -46,7 +56,7 @@
             android:layout_centerVertical="true"
             android:layout_marginLeft="@dimen/center_bottom_margin_left_s"
             android:layout_marginRight="@dimen/center_bottom_margin_left_s"
-            android:layout_toLeftOf="@id/iv_screencast_search_land"
+            android:layout_toLeftOf="@id/iv_pip"
             android:layout_toRightOf="@id/iv_finish"
             android:ellipsize="marquee"
             android:focusable="true"

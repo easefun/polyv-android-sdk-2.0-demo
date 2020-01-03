@@ -25,11 +25,10 @@ import com.easefun.polyvsdk.PolyvSDKUtil;
 import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.RestVO;
 import com.easefun.polyvsdk.activity.PolyvMainActivity;
-import com.easefun.polyvsdk.activity.PolyvOnlineVideoActivity;
 import com.easefun.polyvsdk.activity.PolyvPlayerActivity;
 import com.easefun.polyvsdk.bean.PolyvDownloadInfo;
 import com.easefun.polyvsdk.database.PolyvDownloadSQLiteHelper;
-import com.easefun.polyvsdk.download.listener.IPolyvDownloaderProgressListener;
+import com.easefun.polyvsdk.download.listener.IPolyvDownloaderProgressListener2;
 import com.easefun.polyvsdk.player.PolyvAnimateFirstDisplayListener;
 import com.easefun.polyvsdk.util.PolyvErrorMessageUtils;
 import com.easefun.polyvsdk.vo.PolyvVideoVO;
@@ -123,7 +122,7 @@ public class PolyvOnlineListViewAdapter extends AbsRecyclerViewAdapter {
         }
     }
 
-    private static class MyDownloadListener implements IPolyvDownloaderProgressListener {
+    private static class MyDownloadListener implements IPolyvDownloaderProgressListener2 {
         private long total;
         private WeakReference<Context> contextWeakReference;
         private PolyvDownloadInfo downloadInfo;
@@ -134,10 +133,11 @@ public class PolyvOnlineListViewAdapter extends AbsRecyclerViewAdapter {
         }
 
         @Override
-        public void onDownloadSuccess() {
+        public void onDownloadSuccess(int bitrate) {
             if (total == 0)
                 total = 1;
 
+            downloadInfo.setBitrate(bitrate);
             downloadSQLiteHelper.update(downloadInfo, total, total);
         }
 
@@ -192,7 +192,7 @@ public class PolyvOnlineListViewAdapter extends AbsRecyclerViewAdapter {
                                     if (downloadSQLiteHelper != null && !downloadSQLiteHelper.isAdd(downloadInfo)) {
                                         downloadSQLiteHelper.insert(downloadInfo);
                                         PolyvDownloader polyvDownloader = PolyvDownloaderManager.getPolyvDownloader(vid, bitrate, downloadInfo.getFileType());
-                                        polyvDownloader.setPolyvDownloadProressListener(new MyDownloadListener(context, downloadInfo));
+                                        polyvDownloader.setPolyvDownloadProressListener2(new MyDownloadListener(context, downloadInfo));
                                         polyvDownloader.start(context);
                                     } else {
                                         ((Activity) context).runOnUiThread(new Runnable() {
