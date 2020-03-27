@@ -96,6 +96,14 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true" />
 
+        <com.easefun.polyvsdk.view.PolyvTouchSpeedLayout
+            android:id="@+id/polyv_player_touch_speed_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="24dp"
+            android:visibility="gone" />
+
         <!-- 跑马灯 -->
         <com.easefun.polyvsdk.marquee.PolyvMarqueeView
             android:id="@+id/polyv_marquee_view"

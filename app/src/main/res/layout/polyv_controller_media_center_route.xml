@@ -18,26 +18,30 @@
         android:src="@drawable/polyv_btn_close" />
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:translationY="@dimen/bottom_layout_height_l_half" >
+        android:translationY="120dp" >
 
         <TextView
             android:id="@+id/tv_route1"
             style="@style/tv_click_controller_land_center"
-            android:layout_marginRight="@dimen/center_margin_right"
+            android:gravity="center"
+            android:layout_weight="1"
             android:text="线路1" />
 
         <TextView
             android:id="@+id/tv_route2"
             style="@style/tv_click_controller_land_center"
-            android:layout_marginRight="@dimen/center_margin_right"
+            android:gravity="center"
+            android:layout_weight="1"
             android:text="线路2" />
 
         <TextView
             android:id="@+id/tv_route3"
             style="@style/tv_click_controller_land_center"
+            android:gravity="center"
+            android:layout_weight="1"
             android:text="线路3" />
     </LinearLayout>
 

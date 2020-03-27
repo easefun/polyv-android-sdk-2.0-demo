@@ -153,7 +153,7 @@
 
         <LinearLayout
             android:id="@+id/ll_subtitle_b"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="gone"
             android:layout_marginTop="@dimen/top_center_margin_top_s">
@@ -161,7 +161,7 @@
             <TextView
                 android:id="@+id/tv_srt1"
                 style="@style/tv_click_controller_land_center_s"
-                android:layout_marginRight="@dimen/center_margin_right_s"
+                android:layout_weight="1"
                 android:gravity="center"
                 android:padding="@dimen/talk_common_margin"
                 android:text="字幕1" />
@@ -169,7 +169,7 @@
             <TextView
                 android:id="@+id/tv_srt2"
                 style="@style/tv_click_controller_land_center_s"
-                android:layout_marginRight="@dimen/center_margin_right_s"
+                android:layout_weight="1"
                 android:gravity="center"
                 android:padding="@dimen/talk_common_margin"
                 android:text="字幕2" />
@@ -177,7 +177,7 @@
             <TextView
                 android:id="@+id/tv_srt3"
                 style="@style/tv_click_controller_land_center_s"
-                android:layout_marginRight="@dimen/center_margin_right_s"
+                android:layout_weight="1"
                 android:gravity="center"
                 android:padding="@dimen/talk_common_margin"
                 android:text="字幕3" />
@@ -185,6 +185,8 @@
             <TextView
                 android:id="@+id/tv_srtnone"
                 style="@style/tv_click_controller_land_center_s"
+                android:layout_weight="1"
+                android:gravity="center"
                 android:padding="@dimen/talk_common_margin"
                 android:text="不显示" />
         </LinearLayout>

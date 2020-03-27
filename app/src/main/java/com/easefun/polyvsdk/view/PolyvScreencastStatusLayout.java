@@ -293,10 +293,10 @@ public class PolyvScreencastStatusLayout extends FrameLayout implements View.OnC
             case R.id.iv_land:
                 if (iv_land.isSelected()) {
                     iv_land.setImageResource(R.drawable.polyv_btn_fullscreen);
-                    mediaController.changeToPortrait();
+                    mediaController.changeToSmallScreen();
                 } else {
                     iv_land.setImageResource(R.drawable.polyv_btn_exitfulls);
-                    mediaController.changeToLandscape();
+                    mediaController.changeToFullScreen();
                 }
                 iv_land.setSelected(!iv_land.isSelected());
                 break;

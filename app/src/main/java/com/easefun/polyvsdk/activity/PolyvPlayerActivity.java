@@ -79,6 +79,7 @@ import com.easefun.polyvsdk.video.listener.IPolyvOnGestureClickListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnGestureDoubleClickListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnGestureLeftDownListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnGestureLeftUpListener;
+import com.easefun.polyvsdk.video.listener.IPolyvOnGestureLongTouchListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnGestureRightDownListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnGestureRightUpListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnGestureSwipeLeftListener;
@@ -98,6 +99,7 @@ import com.easefun.polyvsdk.video.listener.IPolyvOnVideoTimeoutListener;
 import com.easefun.polyvsdk.view.PolyvLoadingLayout;
 import com.easefun.polyvsdk.view.PolyvScreencastSearchLayout;
 import com.easefun.polyvsdk.view.PolyvScreencastStatusLayout;
+import com.easefun.polyvsdk.view.PolyvTouchSpeedLayout;
 import com.easefun.polyvsdk.vo.PolyvADMatterVO;
 import com.easefun.polyvsdk.vo.PolyvQuestionVO;
 import com.easefun.polyvsdk.vo.PolyvVideoVO;
@@ -187,6 +189,10 @@ public class PolyvPlayerActivity extends FragmentActivity {
      */
     private PolyvPlayerProgressView progressView = null;
     /**
+     * 手势出现的快进界面
+     */
+    private PolyvTouchSpeedLayout touchSpeedLayout = null;
+    /**
      * 音频模式下的封面
      */
     private PolyvPlayerAudioCoverView coverView = null;
@@ -234,6 +240,8 @@ public class PolyvPlayerActivity extends FragmentActivity {
     private ServiceConnection playConnection;
     private PolyvBackgroundPlayService.PlayBinder playBinder;
 
+    private float beforeTouchSpeed;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (savedInstanceState != null)
@@ -260,10 +268,10 @@ public class PolyvPlayerActivity extends FragmentActivity {
 
         switch (playMode) {
             case landScape:
-                mediaController.changeToLandscape();
+                mediaController.changeToFullScreen();
                 break;
             case portrait:
-                mediaController.changeToPortrait();
+                mediaController.changeToSmallScreen();
                 break;
         }
 
@@ -298,10 +306,10 @@ public class PolyvPlayerActivity extends FragmentActivity {
 
         switch (playMode) {
             case landScape:
-                mediaController.changeToLandscape();
+                mediaController.changeToFullScreen();
                 break;
             case portrait:
-                mediaController.changeToPortrait();
+                mediaController.changeToSmallScreen();
                 break;
         }
 
@@ -377,6 +385,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
         lightView = (PolyvPlayerLightView) findViewById(R.id.polyv_player_light_view);
         volumeView = (PolyvPlayerVolumeView) findViewById(R.id.polyv_player_volume_view);
         progressView = (PolyvPlayerProgressView) findViewById(R.id.polyv_player_progress_view);
+        touchSpeedLayout = (PolyvTouchSpeedLayout) findViewById(R.id.polyv_player_touch_speed_layout);
         loadingLayout = (PolyvLoadingLayout) findViewById(R.id.loading_layout);
         coverView = (PolyvPlayerAudioCoverView) findViewById(R.id.polyv_cover_view);
         audioSourceCoverView = (PolyvPlayerAudioCoverView) findViewById(R.id.polyv_source_audio_cover);
@@ -479,11 +488,13 @@ public class PolyvPlayerActivity extends FragmentActivity {
                 switch (what) {
                     case PolyvMediaInfoType.MEDIA_INFO_BUFFERING_START:
                         danmuFragment.pause(false);
+                        touchSpeedLayout.updateStatus(true);
                         break;
                     case PolyvMediaInfoType.MEDIA_INFO_BUFFERING_END:
                         if (!videoView.isPausState()){
                             danmuFragment.resume(false);
                         }
+                        touchSpeedLayout.updateStatus(false);
                         break;
                 }
 
@@ -826,6 +837,23 @@ public class PolyvPlayerActivity extends FragmentActivity {
             public void callback() {
                 if ((videoView.isInPlaybackState() || videoView.isExceptionCompleted()) && mediaController != null && !mediaController.isLocked())
                     mediaController.playOrPause();
+            }
+        });
+
+        videoView.setOnGestureLongTouchListener(new IPolyvOnGestureLongTouchListener() {
+            @Override
+            public void callback(boolean isTouchLeft, boolean start, boolean end) {
+                if (start) {
+                    beforeTouchSpeed = videoView.getSpeed();
+                    if (beforeTouchSpeed < 2 && videoView.isPlaying() && !mediaController.isLocked()) {
+                        videoView.setSpeed(2);
+                        touchSpeedLayout.show();
+                    }
+                } else {
+                    videoView.setSpeed(beforeTouchSpeed);
+                    mediaController.initSpeedView((int) (beforeTouchSpeed * 10));
+                    touchSpeedLayout.hide();
+                }
             }
         });
 
@@ -1356,8 +1384,8 @@ public class PolyvPlayerActivity extends FragmentActivity {
             if (mediaController != null && mediaController.isLocked()) {
                 return true;
             }
-            if (PolyvScreenUtils.isLandscape(this) && mediaController != null) {
-                mediaController.changeToPortrait();
+            if (mediaController != null && mediaController.isFullScreen()) {
+                mediaController.changeToSmallScreen();
                 return true;
             }
             if (viewPagerFragment != null && PolyvScreenUtils.isPortrait(this) && viewPagerFragment.isSideIconVisible()) {

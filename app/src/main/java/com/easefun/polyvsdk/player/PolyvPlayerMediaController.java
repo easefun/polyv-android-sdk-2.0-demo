@@ -17,6 +17,7 @@ import android.os.Message;
 import android.support.annotation.DrawableRes;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -223,6 +224,14 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
 
     private PictureInPictureParams.Builder pipBuilder;
     private boolean isViceHideInPipMode;
+
+    //全屏策略
+    private static final int FULLSCREEN_RATIO = 0;//根据视频宽高判断，当宽>=高时，使用横屏全屏
+    private static final int FULLSCREEN_LANDSCAPE = 1;//使用横屏全屏
+    private static final int FULLSCREEN_PORTRAIT = 2;//使用竖屏全屏
+    private int fullScreenStrategy = FULLSCREEN_RATIO;
+    private int videoWidth, videoHeight;
+    private boolean isFullScreen;
 
     //用于处理控制栏的显示状态
     private Handler handler = new Handler() {
@@ -610,6 +619,8 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     public void preparedView() {
         if (videoView != null) {
             videoVO = videoView.getVideo();
+            videoWidth = videoView.getVideoWidth();
+            videoHeight = videoView.getVideoHeight();
             showAudioLock(canShowLeftSideView());
             if (videoVO != null)
                 tv_title.setText(videoVO.getTitle());
@@ -625,8 +636,9 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             initBitRateViewVisible(videoView.getBitRate());
             //初始化切换线路及其可见性
             initRouteView();
-            //竖屏控制栏的切换线路按钮默认不可见，如需更改为可见，注释这行代码即可
+            //非全屏和全屏的控制栏的切换线路按钮默认不可见，如需更改为可见，注释这两行代码即可
             tv_route_portrait.setVisibility(View.GONE);
+            tv_route.setVisibility(View.GONE);
 
             //音频模式下，隐藏切换码率/填充模式/字幕/截图的按钮
             int visibility = PolyvVideoVO.MODE_AUDIO.equals(videoView.getCurrentMode()) ? View.GONE : View.VISIBLE;
@@ -698,9 +710,13 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         }
         // 视频准备完成后，开启随手势自动切换屏幕
         if (PolyvScreenUtils.isLandscape(mContext))
-            sensorHelper.toggle(true, false);
+            sensorHelper.toggle(isAutoSwitchOrientation(), false);
         else
-            sensorHelper.toggle(true, true);
+            sensorHelper.toggle(isAutoSwitchOrientation(), true);
+    }
+
+    private boolean isAutoSwitchOrientation() {
+        return fullScreenStrategy == FULLSCREEN_LANDSCAPE || (fullScreenStrategy == FULLSCREEN_RATIO && videoWidth >= videoHeight);
     }
 
     @Override
@@ -786,7 +802,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             status_showalways = true;
         else
             status_showalways = false;
-        if (PolyvScreenUtils.isLandscape(getContext()) && (polyvScreenLock.isSelected() || polyvScreenLockAudio.isSelected())) {
+        if (isFullScreen && (polyvScreenLock.isSelected() || polyvScreenLockAudio.isSelected())) {
             setVisibility(View.VISIBLE);
 
             updateLockStatus();
@@ -809,7 +825,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                 isShowing = !isShowing;
                 setVisibility(View.VISIBLE);
             }
-            sensorHelper.toggle(true,PolyvScreenUtils.isLandscape(getContext()));
+            sensorHelper.toggle(isAutoSwitchOrientation(), PolyvScreenUtils.isLandscape(getContext()));
         }
 
 
@@ -821,7 +837,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         polyvScreenLockAudio.setVisibility(show ? VISIBLE : GONE);
         polyvScreenLock.setVisibility(show ? GONE : VISIBLE);
 
-        sensorHelper.toggle(!polyvScreenLockAudio.isSelected() && !polyvScreenLock.isSelected(),true);
+        sensorHelper.toggle(!polyvScreenLockAudio.isSelected() && !polyvScreenLock.isSelected() && isAutoSwitchOrientation(), true);
     }
 
     @Override
@@ -829,20 +845,42 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         show(longTime);
     }
 
+    public boolean isFullScreen() {
+        return isFullScreen;
+    }
+
     /**
-     * 切换到横屏
+     * 切换到全屏
      */
-    public void changeToLandscape() {
+    public void changeToFullScreen() {
+        if (fullScreenStrategy == FULLSCREEN_PORTRAIT) {
+            changeToFullPortrait();
+        } else if (fullScreenStrategy == FULLSCREEN_LANDSCAPE) {
+            changeToFullLandscape();
+        } else {
+            if (videoWidth >= videoHeight) {
+                changeToFullLandscape();
+            } else {
+                changeToFullPortrait();
+            }
+        }
+    }
+
+    /**
+     * 切换到横屏全屏
+     */
+    public void changeToFullLandscape() {
         PolyvScreenUtils.setLandscape(videoActivity);
         //初始为横屏时，状态栏需要隐藏
         PolyvScreenUtils.hideStatusBar(videoActivity);
         //初始为横屏时，导航栏需要隐藏
         PolyvScreenUtils.hideNavigationBar(videoActivity);
         //初始为横屏时，控制栏的宽高需要设置
-        initLandScapeWH();
+        initFullScreenWH();
     }
 
-    private void initLandScapeWH() {
+    private void initFullScreenWH() {
+        isFullScreen = true;
         ViewGroup.LayoutParams vlp = parentView.getLayoutParams();
         vlp.width = ViewGroup.LayoutParams.MATCH_PARENT;
         vlp.height = ViewGroup.LayoutParams.MATCH_PARENT;
@@ -851,14 +889,24 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     }
 
     /**
-     * 切换到竖屏
+     * 切换到竖屏全屏
      */
-    public void changeToPortrait() {
-        PolyvScreenUtils.setPortrait(videoActivity);
-        initPortraitWH();
+    public void changeToFullPortrait() {
+        PolyvScreenUtils.hideStatusBar(videoActivity);
+        PolyvScreenUtils.hideNavigationBar(videoActivity);
+        initFullScreenWH();
     }
 
-    private void initPortraitWH() {
+    /**
+     * 切换到竖屏小窗
+     */
+    public void changeToSmallScreen() {
+        PolyvScreenUtils.setPortrait(videoActivity);
+        initSmallScreenWH();
+    }
+
+    private void initSmallScreenWH() {
+        isFullScreen = false;
         ViewGroup.LayoutParams vlp = parentView.getLayoutParams();
         vlp.width = ViewGroup.LayoutParams.MATCH_PARENT;
         vlp.height = PolyvScreenUtils.getHeight16_9();
@@ -881,12 +929,12 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         PolyvScreenUtils.reSetStatusBar(videoActivity);
         if (PolyvScreenUtils.isLandscape(mContext)) {
             // 横屏下开启自动切换横竖屏
-            sensorHelper.toggle(true, true);
-            initLandScapeWH();
+            sensorHelper.toggle(isAutoSwitchOrientation(), true);
+            initFullScreenWH();
         } else {
             // 竖屏下开启自动切换横竖屏
-            sensorHelper.toggle(true, false);
-            initPortraitWH();
+            sensorHelper.toggle(isAutoSwitchOrientation(), false);
+            initSmallScreenWH();
         }
     }
 
@@ -1273,7 +1321,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     }
 
     //初始化选择播放速度的控件
-    private void initSpeedView(int speed) {
+    public void initSpeedView(int speed) {
         tv_speed05.setSelected(false);
         tv_speed05_portrait.setSelected(false);
         tv_speed10.setSelected(false);
@@ -1568,9 +1616,11 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         if (iv_dmswitch.isSelected()) {
             iv_dmswitch.setSelected(false);
             danmuFragment.show();
+            iv_danmu.setVisibility(View.VISIBLE);
         } else {
             iv_dmswitch.setSelected(true);
             danmuFragment.hide();
+            iv_danmu.setVisibility(View.GONE);
         }
     }
 
@@ -1686,7 +1736,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     }
 
     public boolean isLocked() {
-        return PolyvScreenUtils.isLandscape(getContext()) &&
+        return isFullScreen &&
                 (polyvScreenLock.isSelected() || polyvScreenLockAudio.isSelected());
     }
 
@@ -1777,10 +1827,10 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                 show();
                 break;
             case R.id.iv_land:
-                changeToLandscape();
+                changeToFullScreen();
                 break;
             case R.id.iv_port:
-                changeToPortrait();
+                changeToSmallScreen();
                 break;
             case R.id.iv_play:
                 playOrPause();
@@ -1789,7 +1839,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                 playOrPause();
                 break;
             case R.id.iv_finish:
-                changeToPortrait();
+                changeToSmallScreen();
                 break;
             case R.id.iv_set:
                 resetSetLayout(View.VISIBLE);

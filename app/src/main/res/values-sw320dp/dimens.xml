@@ -86,9 +86,9 @@
     <dimen name="bottom_right_margin_left">5.3dp</dimen>
     <!-- +2 -->
     <dimen name="bottom_right_text_size">12sp</dimen>
-    <dimen name="bottom_layout_height_l">41.2dp</dimen>
+    <dimen name="bottom_layout_height_l">30dp</dimen>
     <dimen name="bottom_layout_height_l_half">20.6dp</dimen>
-    <dimen name="bottom_layout_height">37.5dp</dimen>
+    <dimen name="bottom_layout_height">30dp</dimen>
     <!-- +2 -->
     <dimen name="bottom_text_size">16.2sp</dimen>
     <dimen name="bottom_tv_margin_left">4.9dp</dimen>
@@ -96,9 +96,9 @@
     <!-- not use -->
     <dimen name="bottom_pb_height">10dp</dimen>
     <!-- 38.5-3(use 5) -->
-    <dimen name="bottom_pb_margin_bottom">30.5dp</dimen>
+    <dimen name="bottom_pb_margin_bottom">23dp</dimen>
     <!-- 41.2-3(use 5) -->
-    <dimen name="bottom_pb_margin_bottom_l">36.2dp</dimen>
+    <dimen name="bottom_pb_margin_bottom_l">25dp</dimen>
     <dimen name="common_margin_lr">11.8dp</dimen>
     <dimen name="common_margin_lr_reverse">-11.8dp</dimen>
     <dimen name="common_margin_tb_reverse">-10dp</dimen>

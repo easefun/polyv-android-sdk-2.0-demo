@@ -259,15 +259,22 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
 
         if (!questionVO.illustrationIsEmpty()) {
             answerIllustration.setVisibility(VISIBLE);
-            ImageLoader.getInstance().displayImage(questionVO.getIllustration(), answerIllustration,
+            ImageLoader.getInstance().displayImage(fixUrl(questionVO.getIllustration()), answerIllustration,
                     imageOptions, new PolyvAnimateFirstDisplayListener());
         } else if (!TextUtils.isEmpty(imgUrl)) {
             answerIllustration.setVisibility(VISIBLE);
-            ImageLoader.getInstance().displayImage(imgUrl, answerIllustration,
+            ImageLoader.getInstance().displayImage(fixUrl(imgUrl), answerIllustration,
                     imageOptions, new PolyvAnimateFirstDisplayListener());
         } else {
             answerIllustration.setVisibility(GONE);
         }
+    }
+
+    private String fixUrl(String url) {
+        if (url != null && url.startsWith("//")) {
+            return "https:" + url;
+        }
+        return url;
     }
 
     /**
