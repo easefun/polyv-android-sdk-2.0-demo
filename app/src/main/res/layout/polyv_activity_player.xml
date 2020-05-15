@@ -33,6 +33,13 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:visibility="gone" />
+
+            <!--播放器logo-->
+            <com.easefun.polyvsdk.player.PolyvPlayerLogoView
+                android:id="@+id/logo_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="visible" />
         </com.easefun.polyvsdk.video.PolyvVideoView>
 
         <!-- mp3源文件播放时的封面图 -->
@@ -41,16 +48,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:show_film="false" />
-
-        <!-- logo -->
-        <ImageView
-            android:id="@+id/logo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:background="@drawable/polyv_logo"
-            android:visibility="gone" />
 
         <FrameLayout
             android:id="@+id/fl_danmu"

@@ -14,8 +14,10 @@ import android.widget.FrameLayout;
 
 import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.adapter.PolyvPPTDirListAdapter;
+import com.easefun.polyvsdk.player.PolyvPlayerMediaController;
 import com.easefun.polyvsdk.po.ppt.PolyvPptInfo;
 import com.easefun.polyvsdk.po.ppt.PolyvPptPageInfo;
+import com.easefun.polyvsdk.util.PolyvSPUtils;
 import com.easefun.polyvsdk.util.PolyvScreenUtils;
 import com.easefun.polyvsdk.video.PolyvVideoView;
 
@@ -69,13 +71,25 @@ public class PolyvPPTDirLayout extends FrameLayout {
             @Override
             public void onItemClick(int position, PolyvPPTDirListAdapter.PPTViewHolder holder) {
                 PolyvPptPageInfo pptPageInfo = pptDirListAdapter.getPptPageInfoList().get(position);
-                if (currentVideoView != null && currentVideoView.isInPlaybackState()) {
-                    currentVideoView.seekTo(Math.min(currentVideoView.getDuration(), Math.max(0, pptPageInfo.getSec()) * 1000));
-                    if (currentVideoView.isCompletedState()) {
-                        currentVideoView.start();
+                if (currentVideoView != null && currentVideoView.isInPlaybackState() && currentVideoView.getCurrentVid() != null) {
+                    int seekPosition = Math.min(currentVideoView.getDuration(), Math.max(0, pptPageInfo.getSec()) * 1000);
+                    int dragSeekStrategy = PolyvSPUtils.getInstance(getContext(), "dragSeekStrategy").getInt("dragSeekStrategy");
+                    boolean canDragSeek;
+                    if (dragSeekStrategy == PolyvPlayerMediaController.DRAG_SEEK_BAN) {
+                        canDragSeek = false;
+                    } else if (dragSeekStrategy == PolyvPlayerMediaController.DRAG_SEEK_PLAYED) {
+                        canDragSeek = seekPosition <= PolyvSPUtils.getInstance(getContext(), "videoProgress").getInt(currentVideoView.getCurrentVid());
+                    } else {
+                        canDragSeek = true;
                     }
-                    if (isLandLayout()) {
-                        setVisibility(View.GONE);
+                    if (canDragSeek) {
+                        currentVideoView.seekTo(seekPosition);
+                        if (currentVideoView.isCompletedState()) {
+                            currentVideoView.start();
+                        }
+                        if (isLandLayout()) {
+                            setVisibility(View.GONE);
+                        }
                     }
                 }
             }

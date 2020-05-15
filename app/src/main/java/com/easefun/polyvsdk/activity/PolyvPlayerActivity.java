@@ -46,6 +46,7 @@ import com.easefun.polyvsdk.player.PolyvPlayerAudioCoverView;
 import com.easefun.polyvsdk.player.PolyvPlayerAuditionView;
 import com.easefun.polyvsdk.player.PolyvPlayerAuxiliaryView;
 import com.easefun.polyvsdk.player.PolyvPlayerLightView;
+import com.easefun.polyvsdk.player.PolyvPlayerLogoView;
 import com.easefun.polyvsdk.player.PolyvPlayerMediaController;
 import com.easefun.polyvsdk.player.PolyvPlayerPlayErrorView;
 import com.easefun.polyvsdk.player.PolyvPlayerPlayRouteView;
@@ -204,6 +205,10 @@ public class PolyvPlayerActivity extends FragmentActivity {
      * 视频加载缓冲视图
      */
     private PolyvLoadingLayout loadingLayout = null;
+    /**
+     * 播放器logo视图
+     */
+    private PolyvPlayerLogoView logoView;
     /**
      * 视频播放错误提示界面
      */
@@ -387,6 +392,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
         progressView = (PolyvPlayerProgressView) findViewById(R.id.polyv_player_progress_view);
         touchSpeedLayout = (PolyvTouchSpeedLayout) findViewById(R.id.polyv_player_touch_speed_layout);
         loadingLayout = (PolyvLoadingLayout) findViewById(R.id.loading_layout);
+        logoView = (PolyvPlayerLogoView) findViewById(R.id.logo_layout);
         coverView = (PolyvPlayerAudioCoverView) findViewById(R.id.polyv_cover_view);
         audioSourceCoverView = (PolyvPlayerAudioCoverView) findViewById(R.id.polyv_source_audio_cover);
         fl_screencast_search = (PolyvScreencastSearchLayout) findViewById(R.id.fl_screencast_search);
@@ -471,6 +477,10 @@ public class PolyvPlayerActivity extends FragmentActivity {
                 progressView.setViewMaxValue(videoView.getDuration());
                 // 没开预加载在这里开始弹幕
                 // danmuFragment.start();
+
+                //设置logo
+                logoView.addLogo(new PolyvPlayerLogoView.LogoParam().setWidth(0.1f).setHeight(0.1f)
+                        .setAlpha(100).setOffsetX(0.05f).setOffsetY(0.05f).setPos(2).setResId(R.drawable.polyv_logo));
             }
         });
 
@@ -769,11 +779,13 @@ public class PolyvPlayerActivity extends FragmentActivity {
                 if (end) {
                     if (fastForwardPos < 0)
                         fastForwardPos = 0;
-                    videoView.seekTo(fastForwardPos);
-                    danmuFragment.seekTo();
-                    if (videoView.isCompletedState()) {
-                        videoView.start();
-                        danmuFragment.resume();
+                    if (mediaController.canDragSeek(fastForwardPos)) {
+                        videoView.seekTo(fastForwardPos);
+                        danmuFragment.seekTo();
+                        if (videoView.isCompletedState()) {
+                            videoView.start();
+                            danmuFragment.resume();
+                        }
                     }
                     fastForwardPos = 0;
                 } else {
@@ -802,14 +814,16 @@ public class PolyvPlayerActivity extends FragmentActivity {
                 if (end) {
                     if (fastForwardPos > videoView.getDuration())
                         fastForwardPos = videoView.getDuration();
-                    if (!videoView.isCompletedState()) {
-                        videoView.seekTo(fastForwardPos);
-                        danmuFragment.seekTo();
-                    } else if (videoView.isCompletedState() && fastForwardPos != videoView.getDuration()) {
-                        videoView.seekTo(fastForwardPos);
-                        danmuFragment.seekTo();
-                        videoView.start();
-                        danmuFragment.resume();
+                    if (mediaController.canDragSeek(fastForwardPos)) {
+                        if (!videoView.isCompletedState()) {
+                            videoView.seekTo(fastForwardPos);
+                            danmuFragment.seekTo();
+                        } else if (videoView.isCompletedState() && fastForwardPos != videoView.getDuration()) {
+                            videoView.seekTo(fastForwardPos);
+                            danmuFragment.seekTo();
+                            videoView.start();
+                            danmuFragment.resume();
+                        }
                     }
                     fastForwardPos = 0;
                 } else {
@@ -980,6 +994,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
         firstStartView.hide();
         progressView.resetMaxValue();
         audioSourceCoverView.hide();
+        logoView.removeAllLogo();
 
         danmuFragment.setVid(vid, videoView);
         if (PolyvDownloader.FILE_VIDEO == fileType) {

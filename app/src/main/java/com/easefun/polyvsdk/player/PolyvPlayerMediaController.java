@@ -44,6 +44,7 @@ import com.easefun.polyvsdk.sub.danmaku.entity.PolyvDanmakuInfo;
 import com.easefun.polyvsdk.sub.screenshot.PolyvScreenShot;
 import com.easefun.polyvsdk.util.PolyvKeyBoardUtils;
 import com.easefun.polyvsdk.util.PolyvNetworkDetection;
+import com.easefun.polyvsdk.util.PolyvSPUtils;
 import com.easefun.polyvsdk.util.PolyvScreenUtils;
 import com.easefun.polyvsdk.util.PolyvSensorHelper;
 import com.easefun.polyvsdk.util.PolyvShareUtils;
@@ -233,6 +234,13 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     private int videoWidth, videoHeight;
     private boolean isFullScreen;
 
+    //进度条拖拽跳转播放进度策略
+    public static final int DRAG_SEEK_ALLOW = 0;//允许拖动进度条跳转进度
+    public static final int DRAG_SEEK_BAN = 1;//禁止拖动进度条跳转进度
+    public static final int DRAG_SEEK_PLAYED = 2;//只允许在已播放进度区域拖动跳转播放进度
+    private int dragSeekStrategy = DRAG_SEEK_PLAYED;
+    private static final int SAVE_PROGRESS = 30;
+
     //用于处理控制栏的显示状态
     private Handler handler = new Handler() {
         @Override
@@ -244,18 +252,61 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                 case SHOW_PROGRESS:
                     showProgress();
                     break;
+                case SAVE_PROGRESS:
+                    saveProgress();
+                    break;
             }
         }
     };
 
-    // 更新显示的播放进度，以及暂停/播放按钮
-    private void showProgress() {
-        if (isShowing && videoView != null) {
+    private int getPosition() {
+        if (videoView != null) {
             // 单位：毫秒
             int position = videoView.getCurrentPosition();
             int totalTime = videoView.getDuration() / 1000 * 1000;
             if (!videoView.isExceptionCompleted() && (videoView.isCompletedState() || position > totalTime))
                 position = totalTime;
+            return position;
+        }
+        return 0;
+    }
+
+    private int getSavePosition() {
+        if (videoView != null && videoView.getCurrentVid() != null) {
+            //保存当前播放进度
+            return PolyvSPUtils.getInstance(getContext(), "videoProgress").getInt(videoView.getCurrentVid());
+        }
+        return 0;
+    }
+
+    public boolean canDragSeek(int seekPosition) {
+        if (dragSeekStrategy == DRAG_SEEK_PLAYED) {
+            return seekPosition <= getSavePosition();
+        } else if (dragSeekStrategy == DRAG_SEEK_BAN) {
+            return false;
+        }
+        return true;
+    }
+
+    private void saveProgress() {
+        if (videoView != null && videoView.getCurrentVid() != null) {
+            // 单位：毫秒
+            int position = getPosition();
+            //保存当前播放进度
+            int maxPosition = PolyvSPUtils.getInstance(getContext(), "videoProgress").getInt(videoView.getCurrentVid());
+            if (position > maxPosition) {
+                PolyvSPUtils.getInstance(getContext(), "videoProgress").put(videoView.getCurrentVid(), position);
+            }
+            handler.sendEmptyMessageDelayed(SAVE_PROGRESS, 3000);
+        }
+    }
+
+    // 更新显示的播放进度，以及暂停/播放按钮
+    private void showProgress() {
+        if (isShowing && videoView != null) {
+            // 单位：毫秒
+            int position = getPosition();
+            int totalTime = videoView.getDuration() / 1000 * 1000;
             int bufPercent = videoView.getBufferPercentage();
             //在拖动进度条的时候，这里不更新
             if (!status_dragging) {
@@ -466,7 +517,10 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             @Override
             public void onSeekClick(PolyvTickSeekBar.TickData tickData) {
                 if (videoView != null) {
-                    videoView.seekTo(tickData.getKeyTime() * 1000);
+                    int seekPosition = tickData.getKeyTime() * 1000;
+                    if (canDragSeek(seekPosition)) {
+                        videoView.seekTo(seekPosition);
+                    }
                     tickTips.hide();
                 }
             }
@@ -713,6 +767,10 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             sensorHelper.toggle(isAutoSwitchOrientation(), false);
         else
             sensorHelper.toggle(isAutoSwitchOrientation(), true);
+        //视频准备完成后，定时记录当前播放的最大进度(用于禁止进度条拖拽功能)
+        handler.removeMessages(SAVE_PROGRESS);
+        handler.sendEmptyMessage(SAVE_PROGRESS);
+        PolyvSPUtils.getInstance(getContext(), "dragSeekStrategy").put("dragSeekStrategy", dragSeekStrategy);
     }
 
     private boolean isAutoSwitchOrientation() {
@@ -778,6 +836,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     public void disable() {
         hide();
         sensorHelper.disable();
+        handler.removeCallbacksAndMessages(null);
     }
 
     private void resetPopupLayout(){
@@ -1001,13 +1060,17 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                     if (videoView != null) {
                         int seekToPosition = (int) (videoView.getDuration() * (long) seekBar.getProgress() / seekBar.getMax());
                         if (!videoView.isCompletedState()) {
-                            videoView.seekTo(seekToPosition);
-                            danmuFragment.seekTo();
+                            if (canDragSeek(seekToPosition)) {
+                                videoView.seekTo(seekToPosition);
+                                danmuFragment.seekTo();
+                            }
                         } else if (videoView.isCompletedState() && seekToPosition / seekBar.getMax() * seekBar.getMax() < videoView.getDuration() / seekBar.getMax() * seekBar.getMax()) {
-                            videoView.seekTo(seekToPosition);
-                            danmuFragment.seekTo();
-                            videoView.start();
-                            danmuFragment.resume();
+                            if (canDragSeek(seekToPosition)) {
+                                videoView.seekTo(seekToPosition);
+                                danmuFragment.seekTo();
+                                videoView.start();
+                                danmuFragment.resume();
+                            }
                         }
                     }
                     status_dragging = false;
