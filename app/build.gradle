@@ -67,8 +67,8 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:support-v4:27.1.1'
     implementation 'com.android.support:design:27.1.1'
-    implementation 'com.easefun.polyv:polyvPlayer:2.12.1'//SDK核心包
-    implementation 'com.easefun.polyv:polyvPlayerABI:1.9.2'//SDK核心包
+    implementation 'com.easefun.polyv:polyvPlayer:2.12.2'//SDK核心包
+    implementation 'com.easefun.polyv:polyvPlayerABI:1.9.3'//SDK核心包
     implementation 'com.easefun.polyv:polyvDownload:2.12.0'//SDK下载功能
     implementation 'com.easefun.polyv:polyvUpload:2.2.3'//SDK上传功能
     implementation 'com.easefun.polyv:polyvScreencast:0.2.1'//SDK投屏功能
