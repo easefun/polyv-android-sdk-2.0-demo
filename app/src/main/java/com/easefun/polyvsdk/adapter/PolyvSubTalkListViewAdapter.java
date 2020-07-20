@@ -1,7 +1,6 @@
 package com.easefun.polyvsdk.adapter;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
@@ -13,12 +12,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.easefun.polyvsdk.R;
-import com.easefun.polyvsdk.util.PolyvRoundDisplayerUtils;
+import com.easefun.polyvsdk.util.PolyvImageLoader;
 import com.easefun.polyvsdk.util.PolyvTextImageLoader;
 import com.easefun.polyvsdk.util.PolyvTimeUtils;
 import com.easefun.polyvsdk.util.PolyvVlmsHelper;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -30,7 +27,6 @@ public class PolyvSubTalkListViewAdapter extends BaseAdapter {
     private LayoutInflater inflater;
     private ViewHolder viewHolder;
     private List<PolyvVlmsHelper.QuestionsDetail.AnswerDetail> lists;
-    private DisplayImageOptions options;
     private PolyvTextImageLoader textImageLoader;
 
     public PolyvSubTalkListViewAdapter(Context context, List<PolyvVlmsHelper.QuestionsDetail.AnswerDetail> lists) {
@@ -40,14 +36,6 @@ public class PolyvSubTalkListViewAdapter extends BaseAdapter {
             this.lists = new LinkedList<>();
         this.inflater = LayoutInflater.from(context);
         this.textImageLoader = new PolyvTextImageLoader(context);
-        this.options = new DisplayImageOptions.Builder().showImageOnLoading(R.drawable.polyv_avatar_def) // resource
-                // or
-                // drawable
-                .showImageForEmptyUri(R.drawable.polyv_avatar_def) // resource or
-                // drawable
-                .showImageOnFail(R.drawable.polyv_avatar_def) // resource or drawable
-                .bitmapConfig(Bitmap.Config.RGB_565).cacheInMemory(true).cacheOnDisk(true)
-                .displayer(new PolyvRoundDisplayerUtils(0)).build();
     }
 
     @Override
@@ -83,7 +71,8 @@ public class PolyvSubTalkListViewAdapter extends BaseAdapter {
         span.setSpan(new ForegroundColorSpan(context.getResources().getColor(R.color.center_bottom_text_color_blue)), 0, polyvAnswer.answer.nickname.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         textImageLoader.displayTextImage(span, viewHolder.tv_msg);
         viewHolder.tv_time.setText(PolyvTimeUtils.friendlyTime(polyvAnswer.answer.last_modified));
-        ImageLoader.getInstance().displayImage(polyvAnswer.answer.avatar, viewHolder.iv_avatar, options);
+        PolyvImageLoader.getInstance().loadImageOriginCircle(context, polyvAnswer.answer.avatar, viewHolder.iv_avatar, R.drawable.polyv_avatar_def);
+
         return convertView;
     }
 

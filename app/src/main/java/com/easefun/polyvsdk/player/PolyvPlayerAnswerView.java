@@ -2,7 +2,6 @@ package com.easefun.polyvsdk.player;
 
 import android.content.Context;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -30,16 +29,13 @@ import com.easefun.polyvsdk.adapter.PolyvAnswerAdapter;
 import com.easefun.polyvsdk.fragment.PolyvPlayerDanmuFragment;
 import com.easefun.polyvsdk.question.PolyvQuestionDoneAction;
 import com.easefun.polyvsdk.util.PolyvCustomQuestionBuilder;
+import com.easefun.polyvsdk.util.PolyvImageLoader;
 import com.easefun.polyvsdk.util.PolyvScreenUtils;
 import com.easefun.polyvsdk.video.IPolyvVideoView;
 import com.easefun.polyvsdk.video.PolyvVideoView;
 import com.easefun.polyvsdk.video.listener.IPolyvOnQuestionListener;
 import com.easefun.polyvsdk.vo.PolyvQAFormatVO;
 import com.easefun.polyvsdk.vo.PolyvQuestionVO;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.ImageScaleType;
-import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
@@ -105,7 +101,6 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
      */
     private int seek = 0;
 
-    private DisplayImageOptions imageOptions;
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="构造方法">
@@ -119,24 +114,11 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
 
     public PolyvPlayerAnswerView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        initial();
         initView();
     }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="初始化方法">
-    private void initial() {
-        if (imageOptions == null) {
-            imageOptions = new DisplayImageOptions.Builder().showImageOnLoading(R.drawable.polyv_avatar_def) // 设置图片在下载期间显示的图片
-                    .showImageForEmptyUri(R.drawable.polyv_avatar_def)// 设置图片Uri为空或是错误的时候显示的图片
-                    .showImageOnFail(R.drawable.polyv_avatar_def) // 设置图片加载/解码过程中错误时候显示的图片
-                    .bitmapConfig(Bitmap.Config.RGB_565)// 设置图片的解码类型
-                    .cacheInMemory(true)// 设置下载的图片是否缓存在内存中
-                    .cacheOnDisk(true)// 设置下载的图片是否缓存在SD卡中
-                    .displayer(new FadeInBitmapDisplayer(100))// 是否图片加载好后渐入的动画时间
-                    .imageScaleType(ImageScaleType.IN_SAMPLE_INT).build();// 构建完成
-        }
-    }
 
     private void initView() {
         LayoutInflater.from(getContext()).inflate(R.layout.polyv_player_question_view_refactor, this);
@@ -259,12 +241,11 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
 
         if (!questionVO.illustrationIsEmpty()) {
             answerIllustration.setVisibility(VISIBLE);
-            ImageLoader.getInstance().displayImage(fixUrl(questionVO.getIllustration()), answerIllustration,
-                    imageOptions, new PolyvAnimateFirstDisplayListener());
+            PolyvImageLoader.getInstance().loadImageOrigin(getContext(), questionVO.getIllustration(), answerIllustration, R.drawable.polyv_avatar_def);
         } else if (!TextUtils.isEmpty(imgUrl)) {
             answerIllustration.setVisibility(VISIBLE);
-            ImageLoader.getInstance().displayImage(fixUrl(imgUrl), answerIllustration,
-                    imageOptions, new PolyvAnimateFirstDisplayListener());
+            PolyvImageLoader.getInstance().loadImageOrigin(getContext(), imgUrl, answerIllustration, R.drawable.polyv_avatar_def);
+
         } else {
             answerIllustration.setVisibility(GONE);
         }

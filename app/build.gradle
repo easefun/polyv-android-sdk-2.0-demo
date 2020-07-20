@@ -67,14 +67,14 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:support-v4:27.1.1'
     implementation 'com.android.support:design:27.1.1'
-    implementation 'com.easefun.polyv:polyvPlayer:2.12.2'//SDK核心包
-    implementation 'com.easefun.polyv:polyvPlayerABI:1.9.3'//SDK核心包
-    implementation 'com.easefun.polyv:polyvDownload:2.12.0'//SDK下载功能
-    implementation 'com.easefun.polyv:polyvUpload:2.2.3'//SDK上传功能
+    implementation 'com.easefun.polyv:polyvPlayer:2.13.0'//SDK核心包
+    implementation 'com.easefun.polyv:polyvPlayerABI:1.9.5'//SDK核心包
+    implementation 'com.easefun.polyv:polyvDownload:2.13.0'//SDK下载功能
+    implementation 'com.easefun.polyv:polyvUpload:2.3.0'//SDK上传功能
     implementation 'com.easefun.polyv:polyvScreencast:0.2.1'//SDK投屏功能
     implementation 'de.hdodenhof:circleimageview:2.2.0'//圆形imageview，音频封面图使用
     implementation 'com.github.bumptech.glide:glide:4.7.1'//demo中的ppt图片加载使用
-    implementation 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'//demo中图片使用
+//    implementation 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'//demo中图片使用
     implementation "com.daimajia.swipelayout:library:1.2.0@aar"//demo中下载列表使用
     implementation 'com.easefun.polyv:polyvGif:2.2.1'//demo中课程讨论区显示的内容里用到的包
     implementation 'com.easefun.polyv:polyvSub:2.10.0'//弹幕、截图功能中使用

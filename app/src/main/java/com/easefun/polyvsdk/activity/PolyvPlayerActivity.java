@@ -1,5 +1,6 @@
 package com.easefun.polyvsdk.activity;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -8,7 +9,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
@@ -24,6 +24,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -63,6 +64,7 @@ import com.easefun.polyvsdk.service.PolyvBackgroundPlayService;
 import com.easefun.polyvsdk.srt.PolyvSRTItemVO;
 import com.easefun.polyvsdk.sub.vlms.entity.PolyvCoursesInfo;
 import com.easefun.polyvsdk.util.PolyvCustomQuestionBuilder;
+import com.easefun.polyvsdk.util.PolyvImageLoader;
 import com.easefun.polyvsdk.util.PolyvNetworkDetection;
 import com.easefun.polyvsdk.util.PolyvScreenUtils;
 import com.easefun.polyvsdk.video.PolyvMediaInfoType;
@@ -104,8 +106,6 @@ import com.easefun.polyvsdk.view.PolyvTouchSpeedLayout;
 import com.easefun.polyvsdk.vo.PolyvADMatterVO;
 import com.easefun.polyvsdk.vo.PolyvQuestionVO;
 import com.easefun.polyvsdk.vo.PolyvVideoVO;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -360,9 +360,9 @@ public class PolyvPlayerActivity extends FragmentActivity {
             ft.commit();
             return;
         }
-        ImageLoader.getInstance().displayImage(((PolyvCoursesInfo.Course) getIntent().getExtras().getParcelable("course")).cover_image, iv_vlms_cover = ((ImageView) findViewById(R.id.iv_vlms_cover)),
-                new DisplayImageOptions.Builder().showImageOnLoading(R.drawable.polyv_demo).showImageForEmptyUri(R.drawable.polyv_demo).showImageOnFail(R.drawable.polyv_demo)
-                        .bitmapConfig(Bitmap.Config.RGB_565).cacheInMemory(true).cacheOnDisk(true).build());
+        PolyvImageLoader.getInstance()
+                .loadImageOrigin(PolyvPlayerActivity.this, ((PolyvCoursesInfo.Course) getIntent().getExtras().getParcelable("course")).cover_image,
+                        iv_vlms_cover = ((ImageView) findViewById(R.id.iv_vlms_cover)),R.drawable.polyv_pic_demo );
         topFragment = new PolyvPlayerTopFragment();
         topFragment.setArguments(getIntent().getExtras());
         tabFragment = new PolyvPlayerTabFragment();
@@ -887,9 +887,10 @@ public class PolyvPlayerActivity extends FragmentActivity {
             }
         });
 
-        String customTeaserUrl="https://w.wallhaven.cc/full/13/wallhaven-13x79v.jpg";
-        int customTeaserDuration=3;
-        videoView.setCustomTeaser(customTeaserUrl,customTeaserDuration);
+        //用于设置自定义片头url
+//        String customTeaserUrl="https://w.wallhaven.cc/full/13/wallhaven-13x79v.jpg";
+//        int customTeaserDuration=3;
+//        videoView.setCustomTeaser(customTeaserUrl,customTeaserDuration);
     }
 
     /**
@@ -1116,8 +1117,8 @@ public class PolyvPlayerActivity extends FragmentActivity {
                     }
                 }
             };
+            viewLayout.getViewTreeObserver().addOnGlobalLayoutListener(videoviewChange);
             registerReceiver(pipReceiver, new IntentFilter("media_control"));
-
             if (playBinder != null) {
                 playBinder.start("正在小窗播放视频", "点击进入播放页面", R.mipmap.ic_launcher);
             }
@@ -1134,8 +1135,34 @@ public class PolyvPlayerActivity extends FragmentActivity {
             if (playBinder != null) {
                 playBinder.stop();
             }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                viewLayout.getViewTreeObserver().removeOnGlobalLayoutListener(videoviewChange);
+            }
+
         }
     }
+
+    /**
+     * 修复小米8中开启画中画后，控件高度没有适应变化问题
+     */
+    @SuppressLint("NewApi")
+    private void resetVideoHeight() {
+        //onCreate中初始化了高度，PolyvScreenUtils.generateHeight16_9(this);
+        //如果高度相同，则画中画高度没有成功缩小
+        if(viewLayout.getHeight() == PolyvScreenUtils.getHeight16_9() && isInPipMode()){
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) viewLayout.getLayoutParams();
+            params.height = LinearLayout.LayoutParams.MATCH_PARENT;
+            viewLayout.setLayoutParams(params);
+        }
+    }
+
+    ViewTreeObserver.OnGlobalLayoutListener videoviewChange = new ViewTreeObserver.OnGlobalLayoutListener() {
+        @Override
+        public void onGlobalLayout() {
+            resetVideoHeight();
+        }
+    };
 
     private boolean isInPipMode() {
         if (Build.VERSION.SDK_INT >= 26) {

@@ -1,7 +1,6 @@
 package com.easefun.polyvsdk.adapter;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
@@ -18,10 +17,9 @@ import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.bean.PolyvDownloadInfo;
 import com.easefun.polyvsdk.database.PolyvDownloadSQLiteHelper;
 import com.easefun.polyvsdk.download.listener.IPolyvDownloaderProgressListener;
+import com.easefun.polyvsdk.util.PolyvImageLoader;
 import com.easefun.polyvsdk.util.PolyvVlmsHelper;
 import com.easefun.polyvsdk.vo.PolyvVideoVO;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.List;
 
@@ -34,7 +32,6 @@ public class PolyvCurriculumListViewAdapter extends BaseAdapter {
     private SparseBooleanArray selBit1Positions;
     private SparseBooleanArray selBit2Positions;
     private SparseBooleanArray selBit3Positions;
-    private DisplayImageOptions options;
     private PolyvDownloadSQLiteHelper downloadSQLiteHelper;
     private int currentSelcetBitrate;
 
@@ -47,12 +44,6 @@ public class PolyvCurriculumListViewAdapter extends BaseAdapter {
         this.selBit2Positions = new SparseBooleanArray();
         this.selBit3Positions = new SparseBooleanArray();
         this.downloadSQLiteHelper = PolyvDownloadSQLiteHelper.getInstance(context);
-        this.options = new DisplayImageOptions.Builder().showImageOnLoading(R.drawable.polyv_demo) // resource
-                // or
-                // drawable
-                .showImageForEmptyUri(R.drawable.polyv_demo) // resource or drawable
-                .showImageOnFail(R.drawable.polyv_demo) // resource or drawable
-                .bitmapConfig(Bitmap.Config.RGB_565).cacheInMemory(true).cacheOnDisk(true).build();
     }
 
     public void cancelSideIconSelected() {
@@ -259,7 +250,7 @@ public class PolyvCurriculumListViewAdapter extends BaseAdapter {
         viewHolder.tv_seri.setText(polyvCurriculum.section_name + " " + polyvCurriculum.name);
         viewHolder.tv_title.setText(polyvCurriculum.lecture.title);
         viewHolder.tv_time.setText(polyvCurriculum.lecture.duration);
-        ImageLoader.getInstance().displayImage(polyvCurriculum.cover_image, viewHolder.iv_demo, options);
+        PolyvImageLoader.getInstance().loadImageWithCache(appContext,polyvCurriculum.cover_image, viewHolder.iv_demo, R.drawable.polyv_demo );
         return convertView;
     }
 

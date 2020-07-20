@@ -118,3 +118,6 @@
 -keep class com.hpplay.**{*;}
 -keep class com.hpplay.**$*{*;}
 -dontwarn com.hpplay.**
+
+#json
+-keep class org.json.** {*;}

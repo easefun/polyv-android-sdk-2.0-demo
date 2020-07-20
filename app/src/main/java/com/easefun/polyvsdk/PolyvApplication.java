@@ -5,8 +5,6 @@ import android.support.multidex.MultiDexApplication;
 import android.text.TextUtils;
 
 import com.easefun.polyvsdk.screencast.PolyvScreencastHelper;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 //继承的类是为了解决64K 引用限制
 public class PolyvApplication extends MultiDexApplication {
@@ -16,10 +14,6 @@ public class PolyvApplication extends MultiDexApplication {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-
-		// 创建默认的ImageLoader配置参数
-		ImageLoaderConfiguration configuration = ImageLoaderConfiguration.createDefault(this);
-		ImageLoader.getInstance().init(configuration);
 
 		initPolyvCilent();
 		initScreencast();
@@ -65,6 +59,7 @@ public class PolyvApplication extends MultiDexApplication {
 	}
 
 	private void initDownloadDir() {
+		//TODO: Android Q 开始仅限下载在私有目录
 		if(PolyvSDKClient.getInstance().isMultiDownloadAccount()){
 			// TODO: 2019/4/16 accountid 填入登录用户的id
 			PolyvUserClient.getInstance().login("viewerId",this);

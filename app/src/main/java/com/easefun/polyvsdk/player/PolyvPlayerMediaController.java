@@ -14,10 +14,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.support.annotation.DrawableRes;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,6 +45,7 @@ import com.easefun.polyvsdk.sub.screenshot.PolyvScreenShot;
 import com.easefun.polyvsdk.util.PolyvKeyBoardUtils;
 import com.easefun.polyvsdk.util.PolyvNetworkDetection;
 import com.easefun.polyvsdk.util.PolyvSPUtils;
+import com.easefun.polyvsdk.util.PolyvScopedStorageUtil;
 import com.easefun.polyvsdk.util.PolyvScreenUtils;
 import com.easefun.polyvsdk.util.PolyvSensorHelper;
 import com.easefun.polyvsdk.util.PolyvShareUtils;
@@ -1698,16 +1699,30 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                 bitmap = videoView.screenshot();
             }
             if (bitmap != null) {
-                String savePath = SDCardUtil.createPathPF(mContext, "polyvsnapshot");
                 String fileName = videoView.getCurrentVid() + "_" + PolyvTimeUtils.generateTime(videoView.getCurrentPosition()) + "_" + new SimpleDateFormat("yyyy-MM-dd_kk:mm:ss").format(new Date()) + ".jpg";
-                String filePath = new File(savePath, fileName).getAbsolutePath();
-
+                File saveFile;
+                if(Build.VERSION.SDK_INT < 29) {
+                    String savePath = SDCardUtil.createPathPF(mContext, "polyvsnapshot");
+                    saveFile = new File(savePath, fileName);
+                } else {
+                    //保存到私有目录，再复制到Pictures下
+                    saveFile = new File(mContext.getExternalCacheDir(), fileName);
+                }
                 FileOutputStream fileOutputStream = null;
                 try {
-                    fileOutputStream = new FileOutputStream(filePath);
+                    fileOutputStream = new FileOutputStream(saveFile);
                     boolean compressResult = bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
                     if (compressResult) {
-                        toastMsg("截图成功：" + filePath);
+                        if(Build.VERSION.SDK_INT >= 29){
+                            Uri uri = PolyvScopedStorageUtil.createUriInMediaStore(null, saveFile.getName(), MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                            boolean b = PolyvScopedStorageUtil.saveFileToMediaStore(saveFile, uri);
+                            saveFile.delete();
+                            if(!b){
+                                toastMsg("截图失败：bitmap save fail");
+                                return;
+                            }
+                        }
+                        toastMsg("截图成功：" + saveFile.getAbsolutePath());
                     } else {
                         toastMsg("截图失败：bitmap compress fail");
                     }
@@ -1716,7 +1731,6 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                 } finally {
                     IOUtil.closeIO(fileOutputStream);
                 }
-
             } else {
                 toastMsg("截图失败：bitmap is null");
             }
@@ -1726,6 +1740,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     }
 
     //网络截图
+    @Deprecated
     private void screenshot() {
         String vid = null;
         int bit = 0;

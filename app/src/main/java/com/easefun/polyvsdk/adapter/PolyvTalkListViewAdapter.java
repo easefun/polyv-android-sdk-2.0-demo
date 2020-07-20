@@ -2,7 +2,6 @@ package com.easefun.polyvsdk.adapter;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -19,13 +18,11 @@ import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.activity.PolyvTalkEdittextActivity;
 import com.easefun.polyvsdk.sub.vlms.entity.PolyvQuestionInfo;
 import com.easefun.polyvsdk.util.PolyvClipboardUtils;
-import com.easefun.polyvsdk.util.PolyvRoundDisplayerUtils;
+import com.easefun.polyvsdk.util.PolyvImageLoader;
 import com.easefun.polyvsdk.util.PolyvTextImageLoader;
 import com.easefun.polyvsdk.util.PolyvTimeUtils;
 import com.easefun.polyvsdk.util.PolyvVlmsHelper;
 import com.easefun.polyvsdk.view.LinearListView;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.List;
 
@@ -37,22 +34,14 @@ public class PolyvTalkListViewAdapter extends BaseAdapter {
     private List<PolyvVlmsHelper.QuestionsDetail> lists;
     private LayoutInflater inflater;
     private ViewHolder viewHolder;
-    private DisplayImageOptions options;
     private PolyvTextImageLoader textImageLoader;
+
 
     public PolyvTalkListViewAdapter(Activity context, List<PolyvVlmsHelper.QuestionsDetail> lists) {
         this.context = context;
         this.lists = lists;
         this.inflater = LayoutInflater.from(context);
         this.textImageLoader = new PolyvTextImageLoader(context);
-        this.options = new DisplayImageOptions.Builder().showImageOnLoading(R.drawable.polyv_avatar_def) // resource
-                // or
-                // drawable
-                .showImageForEmptyUri(R.drawable.polyv_avatar_def) // resource or
-                // drawable
-                .showImageOnFail(R.drawable.polyv_avatar_def) // resource or drawable
-                .bitmapConfig(Bitmap.Config.RGB_565).cacheInMemory(true).cacheOnDisk(true)
-                .displayer(new PolyvRoundDisplayerUtils(0)).build();
     }
 
     @Override
@@ -121,7 +110,7 @@ public class PolyvTalkListViewAdapter extends BaseAdapter {
         textImageLoader.displayTextImage(span, viewHolder.tv_msg);
         viewHolder.tv_topic.setText(polyvQuestion.title);
         viewHolder.tv_time.setText(PolyvTimeUtils.friendlyTime(polyvQuestion.last_modified));
-        ImageLoader.getInstance().displayImage(polyvQuestion.avatar, viewHolder.iv_avatar, options);
+        PolyvImageLoader.getInstance().loadImageOriginCircle(context, polyvQuestion.avatar, viewHolder.iv_avatar, R.drawable.polyv_avatar_def);
         return convertView;
     }
 

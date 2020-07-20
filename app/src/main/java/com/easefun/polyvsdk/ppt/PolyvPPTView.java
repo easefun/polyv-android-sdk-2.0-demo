@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -15,13 +16,10 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.Target;
 import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.po.ppt.PolyvPptInfo;
 import com.easefun.polyvsdk.po.ppt.PolyvPptPageInfo;
+import com.easefun.polyvsdk.util.PolyvImageLoader;
 import com.easefun.polyvsdk.video.PolyvVideoView;
 import com.easefun.polyvsdk.view.PolyvCircleProgressView;
 
@@ -40,9 +38,6 @@ public class PolyvPPTView extends FrameLayout {
     private PolyvPptInfo currentPPTVO;
 
     private int preloadCount = 2;
-    private RequestOptions imgOptions = new RequestOptions()
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
-            .override(Target.SIZE_ORIGINAL);
 
     private Handler handler = new Handler(Looper.getMainLooper()) {
         @Override
@@ -51,13 +46,12 @@ public class PolyvPPTView extends FrameLayout {
                 int position = Math.max(0, currentVideoView.getCurrentPosition() / 1000);
                 PolyvPptPageInfo pageBean = findClosestPPT(position, currentPPTVO.getPages());
                 if (pageBean != null && pageBean.getImg() != null && !pageBean.getImg().equals(currentImg)) {
-                    Glide.with(getContext())
-                            .load(currentImg = pageBean.getImg())
-                            .apply(new RequestOptions().dontAnimate().placeholder(imageView.getDrawable()).override(Target.SIZE_ORIGINAL))
-                            .into(imageView);
-                    for (int i = 1; i <= preloadCount; i++) {
-                        if (pageBean.getIndex() + i < currentPPTVO.getPages().size()) {
-                            Glide.with(getContext()).load(currentPPTVO.getPages().get(pageBean.getIndex() + i).getImg()).apply(imgOptions).preload();
+                    PolyvImageLoader.getInstance().loadImageOrigin(getContext(), currentImg = pageBean.getImg(), imageView, imageView.getDrawable());
+                    if (Build.VERSION.SDK_INT <29){
+                        for (int i = 1; i <= preloadCount; i++) {
+                            if (pageBean.getIndex() + i < currentPPTVO.getPages().size()) {
+                                PolyvImageLoader.getInstance().preloadImage(getContext(), currentPPTVO.getPages().get(pageBean.getIndex() + i).getImg());
+                            }
                         }
                     }
                 }

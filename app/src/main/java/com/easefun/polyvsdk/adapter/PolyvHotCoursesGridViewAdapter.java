@@ -1,7 +1,6 @@
 package com.easefun.polyvsdk.adapter;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,9 +10,8 @@ import android.widget.TextView;
 
 import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.sub.vlms.entity.PolyvCoursesInfo;
+import com.easefun.polyvsdk.util.PolyvImageLoader;
 import com.easefun.polyvsdk.util.PolyvVlmsHelper;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.List;
 
@@ -22,7 +20,6 @@ public class PolyvHotCoursesGridViewAdapter extends BaseAdapter {
 	private List<PolyvVlmsHelper.CoursesDetail> lists;
 	private LayoutInflater inflater;
 	private ViewHolder viewHolder;
-	private DisplayImageOptions options;
 
 	private class ViewHolder {
 		ImageView iv_demo;
@@ -33,12 +30,6 @@ public class PolyvHotCoursesGridViewAdapter extends BaseAdapter {
 		this.context = context;
 		this.lists = lists;
 		this.inflater = LayoutInflater.from(context);
-		this.options = new DisplayImageOptions.Builder().showImageOnLoading(R.drawable.polyv_demo) // resource
-																								// or
-																								// drawable
-				.showImageForEmptyUri(R.drawable.polyv_demo) // resource or drawable
-				.showImageOnFail(R.drawable.polyv_demo) // resource or drawable
-				.bitmapConfig(Bitmap.Config.RGB_565).cacheInMemory(true).cacheOnDisk(true).build();
 	}
 
 	@Override
@@ -81,7 +72,7 @@ public class PolyvHotCoursesGridViewAdapter extends BaseAdapter {
 			viewHolder.tv_money.setText("￥" + coursesDetail.course.price);
 			viewHolder.tv_money.setTextColor(context.getResources().getColor(R.color.center_bottom_text_color_red));
 		}
-		ImageLoader.getInstance().displayImage(coursesDetail.course.cover_image, viewHolder.iv_demo, options);
+		PolyvImageLoader.getInstance().loadImageWithCache(context, coursesDetail.course.cover_image, viewHolder.iv_demo, R.drawable.polyv_demo);
 		return convertView;
 	}
 }

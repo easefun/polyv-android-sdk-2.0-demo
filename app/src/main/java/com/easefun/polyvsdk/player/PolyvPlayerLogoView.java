@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.easefun.polyvsdk.util.PolyvImageLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -108,9 +109,9 @@ public class PolyvPlayerLogoView extends FrameLayout {
 
                 //加载图片
                 if (logoParam.resId != 0) {
-                    Glide.with(getContext()).load(logoParam.resId).into(imageView);
+                    PolyvImageLoader.getInstance().loadImage(getContext(), logoParam.resId, imageView);
                 } else {
-                    Glide.with(getContext()).load(logoParam.resUrl).into(imageView);
+                    PolyvImageLoader.getInstance().loadImage(getContext(), logoParam.resUrl, imageView);
                 }
 
                 if (!logoParams.contains(logoParam)) {

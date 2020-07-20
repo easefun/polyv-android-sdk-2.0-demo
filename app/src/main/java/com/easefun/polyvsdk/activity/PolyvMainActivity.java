@@ -207,7 +207,7 @@ public class PolyvMainActivity extends Activity implements OnClickListener {
         PolyvPermission.OperationType OperationType = PolyvPermission.OperationType.getOperationType(type);
         switch (OperationType) {
             case readImei:
-                PolyvSDKClient.getInstance().setImei(PolyvUtils.getPhoneIMEI(this));
+                PolyvSDKClient.getInstance().setImei(PolyvUtils.getAndroidId(this));
                 break;
             case play:
                 startActivity(new Intent(PolyvMainActivity.this, PolyvOnlineVideoActivity.class));
@@ -246,7 +246,7 @@ public class PolyvMainActivity extends Activity implements OnClickListener {
         if (polyvPermission.operationHasPermission(requestCode)) {
             gotoActivity(requestCode);
         } else {
-            PolyvSDKClient.getInstance().setImei(PolyvUtils.getPhoneIMEI(this));
+            PolyvSDKClient.getInstance().setImei(PolyvUtils.getAndroidId(this));
             for (int i = 0; i < grantResults.length; i++) {
                 if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
                     if (!ActivityCompat.shouldShowRequestPermissionRationale(this, permissions[i])) {

@@ -11,10 +11,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.po.ppt.PolyvPptPageInfo;
+import com.easefun.polyvsdk.util.PolyvImageLoader;
 import com.easefun.polyvsdk.util.PolyvTimeUtils;
 
 import java.util.List;
@@ -66,10 +65,7 @@ public class PolyvPPTDirListAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                     }
                 }
             });
-            Glide.with(context)
-                    .load(pptPageInfo.getImg())
-                    .apply(new RequestOptions().dontAnimate()/*.override(Target.SIZE_ORIGINAL) 滑动图片加载慢*/)
-                    .into(pptViewHolder.pptImg);
+            PolyvImageLoader.getInstance().loadImageWithCache(context, pptPageInfo.getImg(), pptViewHolder.pptImg, R.drawable.polyv_demo);
             pptViewHolder.pptIndex.setText(position + 1 + "");
             pptViewHolder.pptTitle.setText(pptPageInfo.getTitle());
             if (isLandLayout) {

@@ -24,6 +24,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
+        android:networkSecurityConfig="@xml/polyv_network_security_config"
         tools:replace="android:icon,android:theme">
         <activity
             android:name="com.easefun.polyvsdk.activity.PolyvMainActivity"

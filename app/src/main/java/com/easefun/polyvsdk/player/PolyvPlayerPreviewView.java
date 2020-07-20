@@ -1,18 +1,6 @@
 package com.easefun.polyvsdk.player;
 
-import java.io.File;
-
-import com.easefun.polyvsdk.PolyvSDKUtil;
-import com.easefun.polyvsdk.R;
-import com.easefun.polyvsdk.util.PolyvDownloadDirUtil;
-import com.easefun.polyvsdk.vo.PolyvVideoVO;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.ImageScaleType;
-import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
-
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.text.TextUtils;
@@ -24,6 +12,14 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
+import com.easefun.polyvsdk.PolyvSDKUtil;
+import com.easefun.polyvsdk.R;
+import com.easefun.polyvsdk.util.PolyvDownloadDirUtil;
+import com.easefun.polyvsdk.util.PolyvImageLoader;
+import com.easefun.polyvsdk.vo.PolyvVideoVO;
+
+import java.io.File;
+
 /**
  * 预览图视图
  * @author Lion 2016-3-3
@@ -34,7 +30,6 @@ public class PolyvPlayerPreviewView extends RelativeLayout {
 	private ImageView mPreviewImage = null;
 	private ImageButton mStartBtn = null;
 	private Callback mCallback = null;
-	private DisplayImageOptions mOptions = null;
 
     public PolyvPlayerPreviewView(Context context) {
         this(context, null);
@@ -65,17 +60,6 @@ public class PolyvPlayerPreviewView extends RelativeLayout {
                 hide();
 			}
 		});
-    	
-    	if (mOptions == null) {
-    		mOptions = new DisplayImageOptions.Builder().showImageOnLoading(R.drawable.polyv_avatar_def) // 设置图片在下载期间显示的图片
-    				.showImageForEmptyUri(R.drawable.polyv_avatar_def)// 设置图片Uri为空或是错误的时候显示的图片
-    				.showImageOnFail(R.drawable.polyv_avatar_def) // 设置图片加载/解码过程中错误时候显示的图片
-    				.bitmapConfig(Bitmap.Config.RGB_565)// 设置图片的解码类型
-    				.cacheInMemory(true)// 设置下载的图片是否缓存在内存中
-    				.cacheOnDisk(true)// 设置下载的图片是否缓存在SD卡中
-    				.displayer(new FadeInBitmapDisplayer(100))// 是否图片加载好后渐入的动画时间
-    				.imageScaleType(ImageScaleType.IN_SAMPLE_INT).build();// 构建完成
-		}
     }
 
     /**
@@ -128,7 +112,7 @@ public class PolyvPlayerPreviewView extends RelativeLayout {
 			if (file != null) {
 				mPreviewImage.setImageURI(Uri.parse(file.getAbsolutePath()));
 			} else {
-				ImageLoader.getInstance().displayImage(v.getFirstImage(), mPreviewImage, mOptions, new PolyvAnimateFirstDisplayListener());
+				PolyvImageLoader.getInstance().loadImageOrigin(getContext(), v.getFirstImage(), mPreviewImage, R.drawable.polyv_avatar_def);
 			}
 		}
 	}
