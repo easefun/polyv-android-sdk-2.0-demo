@@ -1,8 +1,10 @@
 package com.easefun.polyvsdk.player;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -102,6 +104,10 @@ public class PolyvPlayerPreviewView extends RelativeLayout {
 				return;
 			}
 
+			if(isDestroy((Activity) getContext())){
+				return;
+			}
+
 			int index = 0;
 			if (v.getFirstImage().contains("/")) {
 				index = v.getFirstImage().lastIndexOf("/");
@@ -123,6 +129,15 @@ public class PolyvPlayerPreviewView extends RelativeLayout {
     public void hide() {
         setVisibility(View.GONE);
     }
+
+	private boolean isDestroy(Activity activity){
+    	if(activity == null || activity.isFinishing() ||
+				(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && activity.isDestroyed())){
+    		return true;
+		} else {
+    		return false;
+		}
+	}
     
     @Override
 	public boolean onTouchEvent(MotionEvent event) {
