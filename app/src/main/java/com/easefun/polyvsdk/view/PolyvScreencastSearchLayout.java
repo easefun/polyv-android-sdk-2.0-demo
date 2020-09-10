@@ -438,6 +438,7 @@ public class PolyvScreencastSearchLayout extends FrameLayout implements View.OnC
                     PolyvToastUtil.show(getApplicationContext(), "播放结束");
 
                     screencastStatusLayout.hide(true);
+                    disConnect();
                     break;
                 case PolyvIUIUpdateListener.STATE_SEEK:
                     PolyvLogger.test(TAG, "callback seek:" + object);

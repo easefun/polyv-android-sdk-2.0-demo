@@ -243,8 +243,8 @@ public class PolyvScreencastStatusLayout extends FrameLayout implements View.OnC
         setVisibility(View.GONE);
         if (isStop) {
             getScreencastSearchLayout().stop();
-            screencastSearchLayout.disConnect();
-            landScreencastSearchLayout.disConnect();
+//            screencastSearchLayout.disConnect();
+//            landScreencastSearchLayout.disConnect();
         }
     }
 
