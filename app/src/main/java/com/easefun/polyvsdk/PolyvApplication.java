@@ -45,6 +45,12 @@ public class PolyvApplication extends MultiDexApplication {
 		client.settingsWithConfigString("CMWht3MlpVkgpFzrLNAebYi4RdQDY/Nhvk3Kc+qWcck6chwHYKfl9o2aOVBvXVTRZD/14XFzVP7U5un43caq1FXwl0cYmTfimjTmNUYa1sZC1pkHE8gEsRpwpweQtEIiTGVEWrYVNo4/o5jI2/efzA==", aeskey, iv);
 		//初始化SDK设置
 		client.initSetting(getApplicationContext());
+
+		//默认开启了HttpDns，使用IPV4
+//		client.enableHttpDns(true);
+		//如果需要支持IPV6/IPV4，请开启IPV6开关。开启后自动关闭HttpDns，采用域名访问
+//		client.enableIPV6(false);
+
 		//启动Bugly
 		client.initCrashReport(getApplicationContext());
 		//启动Bugly后，在学员登录时设置学员id
