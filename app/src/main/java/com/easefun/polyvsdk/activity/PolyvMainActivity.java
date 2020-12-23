@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -22,15 +23,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.easefun.polyvsdk.PolyvSDKClient;
-import com.easefun.polyvsdk.PolyvUserClient;
 import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.adapter.PolyvHotCoursesGridViewAdapter;
 import com.easefun.polyvsdk.permission.PolyvPermission;
-import com.easefun.polyvsdk.screencast.utils.PolyvToastUtil;
 import com.easefun.polyvsdk.sub.vlms.entity.PolyvAddOrderInfo;
 import com.easefun.polyvsdk.sub.vlms.entity.PolyvCoursesInfo;
 import com.easefun.polyvsdk.sub.vlms.listener.PolyvVlmsApiListener;
 import com.easefun.polyvsdk.sub.vlms.main.PolyvVlmsTestData;
+import com.easefun.polyvsdk.util.PolyvSPUtils;
 import com.easefun.polyvsdk.util.PolyvUtils;
 import com.easefun.polyvsdk.util.PolyvVlmsHelper;
 import com.easefun.polyvsdk.view.PolyvSimpleSwipeRefreshLayout;
@@ -46,6 +46,8 @@ public class PolyvMainActivity extends Activity implements OnClickListener {
     private List<PolyvVlmsHelper.CoursesDetail> lists;
     // 在线视频按钮,上传按钮,缓存按钮
     private ImageView iv_online, iv_uplaod, iv_download;
+    //标题
+    private TextView tv_title;
     // 加载中控件
     private ProgressBar pb_loading;
     // 空数据控件,重新加载控件
@@ -59,6 +61,7 @@ public class PolyvMainActivity extends Activity implements OnClickListener {
 
     private void findIdAndNew() {
         gv_hc = (GridView) findViewById(R.id.gv_hc);
+        tv_title = (TextView) findViewById(R.id.tv_title);
         iv_online = (ImageView) findViewById(R.id.iv_online);
         iv_uplaod = (ImageView) findViewById(R.id.iv_upload);
         iv_download = (ImageView) findViewById(R.id.iv_download);
@@ -158,6 +161,7 @@ public class PolyvMainActivity extends Activity implements OnClickListener {
         iv_uplaod.setOnClickListener(this);
         iv_download.setOnClickListener(this);
         tv_reload.setOnClickListener(this);
+        tv_title.setOnClickListener(this);
     }
 
     @Override
@@ -200,7 +204,29 @@ public class PolyvMainActivity extends Activity implements OnClickListener {
             case R.id.iv_upload:
                 polyvPermission.applyPermission(this, PolyvPermission.OperationType.upload);
                 break;
+            case R.id.tv_title:
+                gotoSetSDKConfig();
+                break;
+            default:
+                break;
         }
+    }
+
+    private void gotoSetSDKConfig() {
+        final EditText etConfig = new EditText(this);
+        new AlertDialog.Builder(this).setTitle("设置加密串")
+                .setView(etConfig)
+                .setPositiveButton("保存并重启", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        PolyvSPUtils.getInstance(PolyvMainActivity.this).put("SDKConfig", etConfig.getText().toString().trim(), true);
+                        final Intent intent = PolyvMainActivity.this.getPackageManager().getLaunchIntentForPackage(PolyvMainActivity.this.getPackageName());
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent);
+                        android.os.Process.killProcess(android.os.Process.myPid());
+                    }
+                }).setNegativeButton("取消",null).show();
+
     }
 
     private void gotoActivity(int type) {

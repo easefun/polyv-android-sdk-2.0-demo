@@ -85,6 +85,10 @@ public class PolyvScreencastStatusLayout extends FrameLayout implements View.OnC
         return currentPlayBitrate == -1 ? videoView.getBitRate() : currentPlayBitrate;
     }
 
+    public int getCurrentPlayPosition(){
+        return videoView == null ? 0 : videoView.getCurrentPosition() / 1000;
+    }
+
     private void initView() {
         LayoutInflater.from(getContext()).inflate(R.layout.polyv_screencast_status_layout, this);
         tv_status = (TextView) findViewById(R.id.tv_status);
@@ -213,9 +217,18 @@ public class PolyvScreencastStatusLayout extends FrameLayout implements View.OnC
         ll_volume_layout.setVisibility(View.VISIBLE);
     }
 
+    public void callScreencastStatusTitle(String title){
+        tv_status.setText(title);
+        tv_status.setTextColor(Color.parseColor("#31ADFE"));
+    }
+
     public void callPlayErrorStatus() {
+        callPlayErrorStatus("投屏失败");
+    }
+
+    public void callPlayErrorStatus(String errorMsg) {
         tv_status.setTextColor(Color.RED);
-        tv_status.setText("投屏失败");
+        tv_status.setText(errorMsg);
         tv_status.setTextColor(Color.parseColor("#FF5B5B"));
 
         tv_bit.setVisibility(View.GONE);
@@ -246,6 +259,18 @@ public class PolyvScreencastStatusLayout extends FrameLayout implements View.OnC
 //            screencastSearchLayout.disConnect();
 //            landScreencastSearchLayout.disConnect();
         }
+        castProgressSync();
+    }
+
+    /**
+     * 同步投屏进度到本地播放器
+     */
+    private void castProgressSync() {
+        if(getScreencastSearchLayout().getCurrentCastPosition() == -1){
+            return;
+        }
+        long castPosition = getScreencastSearchLayout().getCurrentCastPosition() *1000;
+        videoView.seekTo(castPosition);
     }
 
     @Override
@@ -286,6 +311,7 @@ public class PolyvScreencastStatusLayout extends FrameLayout implements View.OnC
                 break;
             case R.id.tv_exit:
                 hide(true);
+                getScreencastSearchLayout().removeDelayCastRunnable();
                 break;
             case R.id.tv_switch_device:
                 getScreencastSearchLayout().show();
@@ -364,14 +390,22 @@ public class PolyvScreencastStatusLayout extends FrameLayout implements View.OnC
     }
 
     //重置选择码率的控件
-    private void resetBitRateView(int bitRate) {
+    private void resetBitRateView(final int bitRate) {
         ll_bit_layout.setVisibility(View.GONE);
         if (currentPlayBitrate == bitRate)
             return;
         currentPlayBitrate = bitRate;
+        final int currentCastPosition = getScreencastSearchLayout().getCurrentCastPosition();
         initBitRateView(bitRate);
-        String playPath = videoView.getPlayPathWithBitRate(bitRate);
-        getScreencastSearchLayout().play(playPath, bitRate);
+        videoView.getPlayPathWithBitRateAsync(bitRate, new PolyvVideoView.Consumer<String>() {
+            @Override
+            public void accept(String playPath) {
+                if (getScreencastSearchLayout() == null) {
+                    return;
+                }
+                getScreencastSearchLayout().play(playPath, bitRate, currentCastPosition);
+            }
+        });
     }
 
     @Override

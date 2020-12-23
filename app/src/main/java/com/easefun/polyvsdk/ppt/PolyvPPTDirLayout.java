@@ -75,12 +75,16 @@ public class PolyvPPTDirLayout extends FrameLayout {
                     int seekPosition = Math.min(currentVideoView.getDuration(), Math.max(0, pptPageInfo.getSec()) * 1000);
                     int dragSeekStrategy = PolyvSPUtils.getInstance(getContext(), "dragSeekStrategy").getInt("dragSeekStrategy");
                     boolean canDragSeek;
-                    if (dragSeekStrategy == PolyvPlayerMediaController.DRAG_SEEK_BAN) {
-                        canDragSeek = false;
-                    } else if (dragSeekStrategy == PolyvPlayerMediaController.DRAG_SEEK_PLAYED) {
-                        canDragSeek = seekPosition <= PolyvSPUtils.getInstance(getContext(), "videoProgress").getInt(currentVideoView.getCurrentVid());
+                    if (currentVideoView != null && currentVideoView.getMediaController() != null) {
+                        canDragSeek = currentVideoView.getMediaController().canDragSeek(seekPosition);
                     } else {
-                        canDragSeek = true;
+                        if (dragSeekStrategy == PolyvPlayerMediaController.DRAG_SEEK_BAN) {
+                            canDragSeek = false;
+                        } else if (dragSeekStrategy == PolyvPlayerMediaController.DRAG_SEEK_PLAYED) {
+                            canDragSeek = seekPosition <= PolyvSPUtils.getInstance(getContext(), "videoProgress").getInt(currentVideoView.getCurrentVid());
+                        } else {
+                            canDragSeek = true;
+                        }
                     }
                     if (canDragSeek) {
                         currentVideoView.seekTo(seekPosition);

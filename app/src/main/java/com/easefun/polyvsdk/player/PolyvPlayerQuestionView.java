@@ -286,7 +286,7 @@ public class PolyvPlayerQuestionView extends RelativeLayout implements OnChecked
 				case URL:
 					imageView = new ImageView(context);
 					PolyvImageLoader.getInstance().loadImageOrigin(context, qaFormatVO.getStr(),
-							imageView, R.drawable.polyv_avatar_def);
+							imageView, R.drawable.polyv_loading);
 					questionLayout.addView(imageView);
 					break;
 			}
@@ -340,7 +340,7 @@ public class PolyvPlayerQuestionView extends RelativeLayout implements OnChecked
 					case URL:
 						imageView = new ImageView(context);
 						PolyvImageLoader.getInstance().loadImageOrigin(context, qaFormatVO.getStr(),
-								imageView, R.drawable.polyv_avatar_def);
+								imageView, R.drawable.polyv_loading);
 						answerLayout.addView(imageView);
 						break;
 				}

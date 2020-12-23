@@ -240,6 +240,8 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     public static final int DRAG_SEEK_BAN = 1;//禁止拖动进度条跳转进度
     public static final int DRAG_SEEK_PLAYED = 2;//只允许在已播放进度区域拖动跳转播放进度
     private int dragSeekStrategy = DRAG_SEEK_PLAYED;
+    private OnDragSeekListener onDragSeekListener;
+
     private static final int SAVE_PROGRESS = 30;
 
     //用于处理控制栏的显示状态
@@ -280,13 +282,24 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         return 0;
     }
 
+    @Override
     public boolean canDragSeek(int seekPosition) {
+        boolean canDragSeek = true;
         if (dragSeekStrategy == DRAG_SEEK_PLAYED) {
-            return seekPosition <= getSavePosition();
+            canDragSeek = seekPosition <= getSavePosition();
         } else if (dragSeekStrategy == DRAG_SEEK_BAN) {
-            return false;
+            canDragSeek = false;
         }
-        return true;
+
+        if (onDragSeekListener == null) {
+            return canDragSeek;
+        }
+        if (canDragSeek) {
+            onDragSeekListener.onDragSeekSuccess(videoView.getCurrentPosition(), seekPosition);
+        } else {
+            onDragSeekListener.onDragSeekBan(dragSeekStrategy);
+        }
+        return canDragSeek;
     }
 
     private void saveProgress() {
@@ -1896,6 +1909,10 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         return isViceHideInPipMode;
     }
 
+    public void setOnDragSeekListener(OnDragSeekListener listener) {
+        this.onDragSeekListener = listener;
+    }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -2172,5 +2189,11 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         //如果控制栏不是处于一直显示的状态，那么重置控制栏隐藏的时间
         if (!status_showalways)
             resetHideTime(longTime);
+    }
+
+    public interface OnDragSeekListener {
+        void onDragSeekSuccess(int positionBeforeSeek, int positionAfterSeek);
+
+        void onDragSeekBan(int dragSeekStrategy);
     }
 }

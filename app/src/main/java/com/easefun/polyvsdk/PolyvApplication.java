@@ -3,8 +3,10 @@ package com.easefun.polyvsdk;
 import android.os.AsyncTask;
 import android.support.multidex.MultiDexApplication;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.easefun.polyvsdk.screencast.PolyvScreencastHelper;
+import com.easefun.polyvsdk.util.PolyvSPUtils;
 
 //继承的类是为了解决64K 引用限制
 public class PolyvApplication extends MultiDexApplication {
@@ -17,6 +19,9 @@ public class PolyvApplication extends MultiDexApplication {
 
 		initPolyvCilent();
 		initScreencast();
+
+		//仅用于Demo测试设置加密串使用，开发者无需集成
+		debugSetConfig();
 	}
 
 	public void initScreencast() {
@@ -95,6 +100,18 @@ public class PolyvApplication extends MultiDexApplication {
 		protected void onPostExecute(String config) {
 			PolyvSDKClient client = PolyvSDKClient.getInstance();
 			client.setConfig(config, aeskey, iv);
+		}
+	}
+
+
+	/**
+	 * Demo调试使用的设置加密串方法
+	 * 开发者无需集成
+	 */
+	private void debugSetConfig() {
+		String sdkConfig = PolyvSPUtils.getInstance(this).getString("SDKConfig");
+		if(!TextUtils.isEmpty(sdkConfig)){
+			PolyvSDKClient.getInstance().settingsWithConfigString(sdkConfig,aeskey,iv);
 		}
 	}
 }

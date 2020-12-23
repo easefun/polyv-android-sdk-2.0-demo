@@ -97,7 +97,7 @@ public class PolyvPlayerAuxiliaryView extends RelativeLayout {
      */
     public void show(PolyvADMatterVO adMatter) {
     	mADMatter = adMatter;
-		PolyvImageLoader.getInstance().loadImageOrigin(mContext, mADMatter.getMatterUrl(), mAdvertisementImage,R.drawable.polyv_avatar_def);
+		PolyvImageLoader.getInstance().loadImageOrigin(mContext, mADMatter.getMatterUrl(), mAdvertisementImage,R.drawable.polyv_loading);
 
     	//暂停图片广告不需要倒计时，是点击开始按钮继续
     	if (PolyvADMatterVO.LOCATION_PAUSE.equals(adMatter.getLocation())) {
@@ -115,7 +115,7 @@ public class PolyvPlayerAuxiliaryView extends RelativeLayout {
 	 */
 	public void show(String url) {
 		mADMatter = null;
-		PolyvImageLoader.getInstance().loadImageOrigin(mContext, url, mAdvertisementImage, R.drawable.polyv_avatar_def);
+		PolyvImageLoader.getInstance().loadImageOrigin(mContext, url, mAdvertisementImage, R.drawable.polyv_loading);
 
 		mStartBtn.setVisibility(View.GONE);
 		setVisibility(View.VISIBLE);

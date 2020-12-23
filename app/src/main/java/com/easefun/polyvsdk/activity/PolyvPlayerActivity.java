@@ -40,6 +40,7 @@ import com.easefun.polyvsdk.fragment.PolyvPlayerDanmuFragment;
 import com.easefun.polyvsdk.fragment.PolyvPlayerTabFragment;
 import com.easefun.polyvsdk.fragment.PolyvPlayerTopFragment;
 import com.easefun.polyvsdk.fragment.PolyvPlayerViewPagerFragment;
+import com.easefun.polyvsdk.log.PolyvCommonLog;
 import com.easefun.polyvsdk.marquee.PolyvMarqueeItem;
 import com.easefun.polyvsdk.marquee.PolyvMarqueeView;
 import com.easefun.polyvsdk.player.PolyvPlayerAnswerView;
@@ -454,6 +455,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
     private void initView() {
         videoView.setOpenAd(true);
         videoView.setOpenTeaser(true);
+        videoView.setOpenTeaserWhenLocalPlay(true);
         videoView.setOpenQuestion(true);
         videoView.setOpenSRT(true);
         videoView.setOpenPreload(true, 2);
@@ -884,6 +886,26 @@ public class PolyvPlayerActivity extends FragmentActivity {
             public void onClick(View v) {
                 flowPlayLayout.setVisibility(View.GONE);
                 videoView.start();
+            }
+        });
+
+        mediaController.setOnDragSeekListener(new PolyvPlayerMediaController.OnDragSeekListener() {
+            @Override
+            public void onDragSeekSuccess(int positionBeforeSeek, int positionAfterSeek) {
+                PolyvCommonLog.d(TAG, "drag seek success, position before seek = " + positionBeforeSeek + ", position after seek = " + positionAfterSeek);
+            }
+
+            @Override
+            public void onDragSeekBan(int dragSeekStrategy) {
+                // 拖拽参数在PolyvPlayerMediaController#dragSeekStrategy设置
+                // 当设置dragSeekStrategy为DRAG_SEEK_PLAYED或者DRAG_SEEK_BAN，在触发禁止拖拽时会回调
+                if (dragSeekStrategy == PolyvPlayerMediaController.DRAG_SEEK_PLAYED) {
+                    PolyvCommonLog.d(TAG, "drag seek ban because dragSeekStrategy is set to DRAG_SEEK_PLAYED");
+                    Toast.makeText(PolyvPlayerActivity.this, "只能拖拽到已播放过的进度", Toast.LENGTH_SHORT).show();
+                } else if (dragSeekStrategy == PolyvPlayerMediaController.DRAG_SEEK_BAN) {
+                    PolyvCommonLog.d(TAG, "drag seek ban because dragSeekStrategy is set to DRAG_SEEK_BAN");
+                    Toast.makeText(PolyvPlayerActivity.this, "已设置禁止拖拽进度", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 

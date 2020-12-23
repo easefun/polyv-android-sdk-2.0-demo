@@ -241,11 +241,10 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
 
         if (!questionVO.illustrationIsEmpty()) {
             answerIllustration.setVisibility(VISIBLE);
-            PolyvImageLoader.getInstance().loadImageOrigin(getContext(), questionVO.getIllustration(), answerIllustration, R.drawable.polyv_avatar_def);
+            PolyvImageLoader.getInstance().loadImageOrigin(getContext(), fixUrl(questionVO.getIllustration()), answerIllustration, R.drawable.polyv_loading);
         } else if (!TextUtils.isEmpty(imgUrl)) {
             answerIllustration.setVisibility(VISIBLE);
-            PolyvImageLoader.getInstance().loadImageOrigin(getContext(), imgUrl, answerIllustration, R.drawable.polyv_avatar_def);
-
+            PolyvImageLoader.getInstance().loadImageOrigin(getContext(), fixUrl(imgUrl), answerIllustration, R.drawable.polyv_loading);
         } else {
             answerIllustration.setVisibility(GONE);
         }
