@@ -13,6 +13,9 @@
 
     <!-- 投屏功能所需 -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /><!-- 属于android6.0运行时权限-->
+    <!--投屏SDK统计用的权限，去除掉也不影响投屏使用-->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
