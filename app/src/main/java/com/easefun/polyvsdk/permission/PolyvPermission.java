@@ -3,14 +3,10 @@ package com.easefun.polyvsdk.permission;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
-import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -75,31 +71,31 @@ public class PolyvPermission {
         switch (type) {
             case play:
                 //播放视频需要的权限
-                permissions.add(Manifest.permission.READ_PHONE_STATE);
+//                permissions.add(Manifest.permission.READ_PHONE_STATE);
                 //投屏功能在android9.0获取wifi名称及搜索设备所需的权限
                 permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
                 permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
                 resultCode = OperationType.play.getNum();
                 break;
             case readImei:
-                permissions.add(Manifest.permission.READ_PHONE_STATE);
+//                permissions.add(Manifest.permission.READ_PHONE_STATE);
                 resultCode = OperationType.readImei.getNum();
                 break;
             case download:
                 //下载需要的权限
-                permissions.add(Manifest.permission.READ_PHONE_STATE);
+//                permissions.add(Manifest.permission.READ_PHONE_STATE);
                 permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
                 resultCode = OperationType.download.getNum();
                 break;
             case upload:
                 //上传需要的权限
-                permissions.add(Manifest.permission.READ_PHONE_STATE);
+//                permissions.add(Manifest.permission.READ_PHONE_STATE);
                 permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
                 resultCode = OperationType.upload.getNum();
                 break;
             case playAndDownload:
                 //播放视频和下载需要的权限
-                permissions.add(Manifest.permission.READ_PHONE_STATE);
+//                permissions.add(Manifest.permission.READ_PHONE_STATE);
                 //投屏功能在android9.0获取wifi名称及搜索设备所需的权限
                 permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
                 permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
