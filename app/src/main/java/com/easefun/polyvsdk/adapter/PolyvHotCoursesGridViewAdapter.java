@@ -9,15 +9,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.easefun.polyvsdk.R;
-import com.easefun.polyvsdk.sub.vlms.entity.PolyvCoursesInfo;
+import com.easefun.polyvsdk.sub.vlms.entity.PolyvVlmsCoursesInfo;
 import com.easefun.polyvsdk.util.PolyvImageLoader;
-import com.easefun.polyvsdk.util.PolyvVlmsHelper;
 
 import java.util.List;
 
 public class PolyvHotCoursesGridViewAdapter extends BaseAdapter {
 	private Context context;
-	private List<PolyvVlmsHelper.CoursesDetail> lists;
+	private List<PolyvVlmsCoursesInfo> lists;
 	private LayoutInflater inflater;
 	private ViewHolder viewHolder;
 
@@ -26,7 +25,7 @@ public class PolyvHotCoursesGridViewAdapter extends BaseAdapter {
 		TextView tv_teac, tv_title, tv_learn, tv_money;
 	}
 
-	public PolyvHotCoursesGridViewAdapter(Context context, List<PolyvVlmsHelper.CoursesDetail> lists) {
+	public PolyvHotCoursesGridViewAdapter(Context context, List<PolyvVlmsCoursesInfo> lists) {
 		this.context = context;
 		this.lists = lists;
 		this.inflater = LayoutInflater.from(context);
@@ -61,18 +60,18 @@ public class PolyvHotCoursesGridViewAdapter extends BaseAdapter {
 		} else {
 			viewHolder = (ViewHolder) convertView.getTag();
 		}
-		PolyvVlmsHelper.CoursesDetail coursesDetail = lists.get(position);
-		viewHolder.tv_title.setText(coursesDetail.course.title);
-		viewHolder.tv_teac.setText(coursesDetail.teacher.teacher_name);
-		viewHolder.tv_learn.setText(coursesDetail.course.student_count + "人在学");
-		if (coursesDetail.course.is_free.equals(PolyvCoursesInfo.IS_FREE_YES)) {
+		PolyvVlmsCoursesInfo coursesDetail = lists.get(position);
+		viewHolder.tv_title.setText(coursesDetail.getTitle());
+		viewHolder.tv_teac.setText(coursesDetail.getTeacherName());
+		viewHolder.tv_learn.setText(coursesDetail.getStudentNum() + "人在学");
+		if (coursesDetail.getIsFree().equals(PolyvVlmsCoursesInfo.IS_FREE_YES)) {
 			viewHolder.tv_money.setText("免费");
 			viewHolder.tv_money.setTextColor(context.getResources().getColor(R.color.center_right_text_color_green));
 		} else {
-			viewHolder.tv_money.setText("￥" + coursesDetail.course.price);
+			viewHolder.tv_money.setText("￥" + coursesDetail.getPrice());
 			viewHolder.tv_money.setTextColor(context.getResources().getColor(R.color.center_bottom_text_color_red));
 		}
-		PolyvImageLoader.getInstance().loadImageWithCache(context, coursesDetail.course.cover_image, viewHolder.iv_demo, R.drawable.polyv_demo);
+		PolyvImageLoader.getInstance().loadImageWithCache(context, coursesDetail.getCoverImage(), viewHolder.iv_demo, R.drawable.polyv_demo);
 		return convertView;
 	}
 }

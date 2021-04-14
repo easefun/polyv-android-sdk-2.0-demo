@@ -71,33 +71,29 @@ public class PolyvPermission {
         switch (type) {
             case play:
                 //播放视频需要的权限
-//                permissions.add(Manifest.permission.READ_PHONE_STATE);
                 //投屏功能在android9.0获取wifi名称及搜索设备所需的权限
-                permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+                //Android 10起需要精确定位权限，才能获取wifi详细信息
+                permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
                 permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
                 resultCode = OperationType.play.getNum();
                 break;
             case readImei:
-//                permissions.add(Manifest.permission.READ_PHONE_STATE);
                 resultCode = OperationType.readImei.getNum();
                 break;
             case download:
                 //下载需要的权限
-//                permissions.add(Manifest.permission.READ_PHONE_STATE);
                 permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
                 resultCode = OperationType.download.getNum();
                 break;
             case upload:
                 //上传需要的权限
-//                permissions.add(Manifest.permission.READ_PHONE_STATE);
                 permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
                 resultCode = OperationType.upload.getNum();
                 break;
             case playAndDownload:
                 //播放视频和下载需要的权限
-//                permissions.add(Manifest.permission.READ_PHONE_STATE);
                 //投屏功能在android9.0获取wifi名称及搜索设备所需的权限
-                permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+                permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
                 permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
                 resultCode = OperationType.playAndDownload.getNum();
                 break;
@@ -138,16 +134,14 @@ public class PolyvPermission {
         if (operationType == null) return false;
         switch (operationType) {
             case play:
-                return hasPermission(Manifest.permission.READ_PHONE_STATE)
+                return hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)
                         && hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
             case download:
-                return hasPermission(Manifest.permission.READ_PHONE_STATE)
-                        && hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                return hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
             case upload:
-                return hasPermission(Manifest.permission.READ_PHONE_STATE)
-                        && hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                return hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
             case playAndDownload:
-                return hasPermission(Manifest.permission.READ_PHONE_STATE)
+                return hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)
                         && hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
 

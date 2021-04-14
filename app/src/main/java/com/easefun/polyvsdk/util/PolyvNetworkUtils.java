@@ -241,6 +241,7 @@ public class PolyvNetworkUtils {
             WifiInfo wifiInfo = wifiManager.getConnectionInfo();
             if (null != wifiInfo) {
                 int networkId = wifiInfo.getNetworkId();
+                ssid = "<unknown ssid>".equals(wifiInfo.getSSID()) ? "" : wifiInfo.getSSID();
                 List<WifiConfiguration> wifiConfigurations = wifiManager.getConfiguredNetworks();
                 if (null != wifiConfigurations) {
                     for (WifiConfiguration wifiConfiguration : wifiConfigurations) {

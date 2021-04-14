@@ -15,9 +15,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.easefun.polyvsdk.R;
-import com.easefun.polyvsdk.sub.vlms.entity.PolyvCoursesInfo;
+import com.easefun.polyvsdk.sub.vlms.entity.PolyvVlmsCoursesInfo;
 import com.easefun.polyvsdk.util.PolyvScreenUtils;
 import com.easefun.polyvsdk.util.PolyvShareUtils;
+import com.google.gson.Gson;
 
 public class PolyvPlayerTopFragment extends Fragment implements View.OnClickListener {
     //fragmentView
@@ -34,7 +35,7 @@ public class PolyvPlayerTopFragment extends Fragment implements View.OnClickList
     private LinearLayout ll_shareqq, ll_sharewechat, ll_shareweibo;
     private TextView tv_title;
 
-    public static final String SHARE_TEXT = "http://www.polyv.net";
+    public static final String SHARE_TEXT = "https://www.polyv.net";
 
     @Nullable
     @Override
@@ -63,10 +64,11 @@ public class PolyvPlayerTopFragment extends Fragment implements View.OnClickList
 
     private void initView() {
         initPopupWindow();
-        PolyvCoursesInfo.Course course = getArguments().getParcelable("course");
+        String courseString = getArguments().getString("course");
+        PolyvVlmsCoursesInfo course = new Gson().fromJson(courseString, PolyvVlmsCoursesInfo.class);
         String title = "";
         if (course != null)
-            title = course.title;
+            title = course.getTitle();
         tv_title.setText(title);
         tv_title.requestFocus();
         iv_finish.setOnClickListener(this);

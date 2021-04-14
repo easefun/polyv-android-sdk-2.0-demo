@@ -9,4 +9,5 @@
     <string name="answer_wrong">回答错误</string>
     <string name="no_choice">您还未选择任何答案</string>
 
+    <string name="no_answer_supply_blank"> 请填写答案后提交</string>
 </resources>

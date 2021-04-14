@@ -6,11 +6,11 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.easefun.polyvsdk.PolyvSDKClient;
 import com.easefun.polyvsdk.PolyvUserClient;
 import com.easefun.polyvsdk.R;
-import com.easefun.polyvsdk.screencast.utils.PolyvToastUtil;
 
 /**
  * @author df
@@ -64,7 +64,7 @@ public class PolyvLoginActivity extends Activity implements View.OnClickListener
         }
         hasLogout = true;
         PolyvUserClient.getInstance().login(viewers[index++], this);
-        PolyvToastUtil.show(this, "切换账户到：" + PolyvSDKClient.getInstance().getViewerId());
+        Toast.makeText(this, "切换账户到：" + PolyvSDKClient.getInstance().getViewerId(), Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -79,7 +79,7 @@ public class PolyvLoginActivity extends Activity implements View.OnClickListener
                 break;
             case R.id.logout:
                 PolyvUserClient.getInstance().logout(this);
-                PolyvToastUtil.show(this, "登出账户");
+                Toast.makeText(this, "登出账户", Toast.LENGTH_SHORT).show();
                 break;
             case  R.id.gohome:
                 Intent intent = new Intent(this,PolyvMainActivity.class);

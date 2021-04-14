@@ -47,7 +47,7 @@ public class PolyvPlayerViewPagerFragment extends Fragment {
         talkFragment = new PolyvTalkFragment();
         lists.add(curFragment);
         lists.add(sumFragment);
-        lists.add(talkFragment);
+//        lists.add(talkFragment);
         for (int i = 0; i < lists.size(); i++)
             lists.get(i).setArguments(getActivity().getIntent().getExtras());
         adapter = new PolyvPlayerFragmentAdapter(getActivity().getSupportFragmentManager(), lists);

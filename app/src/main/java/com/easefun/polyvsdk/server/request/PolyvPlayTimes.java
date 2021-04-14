@@ -26,7 +26,7 @@ public class PolyvPlayTimes {
      * 批量获取视频播放次数，详细请看
      * http://dev.polyv.net/2017/videoproduct/v-api/v-api-vmanage/v-api-vmanage-info/getplaytimes/
      */
-    private static final String PLAY_TIMES_URL = "http://api.polyv.net/v2/data/%s/play-times";
+    private static final String PLAY_TIMES_URL = "https://api.polyv.net/v2/data/%s/play-times";
 
     public static PolyvPlayTimesResult requestPlayTimes(@NonNull String userId, @NonNull String secretKey, @NonNull ArrayList<String> vids, @NonNull ArrayList<String> exceptionList) {
         String vidsStr = TextUtils.join(",", vids);

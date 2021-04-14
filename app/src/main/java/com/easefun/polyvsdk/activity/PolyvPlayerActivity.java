@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,6 +37,9 @@ import com.easefun.polyvsdk.PolyvBitRate;
 import com.easefun.polyvsdk.PolyvDownloader;
 import com.easefun.polyvsdk.PolyvSDKUtil;
 import com.easefun.polyvsdk.R;
+import com.easefun.polyvsdk.cast.PolyvScreencastManager;
+import com.easefun.polyvsdk.cast.widget.PolyvScreencastSearchLayout;
+import com.easefun.polyvsdk.cast.widget.PolyvScreencastStatusLayout;
 import com.easefun.polyvsdk.fragment.PolyvPlayerDanmuFragment;
 import com.easefun.polyvsdk.fragment.PolyvPlayerTabFragment;
 import com.easefun.polyvsdk.fragment.PolyvPlayerTopFragment;
@@ -60,14 +64,14 @@ import com.easefun.polyvsdk.ppt.PolyvPPTDirLayout;
 import com.easefun.polyvsdk.ppt.PolyvPPTErrorLayout;
 import com.easefun.polyvsdk.ppt.PolyvPPTView;
 import com.easefun.polyvsdk.ppt.PolyvViceScreenLayout;
-import com.easefun.polyvsdk.screencast.PolyvScreencastHelper;
 import com.easefun.polyvsdk.service.PolyvBackgroundPlayService;
 import com.easefun.polyvsdk.srt.PolyvSRTItemVO;
-import com.easefun.polyvsdk.sub.vlms.entity.PolyvCoursesInfo;
+import com.easefun.polyvsdk.sub.vlms.entity.PolyvVlmsCoursesInfo;
 import com.easefun.polyvsdk.util.PolyvCustomQuestionBuilder;
 import com.easefun.polyvsdk.util.PolyvImageLoader;
 import com.easefun.polyvsdk.util.PolyvNetworkDetection;
 import com.easefun.polyvsdk.util.PolyvScreenUtils;
+import com.easefun.polyvsdk.video.IPolyvVideoView;
 import com.easefun.polyvsdk.video.PolyvMediaInfoType;
 import com.easefun.polyvsdk.video.PolyvPlayErrorReason;
 import com.easefun.polyvsdk.video.PolyvSeekType;
@@ -96,17 +100,17 @@ import com.easefun.polyvsdk.video.listener.IPolyvOnPreparedListener2;
 import com.easefun.polyvsdk.video.listener.IPolyvOnTeaserCountDownListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnTeaserOutListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnVideoPlayErrorListener2;
+import com.easefun.polyvsdk.video.listener.IPolyvOnVideoPlayeErrorListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnVideoSRTListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnVideoSRTPreparedListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnVideoStatusListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnVideoTimeoutListener;
 import com.easefun.polyvsdk.view.PolyvLoadingLayout;
-import com.easefun.polyvsdk.view.PolyvScreencastSearchLayout;
-import com.easefun.polyvsdk.view.PolyvScreencastStatusLayout;
 import com.easefun.polyvsdk.view.PolyvTouchSpeedLayout;
 import com.easefun.polyvsdk.vo.PolyvADMatterVO;
 import com.easefun.polyvsdk.vo.PolyvQuestionVO;
 import com.easefun.polyvsdk.vo.PolyvVideoVO;
+import com.google.gson.Gson;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -121,7 +125,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
     private PolyvPlayerDanmuFragment danmuFragment;
     private ImageView iv_vlms_cover;
     //投屏相关
-    private PolyvScreencastHelper screencastHelper;
+    private PolyvScreencastManager screencastManager;
     private PolyvScreencastStatusLayout fl_screencast_status;
     private PolyvScreencastSearchLayout fl_screencast_search, fl_screencast_search_land;
     private ImageView iv_screencast_search, iv_screencast_search_land;
@@ -361,9 +365,16 @@ public class PolyvPlayerActivity extends FragmentActivity {
             ft.commit();
             return;
         }
+        String courseString = getIntent().getStringExtra("course");
+        PolyvVlmsCoursesInfo coursesInfo = new Gson().fromJson(courseString, PolyvVlmsCoursesInfo.class);
+        if(coursesInfo == null){
+            return;
+        }
+        String coverImage = coursesInfo.getCoverImage();
         PolyvImageLoader.getInstance()
-                .loadImageOrigin(PolyvPlayerActivity.this, ((PolyvCoursesInfo.Course) getIntent().getExtras().getParcelable("course")).cover_image,
+                .loadImageOrigin(PolyvPlayerActivity.this, coverImage,
                         iv_vlms_cover = ((ImageView) findViewById(R.id.iv_vlms_cover)),R.drawable.polyv_pic_demo );
+
         topFragment = new PolyvPlayerTopFragment();
         topFragment.setArguments(getIntent().getExtras());
         tabFragment = new PolyvPlayerTabFragment();
@@ -503,7 +514,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
                         touchSpeedLayout.updateStatus(true);
                         break;
                     case PolyvMediaInfoType.MEDIA_INFO_BUFFERING_END:
-                        if (!videoView.isPausState()){
+                        if (!videoView.isPausState()) {
                             danmuFragment.resume(false);
                         }
                         touchSpeedLayout.updateStatus(false);
@@ -536,6 +547,29 @@ public class PolyvPlayerActivity extends FragmentActivity {
             }
         });
 
+        videoView.setOnAudioFocusChangeListener(new PolyvVideoView.OnAudioFocusChangeListener() {
+            @Override
+            public void onAudioFocusChange(IPolyvVideoView videoView, int focusChange) {
+                switch (focusChange) {
+                    // 重新获得焦点
+                    case AudioManager.AUDIOFOCUS_GAIN:
+                        if (!videoView.isPlaying()) {
+                            videoView.start();
+                        }
+                        break;
+                    // 永久丢失焦点，如被其他播放器抢占
+                    case AudioManager.AUDIOFOCUS_LOSS:
+                        // 短暂丢失焦点，如来电
+                    case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                        if (videoView.isPlaying()) {
+                            videoView.pause(false, false);
+                        }
+                        break;
+                    default:
+                }
+            }
+        });
+
         videoView.setOnChangeModeListener(new IPolyvOnChangeModeListener() {
             @Override
             public void onChangeMode(String changedMode) {
@@ -561,10 +595,17 @@ public class PolyvPlayerActivity extends FragmentActivity {
             }
         });
 
+        videoView.setOnVideoPlayerErrorListener(new IPolyvOnVideoPlayeErrorListener() {
+            @Override
+            public void onVideoPlayError(String tipsZhCn,String tipsEn, String code) {
+                playErrorView.show(tipsZhCn,code, videoView);
+            }
+        });
+
         videoView.setOnVideoPlayErrorListener(new IPolyvOnVideoPlayErrorListener2() {
             @Override
             public boolean onVideoPlayError(@PolyvPlayErrorReason.PlayErrorReason int playErrorReason) {
-                playErrorView.show(playErrorReason, videoView);
+                    playErrorView.show(playErrorReason, videoView);
                 return true;
             }
         });
@@ -694,7 +735,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
             @Override
             public void callback(boolean start, boolean end) {
                 Log.d(TAG, String.format("LeftUp %b %b brightness %d", start, end, videoView.getBrightness(PolyvPlayerActivity.this)));
-                if(mediaController.isLocked()){
+                if (mediaController.isLocked()) {
                     return;
                 }
 
@@ -713,7 +754,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
             @Override
             public void callback(boolean start, boolean end) {
                 Log.d(TAG, String.format("LeftDown %b %b brightness %d", start, end, videoView.getBrightness(PolyvPlayerActivity.this)));
-                if(mediaController.isLocked()){
+                if (mediaController.isLocked()) {
                     return;
                 }
                 int brightness = videoView.getBrightness(PolyvPlayerActivity.this) - 5;
@@ -732,7 +773,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
             public void callback(boolean start, boolean end) {
                 Log.d(TAG, String.format("RightUp %b %b volume %d", start, end, videoView.getVolume()));
                 // 加减单位最小为10，否则无效果
-                if(mediaController.isLocked()){
+                if (mediaController.isLocked()) {
                     return;
                 }
                 int volume = videoView.getVolume() + 10;
@@ -770,7 +811,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
             public void callback(boolean start, int times, boolean end) {
                 // 左滑事件
                 Log.d(TAG, String.format("SwipeLeft %b %b", start, end));
-                if(mediaController.isLocked()){
+                if (mediaController.isLocked()) {
                     return;
                 }
                 mediaController.hideTickTips();
@@ -805,7 +846,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
             public void callback(boolean start, int times, boolean end) {
                 // 右滑事件
                 Log.d(TAG, String.format("SwipeRight %b %b", start, end));
-                if(mediaController.isLocked()){
+                if (mediaController.isLocked()) {
                     return;
                 }
                 mediaController.hideTickTips();
@@ -1035,7 +1076,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
                 @Override
                 public void onClickStart() {
                     //在播放视频时设置viewerId方法使用示例
-                    videoView.setVidWithViewerId(vid, bitrate, isMustFromLocal,"123");
+                    videoView.setVidWithViewerId(vid, bitrate, isMustFromLocal, "123");
                 }
             });
 
@@ -1100,7 +1141,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
         mediaController.disable();
         fl_screencast_search.destroy();
         fl_screencast_search_land.destroy();
-        screencastHelper.release();
+        screencastManager.release();
         networkDetection.destroy();
         if (viceScreenLayout != null) {
             viceScreenLayout.destroy();
@@ -1172,7 +1213,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
     private void resetVideoHeight() {
         //onCreate中初始化了高度，PolyvScreenUtils.generateHeight16_9(this);
         //如果高度相同，则画中画高度没有成功缩小
-        if(viewLayout.getHeight() == PolyvScreenUtils.getHeight16_9() && isInPipMode()){
+        if (viewLayout.getHeight() == PolyvScreenUtils.getHeight16_9() && isInPipMode()) {
             LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) viewLayout.getLayoutParams();
             params.height = LinearLayout.LayoutParams.MATCH_PARENT;
             viewLayout.setLayoutParams(params);
@@ -1263,15 +1304,15 @@ public class PolyvPlayerActivity extends FragmentActivity {
      * 自定义问答必须在视频加载完成{@link PolyvVideoView#setOnPreparedListener(IPolyvOnPreparedListener2)}后才能设置，
      * 只有视频加载完成后才能知道视频本身是否有问答。视频本身问答加载后再加入自定义问答保证程序一致性。
      */
-    private void showCustomQuestion(){
+    private void showCustomQuestion() {
         //问题1
         PolyvCustomQuestionBuilder.ChoiceList choiceList = new PolyvCustomQuestionBuilder.ChoiceList();
         choiceList.addChoice("晴天", true)
-                .addChoice("雨天",true)
+                .addChoice("雨天", true)
                 .addChoice("大雾");
         try {
             PolyvCustomQuestionBuilder.create(questionView)
-                    .mustParam("1231", "今天天气怎么样",choiceList)
+                    .mustParam("1231", "今天天气怎么样", choiceList)
                     .skip(true)
                     .illustration(null)
                     .rightAnswerTip("答对了")
@@ -1279,7 +1320,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
                     .listen(new PolyvCustomQuestionBuilder.IPolyvOnCustomQuestionAnswerResultListener() {
                         @Override
                         public void onAnswerResult(PolyvQuestionVO polyvQuestionVO) {
-                            Log.d(TAG,polyvQuestionVO.getExamId());
+                            Log.d(TAG, polyvQuestionVO.getExamId());
                         }
                     })
                     .showTime(-1)
@@ -1297,13 +1338,13 @@ public class PolyvPlayerActivity extends FragmentActivity {
                 .addChoice("潮汐");
         try {
             PolyvCustomQuestionBuilder.create(questionView)
-                    .mustParam("1232", "今天天气怎么样",choiceList2)
+                    .mustParam("1232", "今天天气怎么样", choiceList2)
                     .skip(true)
                     .illustration(null)
                     .listen(new PolyvCustomQuestionBuilder.IPolyvOnCustomQuestionAnswerResultListener() {
                         @Override
                         public void onAnswerResult(PolyvQuestionVO polyvQuestionVO) {
-                            Log.d(TAG,polyvQuestionVO.getExamId());
+                            Log.d(TAG, polyvQuestionVO.getExamId());
                         }
                     })
                     .showTime(70)
@@ -1322,14 +1363,14 @@ public class PolyvPlayerActivity extends FragmentActivity {
         PolyvQuestionVO questionVO3 = null;
         try {
             questionVO3 = PolyvCustomQuestionBuilder.create(questionView)
-                    .mustParam("1233", "今天风力怎么样？",choiceList3)
+                    .mustParam("1233", "今天风力怎么样？", choiceList3)
                     .skip(false)
                     .wrongTime(60)
                     .illustration(null)
                     .listen(new PolyvCustomQuestionBuilder.IPolyvOnCustomQuestionAnswerResultListener() {
                         @Override
                         public void onAnswerResult(PolyvQuestionVO polyvQuestionVO) {
-                            Log.d(TAG,polyvQuestionVO.getExamId());
+                            Log.d(TAG, polyvQuestionVO.getExamId());
                         }
                     }).toPolyvQuestionVO();
         } catch (Exception e) {
@@ -1351,7 +1392,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
                     .listen(new PolyvCustomQuestionBuilder.IPolyvOnCustomQuestionAnswerResultListener() {
                         @Override
                         public void onAnswerResult(PolyvQuestionVO polyvQuestionVO) {
-                            Log.d(TAG,polyvQuestionVO.getExamId());
+                            Log.d(TAG, polyvQuestionVO.getExamId());
                         }
                     })
                     .showTime(50)
@@ -1372,12 +1413,12 @@ public class PolyvPlayerActivity extends FragmentActivity {
         fl_screencast_status.setVideoView(videoView);
         fl_screencast_status.setMediaController(mediaController);
 
-        screencastHelper = PolyvScreencastHelper.getInstance(null);//如果之前已经初始化，那么这里可以传null
+        screencastManager = PolyvScreencastManager.getInstance(null);//如果之前已经初始化，那么这里可以传null
 
         fl_screencast_search.setScreencastStatusLayout(fl_screencast_status);
-        fl_screencast_search.setScreencastHelper(screencastHelper);
+        fl_screencast_search.setScreencastManager(screencastManager);
         fl_screencast_search_land.setScreencastStatusLayout(fl_screencast_status);
-        fl_screencast_search_land.setScreencastHelper(screencastHelper);
+        fl_screencast_search_land.setScreencastManager(screencastManager);
 
         iv_screencast_search.setOnClickListener(new View.OnClickListener() {
             @Override

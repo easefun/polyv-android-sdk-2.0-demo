@@ -2,6 +2,7 @@ package com.easefun.polyvsdk.adapter;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,14 +18,15 @@ import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.bean.PolyvDownloadInfo;
 import com.easefun.polyvsdk.database.PolyvDownloadSQLiteHelper;
 import com.easefun.polyvsdk.download.listener.IPolyvDownloaderProgressListener;
+import com.easefun.polyvsdk.sub.vlms.entity.PolyvVlmsCurriculumInfo;
 import com.easefun.polyvsdk.util.PolyvImageLoader;
-import com.easefun.polyvsdk.util.PolyvVlmsHelper;
+import com.easefun.polyvsdk.util.PolyvTimeUtils;
 import com.easefun.polyvsdk.vo.PolyvVideoVO;
 
 import java.util.List;
 
 public class PolyvCurriculumListViewAdapter extends BaseAdapter {
-    private List<PolyvVlmsHelper.CurriculumsDetail> lists;
+    private List<PolyvVlmsCurriculumInfo> lists;
     private static Context appContext;
     private LayoutInflater inflater;
     private ViewHolder viewHolder;
@@ -35,7 +37,7 @@ public class PolyvCurriculumListViewAdapter extends BaseAdapter {
     private PolyvDownloadSQLiteHelper downloadSQLiteHelper;
     private int currentSelcetBitrate;
 
-    public PolyvCurriculumListViewAdapter(List<PolyvVlmsHelper.CurriculumsDetail> lists, Context context) {
+    public PolyvCurriculumListViewAdapter(List<PolyvVlmsCurriculumInfo> lists, Context context) {
         // lists所指向的对象更新时，这里也会更新
         this.lists = lists;
         this.appContext = context.getApplicationContext();
@@ -92,9 +94,9 @@ public class PolyvCurriculumListViewAdapter extends BaseAdapter {
             // 如果可以下载的码率与当前选择的码率不同，那么把当前item的状态同步到那个item
             mulPutSideIconStatus(downloadInfo.getBitrate(), position, isSelected);
         }
-        // 遍历集合，把当前bit及vid相同的项设置为相同的状态
+        //遍历集合，把当前bit及vid相同的项设置为相同的状态
         for (int i = 0; i < lists.size(); i++) {
-            if (lists.get(i).lecture.vid.equals(downloadInfo.getVid()))
+            if (lists.get(i).getVideoId().equals(downloadInfo.getVid()))
                 temp.put(i, isSelected);
         }
         notifyDataSetChanged();
@@ -154,13 +156,13 @@ public class PolyvCurriculumListViewAdapter extends BaseAdapter {
 
     //生成下载信息对象
     private PolyvDownloadInfo generateDownloadInfo(int position, int bitrate) {
-        PolyvVlmsHelper.CurriculumsDetail curriculum = lists.get(position);
-        PolyvVideoVO videoVO = curriculum.videoVO;
+        PolyvVlmsCurriculumInfo curriculum = lists.get(position);
+        PolyvVideoVO videoVO = curriculum.getVideo();
         long filesize = -1;
         // 获取可以下载码率的文件大小
         while (filesize <= 0 && bitrate > 0)
             filesize = videoVO.getFileSizeMatchVideoType(bitrate--, PolyvDownloader.FILE_VIDEO);
-        return new PolyvDownloadInfo(videoVO.getVid(), videoVO.getDuration(), filesize, bitrate + 1, curriculum.lecture.title);
+        return new PolyvDownloadInfo(videoVO.getVid(), videoVO.getDuration(), filesize, bitrate + 1, curriculum.getTitle());
     }
 
     private static class MyDownloadListener implements IPolyvDownloaderProgressListener {
@@ -246,11 +248,14 @@ public class PolyvCurriculumListViewAdapter extends BaseAdapter {
             viewHolder.tv_added.setVisibility(View.VISIBLE);
         else
             viewHolder.tv_added.setVisibility(View.GONE);
-        PolyvVlmsHelper.CurriculumsDetail polyvCurriculum = lists.get(position);
-        viewHolder.tv_seri.setText(polyvCurriculum.section_name + " " + polyvCurriculum.name);
-        viewHolder.tv_title.setText(polyvCurriculum.lecture.title);
-        viewHolder.tv_time.setText(polyvCurriculum.lecture.duration);
-        PolyvImageLoader.getInstance().loadImageWithCache(appContext,polyvCurriculum.cover_image, viewHolder.iv_demo, R.drawable.polyv_demo );
+        PolyvVlmsCurriculumInfo polyvCurriculum = lists.get(position);
+        viewHolder.tv_title.setText(polyvCurriculum.getTitle());
+        viewHolder.tv_time.setText(PolyvTimeUtils.generateTime(polyvCurriculum.getVideoDuration() * 1000));
+        if (!TextUtils.isEmpty(polyvCurriculum.getVideoCoverImage())) {
+            PolyvImageLoader.getInstance().loadImageWithCache(appContext, polyvCurriculum.getVideoCoverImage(), viewHolder.iv_demo, R.drawable.polyv_demo);
+        } else if (polyvCurriculum.getVideo() != null) {
+            PolyvImageLoader.getInstance().loadImageWithCache(appContext, polyvCurriculum.getVideo().getFirstImage(), viewHolder.iv_demo, R.drawable.polyv_demo);
+        }
         return convertView;
     }
 

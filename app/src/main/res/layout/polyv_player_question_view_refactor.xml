@@ -14,80 +14,82 @@
         android:background="@android:color/white"
         android:orientation="vertical">
 
-        <ScrollView
+
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-            <LinearLayout
+            <RelativeLayout
+                android:id="@+id/rl_fillbank"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <com.easefun.polyvsdk.player.fillblank.FillBlankView
+                    android:id="@+id/fill_blank_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </RelativeLayout>
+
+            <ScrollView
+                android:id="@+id/sc_choice"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_margin="10dp"
-                    android:minHeight="30dp"
-                    android:id="@+id/answer_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="20dp"
-                    android:textSize="17sp"
-                    tools:text="标题" />
+                android:scrollbars="none">
 
                 <LinearLayout
+
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_margin="10dp"
-                    android:orientation="horizontal">
+                    android:orientation="vertical">
 
-                    <ImageView
-                        android:id="@+id/answer_illustration"
+                    <TextView
+                        android:id="@+id/choice_question_content"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="left"
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginRight="16dp"
+                        android:lineSpacingExtra="4dp"
+                        android:minHeight="30dp"
+                        android:textSize="16sp"
+                        tools:text="问题" />
+
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_margin="10dp"
-                        android:layout_weight="1"
-                        android:visibility="gone" />
+                        android:orientation="horizontal">
 
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/answer_list"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1">
-                    </android.support.v7.widget.RecyclerView>
-
-                    <!-- 回答结果提示是文本时显示 -->
-                    <ScrollView
-                        android:id="@+id/answer_response_scroll"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:visibility="gone">
-
-                        <TextView
-                            android:id="@+id/answer_response_content"
+                        <ImageView
+                            android:id="@+id/answer_illustration"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:textColor="#000000"
-                            android:textSize="19sp" />
-                    </ScrollView>
+                            android:layout_margin="16dp"
+                            android:layout_weight="1"
+                            android:visibility="gone" />
+
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/answer_list"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginRight="16dp"
+                            android:layout_marginBottom="16dp"
+                            android:layout_weight="1" />
+
+                    </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
-        </ScrollView>
+            </ScrollView>
+        </RelativeLayout>
+
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
             android:background="#f1f1f1" />
-
-        <TextView
-            android:id="@+id/answer_know"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:gravity="center"
-            android:text="我知道了"
-            android:textColor="#4a90e2"
-            android:textSize="19sp"
-            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/answer_bottom_layout"
@@ -107,7 +109,7 @@
             <View
                 android:layout_width="1dp"
                 android:layout_height="match_parent"
-                android:layout_margin="10dp"
+                android:layout_margin="12dp"
                 android:background="#f1f1f1" />
 
             <TextView
@@ -117,16 +119,77 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="提交"
-                android:textColor="#4a90e2"
+                android:textColor="#4A90E2"
                 android:textSize="16sp" />
         </LinearLayout>
     </LinearLayout>
 
+    <!-- 回答结果提示是文本时显示 -->
+
+    <RelativeLayout
+        android:id="@+id/answer_response_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        android:visibility="gone">
+
+        <ScrollView
+            android:id="@+id/answer_response_scroll"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/answer_response_line">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/answer_response_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="20dp"
+                    android:gravity="center_horizontal"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/answer_response_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_below="@id/answer_response_title"
+                    android:layout_marginLeft="28dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginRight="27dp"
+                    android:textColor="#333333"
+                    android:textSize="14sp" />
+            </RelativeLayout>
+        </ScrollView>
+
+        <View
+            android:id="@+id/answer_response_line"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_above="@+id/answer_know"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:background="#f1f1f1" />
+
+        <TextView
+            android:id="@+id/answer_know"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_alignParentBottom="true"
+            android:gravity="center"
+            android:text="我知道了"
+            android:textColor="#4a90e2"
+            android:textSize="16sp" />
+    </RelativeLayout>
+
     <!-- 回答结果提示没有设置文本时，显示的图片视图 -->
     <LinearLayout
         android:id="@+id/answer_tip_layout"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
+        android:layout_width="140dp"
+        android:layout_height="140dp"
         android:background="@drawable/polyv_answer_back"
         android:gravity="center"
         android:orientation="vertical"
@@ -134,16 +197,18 @@
 
         <ImageView
             android:id="@+id/answer_tip_img"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
             android:layout_gravity="center"
-            tools:src="@drawable/polyv_answer_right" />
+            tools:src="@drawable/polyv_answer_wrong" />
 
         <TextView
             android:id="@+id/polyv_answer_tip_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
+            android:textColor="#F95652"
+            android:textSize="16sp"
             tools:text="回答正确" />
     </LinearLayout>
 </RelativeLayout>

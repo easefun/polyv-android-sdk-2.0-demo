@@ -13,6 +13,8 @@
     <color name="center_layout_color_gray_deep">#e9e9e9</color>
     <color name="center_bottom_text_color_blue">#6ec6ff</color>
     <color name="center_bottom_text_color_red">#ff6000</color>
+    <color name="center_fill_blank_color_blue">#4A90E2</color>
+
     <color name="center_right_text_color_green">#86cf00</color>
     <color name="commom_click_color_gray">#e0e0e0</color>
     <color name="commom_click_color_gray_half">#7fe0e0e0</color>

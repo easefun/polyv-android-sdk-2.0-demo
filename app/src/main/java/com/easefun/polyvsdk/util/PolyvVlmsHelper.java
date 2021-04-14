@@ -37,6 +37,7 @@ import retrofit2.Call;
 /**
  * 对应demo需求的网校接口管理类
  */
+@Deprecated
 public class PolyvVlmsHelper {
     private static final int accessToken_validTime = 1000 * 60 * 60 * 2;
     private static String accessToken, user_id;

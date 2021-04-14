@@ -1,25 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="45dp"
+    android:layout_height="wrap_content"
     android:id="@+id/answer_item_layout"
-
+    android:gravity="left"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal">
 
     <ImageView
-
-        android:layout_margin="10dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="18dp"
         android:id="@+id/answer_check"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+
         android:src="@drawable/polyv_answer_choice_selector" />
 
     <TextView
-        android:layout_margin="10dp"
-        android:layout_marginLeft="10dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="12dp"
         tools:text="@string/action_settings"
-        android:textSize="16sp"
+        android:textSize="14sp"
+        android:textColor="#333333"
         android:id="@+id/answer_content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />

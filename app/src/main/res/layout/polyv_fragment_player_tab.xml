@@ -1,9 +1,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/top_layout_color_white"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
     <LinearLayout
         android:id="@+id/id_switch_tab_ll"
@@ -43,6 +42,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="讨论区"
+            android:visibility="gone"
             android:textColor="@color/polyv_tab_text_color"
             android:textSize="@dimen/center_text_size" >
         </TextView>

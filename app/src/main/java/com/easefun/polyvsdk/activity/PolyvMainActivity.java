@@ -26,13 +26,13 @@ import com.easefun.polyvsdk.PolyvSDKClient;
 import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.adapter.PolyvHotCoursesGridViewAdapter;
 import com.easefun.polyvsdk.permission.PolyvPermission;
-import com.easefun.polyvsdk.sub.vlms.entity.PolyvAddOrderInfo;
-import com.easefun.polyvsdk.sub.vlms.entity.PolyvCoursesInfo;
-import com.easefun.polyvsdk.sub.vlms.listener.PolyvVlmsApiListener;
+import com.easefun.polyvsdk.sub.vlms.entity.PolyvVlmsCoursesInfo;
+import com.easefun.polyvsdk.sub.vlms.entity.PolyvVlmsDataBody;
+import com.easefun.polyvsdk.sub.vlms.listener.PolyvVlmsApiListener2;
+import com.easefun.polyvsdk.sub.vlms.main.PolyvVlmsManager2;
 import com.easefun.polyvsdk.sub.vlms.main.PolyvVlmsTestData;
 import com.easefun.polyvsdk.util.PolyvIdUtil;
 import com.easefun.polyvsdk.util.PolyvSPUtils;
-import com.easefun.polyvsdk.util.PolyvVlmsHelper;
 import com.easefun.polyvsdk.view.PolyvSimpleSwipeRefreshLayout;
 
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public class PolyvMainActivity extends Activity implements OnClickListener {
     // 热门课程的gridView
     private GridView gv_hc;
     private PolyvHotCoursesGridViewAdapter adapter;
-    private List<PolyvVlmsHelper.CoursesDetail> lists;
+    private List<PolyvVlmsCoursesInfo> lists;
     // 在线视频按钮,上传按钮,缓存按钮
     private ImageView iv_online, iv_uplaod, iv_download;
     //标题
@@ -55,9 +55,9 @@ public class PolyvMainActivity extends Activity implements OnClickListener {
     // 下拉刷新控件
     private PolyvSimpleSwipeRefreshLayout srl_bot;
     private TextView tv_guide;
-    private PolyvVlmsHelper vlmsHelper;
+    private PolyvVlmsManager2 vlmsManager2;
     private PolyvPermission polyvPermission = null;
-    private PolyvCoursesInfo.Course course = null;
+    private PolyvVlmsCoursesInfo course = null;
 
     private void findIdAndNew() {
         gv_hc = (GridView) findViewById(R.id.gv_hc);
@@ -71,15 +71,15 @@ public class PolyvMainActivity extends Activity implements OnClickListener {
         srl_bot = (PolyvSimpleSwipeRefreshLayout) findViewById(R.id.srl_bot);
         tv_guide = (TextView) findViewById(R.id.tv_guide);
         lists = new ArrayList<>();
-        vlmsHelper = new PolyvVlmsHelper();
+
+        vlmsManager2 = new PolyvVlmsManager2(this);
     }
 
     private void getCoursesDetail() {
-        // 获取课程信息和老师的名称
-        vlmsHelper.getCoursesDetail(20, PolyvCoursesInfo.IS_FREE_YES, new PolyvVlmsHelper.GetCoursesDetailListener() {
-
+        vlmsManager2.getCourses2(1, 100, new PolyvVlmsApiListener2<PolyvVlmsDataBody<PolyvVlmsCoursesInfo>>() {
             @Override
-            public void fail(Throwable t) {
+            public void onFailed(Throwable throwable) {
+                throwable.printStackTrace();
                 pb_loading.setVisibility(View.GONE);
                 tv_empty.setVisibility(View.GONE);
                 tv_reload.setVisibility(View.GONE);
@@ -94,55 +94,41 @@ public class PolyvMainActivity extends Activity implements OnClickListener {
             }
 
             @Override
-            public void success(List<PolyvVlmsHelper.CoursesDetail> coursesDetails) {
+            public void onSuccess(PolyvVlmsDataBody<PolyvVlmsCoursesInfo> data) {
                 pb_loading.setVisibility(View.GONE);
                 tv_empty.setVisibility(View.GONE);
                 tv_reload.setVisibility(View.GONE);
                 srl_bot.setRefreshing(false);
 
                 srl_bot.setEnabled(true);
-                if (coursesDetails.size() == 0)
+                if (data == null || data.getContents().size()==0) {
                     tv_empty.setVisibility(View.VISIBLE);
-                PolyvMainActivity.this.lists.clear();
-                PolyvMainActivity.this.lists.addAll(coursesDetails);
+                    PolyvMainActivity.this.lists.clear();
+                    return;
+                }
+                PolyvMainActivity.this.lists.addAll(data.getContents());
                 adapter.notifyDataSetChanged();
             }
         });
     }
 
-    private void addOrder(String course_id) {
-        // 已购买的课程课程才能评论
-        vlmsHelper.addOrder(course_id, new PolyvVlmsApiListener.AddOrderListener() {
-            @Override
-            public void fail(Throwable t) {
-                if ("已购买课程".equals(t.getMessage()))
-                    Toast.makeText(PolyvMainActivity.this, "购买课程成功", Toast.LENGTH_SHORT).show();
-                else
-                    Toast.makeText(PolyvMainActivity.this, "购买课程失败\n" + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void success(PolyvAddOrderInfo polyvAddOrderInfo) {
-                Toast.makeText(PolyvMainActivity.this, "购买课程成功", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
     private void initView() {
-        if (!PolyvVlmsTestData.USERID.equals(PolyvSDKClient.getInstance().getUserId())) {
+        if(PolyvVlmsTestData.USERID_2.equals(PolyvSDKClient.getInstance().getUserId()) ||
+                PolyvVlmsTestData.USERID.equals(PolyvSDKClient.getInstance().getUserId())){
+            getCoursesDetail();
+        } else {
             srl_bot.setVisibility(View.GONE);
             tv_guide.setVisibility(View.VISIBLE);
             tv_guide.setText("您的userId是：" + PolyvSDKClient.getInstance().getUserId() + "\n请点击左上角的按钮进入视频列表页查看您的视频");
-        } else {
-            getCoursesDetail();
         }
+
         adapter = new PolyvHotCoursesGridViewAdapter(this, lists);
         gv_hc.setAdapter(adapter);
         gv_hc.setOnItemClickListener(new OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-                course = lists.get(position).course;
+                course = lists.get(position);
                 polyvPermission.applyPermission(PolyvMainActivity.this, PolyvPermission.OperationType.playAndDownload);
             }
         });
@@ -184,7 +170,6 @@ public class PolyvMainActivity extends Activity implements OnClickListener {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        vlmsHelper.destroy();
     }
 
     @Override
@@ -225,7 +210,18 @@ public class PolyvMainActivity extends Activity implements OnClickListener {
                         startActivity(intent);
                         android.os.Process.killProcess(android.os.Process.myPid());
                     }
-                }).setNegativeButton("取消",null).show();
+                }).setNegativeButton("取消",null)
+                .setNeutralButton("课程配置并重启", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        PolyvSPUtils.getInstance(PolyvMainActivity.this).put("SDKConfig", PolyvVlmsTestData.CONFIG_2, true);
+                        final Intent intent = PolyvMainActivity.this.getPackageManager().getLaunchIntentForPackage(PolyvMainActivity.this.getPackageName());
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent);
+                        android.os.Process.killProcess(android.os.Process.myPid());
+                    }
+                })
+                .show();
 
     }
 
@@ -245,12 +241,10 @@ public class PolyvMainActivity extends Activity implements OnClickListener {
                 startActivity(new Intent(PolyvMainActivity.this, PolyvUploadActivity.class));
                 break;
             case playAndDownload:
-                // 为免费的课程添加订单
-                addOrder(course.course_id);
                 Intent intent = new Intent(PolyvMainActivity.this, PolyvPlayerActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putBoolean(PolyvMainActivity.IS_VLMS_ONLINE, true);
-                bundle.putParcelable("course", course);
+                bundle.putString("course", course.toString());
                 intent.putExtras(bundle);
                 startActivity(intent);
                 break;

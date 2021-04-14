@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:background="@drawable/polyv_white_click_to_gray">
 
     <ImageView
@@ -26,11 +26,10 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
+        android:gravity="top"
         android:layout_marginBottom="@dimen/center_bottom_margin_top_s"
         android:layout_marginLeft="@dimen/common_margin_lr"
         android:layout_marginRight="@dimen/common_margin_lr"
-        android:layout_marginTop="@dimen/center_bottom_margin_top_m"
         android:layout_toRightOf="@id/iv_demo"
         android:orientation="vertical">
 
@@ -39,6 +38,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="第一节"
+            android:visibility="gone"
             android:textColor="@color/top_text_color_black"
             android:textSize="@dimen/center_right_text_size_l" />
 
@@ -46,7 +46,6 @@
             android:id="@+id/tv_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/center_bottom_margin_top_s"
             android:ellipsize="end"
             android:lines="2"
             android:text="这是一行测试文本这是一行测试文本这是一行测试文本这是一行测试文本这是一行测试文本这是一行测试文本"

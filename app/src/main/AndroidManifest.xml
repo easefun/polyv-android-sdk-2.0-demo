@@ -11,11 +11,10 @@
     <uses-permission android:name="android.permission.READ_LOGS" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /><!-- 属于android6.0运行时权限-->
 
-    <!-- 投屏功能所需 -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /><!-- 属于android6.0运行时权限-->
-    <!--投屏SDK统计用的权限，去除掉也不影响投屏使用-->
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-
+    <!--投屏SDK统计用的权限，2.15.0中正式移除该权限-->
+<!--    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>-->
+    <!--  Android 10 起需要精确定位才能获取wifi详细信息  -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 

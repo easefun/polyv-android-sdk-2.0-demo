@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.easefun.polyvsdk.player.fillblank.ObservableScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:scrollbars="none">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
+
+        <TextView
+            android:id="@+id/tv_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="16dp"
+            android:lineSpacingExtra="5dp"
+            android:textSize="16sp" />
+    </RelativeLayout>
+</com.easefun.polyvsdk.player.fillblank.ObservableScrollView>

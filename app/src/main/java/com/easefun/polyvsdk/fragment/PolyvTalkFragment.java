@@ -24,11 +24,12 @@ import com.easefun.polyvsdk.adapter.PolyvTalkListViewAdapter;
 import com.easefun.polyvsdk.sub.vlms.auxiliary.PolyvVlmsTransfer;
 import com.easefun.polyvsdk.sub.vlms.entity.PolyvAddAnswerInfo;
 import com.easefun.polyvsdk.sub.vlms.entity.PolyvAddQuestionInfo;
-import com.easefun.polyvsdk.sub.vlms.entity.PolyvCoursesInfo;
 import com.easefun.polyvsdk.sub.vlms.entity.PolyvQuestionInfo;
+import com.easefun.polyvsdk.sub.vlms.entity.PolyvVlmsCoursesInfo;
 import com.easefun.polyvsdk.sub.vlms.listener.PolyvVlmsApiListener;
 import com.easefun.polyvsdk.util.PolyvClipboardUtils;
 import com.easefun.polyvsdk.util.PolyvVlmsHelper;
+import com.google.gson.Gson;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -47,7 +48,7 @@ public class PolyvTalkFragment extends Fragment {
     // 话题，发送的信息
     private String topic, sendMsg;
     // 传过来课程对象
-    private PolyvCoursesInfo.Course course;
+    private PolyvVlmsCoursesInfo course;
     // 加载中控件
     private ProgressBar pb_loading;
     // 空数据控件,重新加载控件
@@ -57,7 +58,7 @@ public class PolyvTalkFragment extends Fragment {
     private PolyvVlmsHelper vlmsHelper;
 
     private void getQuestionsDetail() {
-        vlmsHelper.getQuesionsDetail(course.course_id, new PolyvVlmsHelper.MyQuestionDetailListener() {
+        vlmsHelper.getQuesionsDetail(course.getCourseId()+"", new PolyvVlmsHelper.MyQuestionDetailListener() {
             @Override
             public void fail(Throwable t) {
                 pb_loading.setVisibility(View.GONE);
@@ -78,7 +79,7 @@ public class PolyvTalkFragment extends Fragment {
 
     private void addNewQuestion() {
         String transferMsg = PolyvVlmsTransfer.toHtmlSign(sendMsg);
-        vlmsHelper.addNewQuestion(course.course_id, topic, transferMsg, new PolyvVlmsApiListener.AddNewQuestionListener() {
+        vlmsHelper.addNewQuestion(course.getCourseId()+"", topic, transferMsg, new PolyvVlmsApiListener.AddNewQuestionListener() {
             @Override
             public void fail(Throwable t) {
                 Toast.makeText(getContext(), "发表讨论失败，请重试！", Toast.LENGTH_SHORT).show();
@@ -97,7 +98,7 @@ public class PolyvTalkFragment extends Fragment {
 
     private void addNewAnswer() {
         String transferMsg = PolyvVlmsTransfer.toHtmlSign(sendMsg);
-        vlmsHelper.addNewAnswer(course.course_id, question_id, transferMsg, new PolyvVlmsApiListener.AddNewAnswerListener() {
+        vlmsHelper.addNewAnswer(course.getCourseId()+"", question_id, transferMsg, new PolyvVlmsApiListener.AddNewAnswerListener() {
             @Override
             public void fail(Throwable t) {
                 Toast.makeText(getContext(), "回复失败，请重试！", Toast.LENGTH_SHORT).show();
@@ -125,7 +126,8 @@ public class PolyvTalkFragment extends Fragment {
 
     private void initView() {
         // fragment在onCreate之后才可以获取
-        course = getArguments().getParcelable("course");
+        String courseString = getArguments().getString("course");
+        course = new Gson().fromJson(courseString, PolyvVlmsCoursesInfo.class);
         if (course == null)
             return;
         getQuestionsDetail();

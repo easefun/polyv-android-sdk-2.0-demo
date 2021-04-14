@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -132,8 +133,9 @@ public class PolyvOnlineListViewAdapter extends AbsRecyclerViewAdapter {
             String errorMsg = PolyvErrorMessageUtils.getDownloaderErrorMessage(errorReason.getType(), downloadInfo.getFileType());
             errorMsg += "(error code " + errorReason.getType().getCode() + ")";
             Log.e(TAG, errorMsg);
-            if (contextWeakReference.get() != null)
+            if (contextWeakReference.get() != null) {
                 Toast.makeText(contextWeakReference.get(), errorMsg, Toast.LENGTH_LONG).show();
+            }
         }
 
         @Override
@@ -159,6 +161,17 @@ public class PolyvOnlineListViewAdapter extends AbsRecyclerViewAdapter {
                 public void onloaded(final PolyvVideoVO v) {
                     if (v == null) {
                         Toast.makeText(context, "获取下载信息失败，请重试", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    if (v.getPlayerErrorCode()!=null && !v.getPlayerErrorCode().equals("0")) {
+                        String tipsZhCn = v.getPlayerErrorTipsZhCn();
+                        String tipsEn = v.getPlayerErrorTipsEn();
+
+                        Log.e(TAG, "视频错误状态码: " + v.getPlayerErrorCode());
+                        Log.e(TAG, "视频错误提示: " + tipsZhCn);
+
+                        String errorMessage = TextUtils.isEmpty(tipsZhCn) ? tipsEn : tipsZhCn;
+                            Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show();
                         return;
                     }
 

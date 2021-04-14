@@ -1,7 +1,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <FrameLayout
@@ -138,8 +138,8 @@
             android:id="@+id/auxiliary_loading_progress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
             android:layout_centerInParent="true"
+            android:layout_centerHorizontal="true"
             android:visibility="gone" />
 
         <com.easefun.polyvsdk.player.PolyvPlayerAuxiliaryView
@@ -152,8 +152,8 @@
             android:id="@+id/count_down"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
             android:text="广告也精彩：%d秒"
             android:textColor="@android:color/white"
             android:visibility="gone" />
@@ -171,13 +171,13 @@
             android:layout_height="match_parent"
             android:scaleType="fitXY" />
 
-        <com.easefun.polyvsdk.view.PolyvScreencastStatusLayout
+        <com.easefun.polyvsdk.cast.widget.PolyvScreencastStatusLayout
             android:id="@+id/fl_screencast_status"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone" />
 
-        <com.easefun.polyvsdk.view.PolyvScreencastSearchLayout
+        <com.easefun.polyvsdk.cast.widget.PolyvScreencastSearchLayout
             android:id="@+id/fl_screencast_search_land"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -223,10 +223,10 @@
                     android:background="@drawable/polyv_tv_bg_corners"
                     android:drawableLeft="@drawable/polyv_btn_play_port"
                     android:drawablePadding="5dp"
-                    android:paddingBottom="5dp"
                     android:paddingLeft="15dp"
-                    android:paddingRight="15dp"
                     android:paddingTop="5dp"
+                    android:paddingRight="15dp"
+                    android:paddingBottom="5dp"
                     android:text="流量播放"
                     android:textColor="#ffffff"
                     android:textSize="14sp" />
@@ -237,10 +237,10 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="30dp"
                     android:background="@drawable/polyv_tv_bg_corners"
-                    android:paddingBottom="5dp"
                     android:paddingLeft="15dp"
-                    android:paddingRight="15dp"
                     android:paddingTop="5dp"
+                    android:paddingRight="15dp"
+                    android:paddingBottom="5dp"
                     android:text="取消"
                     android:textColor="#ffffff"
                     android:textSize="14sp" />
@@ -252,14 +252,14 @@
             android:id="@+id/polyv_player_play_error_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone"/>
+            android:visibility="gone" />
 
         <!-- 线路切换界面 -->
         <com.easefun.polyvsdk.player.PolyvPlayerPlayRouteView
             android:id="@+id/polyv_player_play_route_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone"/>
+            android:visibility="gone" />
 
         <com.easefun.polyvsdk.ppt.PolyvPPTErrorLayout
             android:id="@+id/ppt_error_layout_land"
@@ -270,7 +270,7 @@
             android:visibility="gone" />
     </RelativeLayout>
 
-    <com.easefun.polyvsdk.view.PolyvScreencastSearchLayout
+    <com.easefun.polyvsdk.cast.widget.PolyvScreencastSearchLayout
         android:id="@+id/fl_screencast_search"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

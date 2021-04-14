@@ -7,7 +7,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 
 import com.easefun.polyvsdk.PolyvSDKClient;
@@ -30,7 +29,6 @@ public class PolyvOnlineVideoActivity extends Activity implements View.OnClickLi
     private List<RestVO> data;
     private View loadMoreView;
     private int pageNum = 1, pageSize = 20;
-    ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,17 +87,16 @@ public class PolyvOnlineVideoActivity extends Activity implements View.OnClickLi
         @Override
         protected void onPostExecute(List<RestVO> result) {
             super.onPostExecute(result);
-            loadMoreView.setVisibility(View.GONE);
-            if (result == null) {
-                mAdapter.removeFootView();
-                return;
-            }
-            if (result.size() < pageSize)
-                mAdapter.removeFootView();
-            data.addAll(result);
-            if (pageNum * pageSize - pageSize - 1 > 0) {
-                mAdapter.notifyItemRangeChanged(pageNum * pageSize - pageSize - 1, pageSize);
-            } else {
+            synchronized (PolyvOnlineVideoActivity.this) {
+                loadMoreView.setVisibility(View.GONE);
+                if (result == null) {
+                    mAdapter.removeFootView();
+                    return;
+                }
+                if (result.size() < pageSize)
+                    mAdapter.removeFootView();
+                data.addAll(result);
+
                 mAdapter.notifyDataSetChanged();
             }
         }

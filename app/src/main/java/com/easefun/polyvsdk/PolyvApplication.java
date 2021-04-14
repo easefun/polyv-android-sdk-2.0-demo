@@ -3,15 +3,16 @@ package com.easefun.polyvsdk;
 import android.os.AsyncTask;
 import android.support.multidex.MultiDexApplication;
 import android.text.TextUtils;
-import android.util.Log;
 
-import com.easefun.polyvsdk.screencast.PolyvScreencastHelper;
+import com.easefun.polyvsdk.cast.PolyvScreencastManager;
 import com.easefun.polyvsdk.util.PolyvSPUtils;
 
 //继承的类是为了解决64K 引用限制
 public class PolyvApplication extends MultiDexApplication {
 
 	public static final String TAG = PolyvApplication.class.getSimpleName();
+
+	private static final String defaultConfig = "CMWht3MlpVkgpFzrLNAebYi4RdQDY/Nhvk3Kc+qWcck6chwHYKfl9o2aOVBvXVTRZD/14XFzVP7U5un43caq1FXwl0cYmTfimjTmNUYa1sZC1pkHE8gEsRpwpweQtEIiTGVEWrYVNo4/o5jI2/efzA==";
 
 	@Override
 	public void onCreate() {
@@ -26,9 +27,9 @@ public class PolyvApplication extends MultiDexApplication {
 
 	public void initScreencast() {
 		//TODO appId和appSecret需与包名绑定，获取方式请咨询Polyv技术支持
-		PolyvScreencastHelper.init("10747", "34fa2201e4e7441635ca4fa97fd4b21e");//该appId，appSecret仅能在demo中使用
+		PolyvScreencastManager.init("10747", "34fa2201e4e7441635ca4fa97fd4b21e");//该appId，appSecret仅能在demo中使用
 		//初始化单例
-		PolyvScreencastHelper.getInstance(this);
+		PolyvScreencastManager.getInstance(this);
 	}
 
 	//加密秘钥和加密向量，在后台->设置->API接口中获取，用于解密SDK加密串
@@ -47,9 +48,10 @@ public class PolyvApplication extends MultiDexApplication {
 //		openMultiAccount();
 
 		//使用SDK加密串来配置
-		client.settingsWithConfigString("CMWht3MlpVkgpFzrLNAebYi4RdQDY/Nhvk3Kc+qWcck6chwHYKfl9o2aOVBvXVTRZD/14XFzVP7U5un43caq1FXwl0cYmTfimjTmNUYa1sZC1pkHE8gEsRpwpweQtEIiTGVEWrYVNo4/o5jI2/efzA==", aeskey, iv);
+		client.settingsWithConfigString(defaultConfig, aeskey, iv);
 		//初始化SDK设置
 		client.initSetting(getApplicationContext());
+
 
 		//默认开启了HttpDns，使用IPV4
 //		client.enableHttpDns(true);
@@ -84,7 +86,7 @@ public class PolyvApplication extends MultiDexApplication {
 
 		@Override
 		protected String doInBackground(String... params) {
-			String config = PolyvSDKUtil.getUrl2String("http://demo.polyv.net/demo/appkey.php");
+			String config = PolyvSDKUtil.getUrl2String("https://demo.polyv.net/demo/appkey.php");
 			if (TextUtils.isEmpty(config)) {
 				try {
 					throw new Exception("没有取到数据");

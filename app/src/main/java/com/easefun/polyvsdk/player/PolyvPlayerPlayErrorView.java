@@ -100,7 +100,14 @@ public class PolyvPlayerPlayErrorView extends LinearLayout {
         } else {
             videoErrorRoute.setVisibility(View.GONE);
         }
+        videoErrorRetry.setVisibility(VISIBLE);
+        setVisibility(View.VISIBLE);
+    }
 
+    public void show(String tips, String code, @NonNull PolyvVideoView videoView){
+        videoErrorContent.setText(tips);
+        videoErrorRetry.setVisibility(GONE);
+        videoErrorRoute.setVisibility(View.GONE);
         setVisibility(View.VISIBLE);
     }
 

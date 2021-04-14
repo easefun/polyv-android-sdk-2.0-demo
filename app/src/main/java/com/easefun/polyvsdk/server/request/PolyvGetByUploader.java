@@ -45,7 +45,7 @@ public class PolyvGetByUploader {
      * 获取某分类下某子账号的视频列表，详细请看
      * http://dev.polyv.net/2018/videoproduct/v-api/v-api-vmanage/v-api-vmanage-list/get-by-uploader/
      */
-    private static final String GET_BY_UPLOADER_URL = "http://api.polyv.net/v2/video/%s/get-by-uploader";
+    private static final String GET_BY_UPLOADER_URL = "https://api.polyv.net/v2/video/%s/get-by-uploader";
 
     /**
      * 获取某分类下某子账号的视频列表，接口文档

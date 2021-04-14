@@ -66,7 +66,7 @@ public class PolyvPlayerTabFragment extends Fragment implements View.OnClickList
                 else
                     screenWidth = dm.widthPixels;
                 length = v_line.getWidth();
-                int sLength = screenWidth / 3;
+                int sLength = screenWidth / 2;
                 eLength = (sLength - length) / 2;
                 if (viewPagerFragment.getCurrentIndex() == 0)
                     resetViewStatus(0);
