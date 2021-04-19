@@ -637,7 +637,7 @@ public class PolyvScreencastSearchLayout extends FrameLayout implements View.OnC
                         bitrate, playPath, new PolyvScreencastHelper.PolyvCastTransformCallback() {
                             @Override
                             public void onSucceed(Object object, String newPlayPath) {
-                                PolyvCommonLog.d(TAG, "cast: " + playPath);
+                                PolyvCommonLog.d(TAG, "cast: " + newPlayPath);
                                 int videoPosition = screencastStatusLayout.getCurrentPlayPosition();
                                 play((LelinkPlayerInfo) object, newPlayPath, bitrate, videoPosition);
                                 screencastStatusLayout.resetBitRateView(bitrate);
