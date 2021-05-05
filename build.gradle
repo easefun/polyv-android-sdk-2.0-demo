@@ -20,7 +20,11 @@ allprojects {
         maven {url "http://maven.aliyun.com/nexus/content/groups/public/"}
         jcenter()
         maven {url 'http://maven.aliyun.com/nexus/content/repositories/releases/'}
-        maven {url 'https://dl.bintray.com/polyv/android'}
+        mavenCentral()
+        //阿里云效关于central的镜像
+        maven{
+            url 'https://maven.aliyun.com/repository/public'
+        }
     }
 }
 
