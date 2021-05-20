@@ -16,6 +16,7 @@ buildscript {
 
 allprojects {
     repositories {
+        google()
 	    //阿里云的镜像库
         maven {url "http://maven.aliyun.com/nexus/content/groups/public/"}
         jcenter()
@@ -24,6 +25,14 @@ allprojects {
         //阿里云效关于central的镜像
         maven{
             url 'https://maven.aliyun.com/repository/public'
+        }
+        //阿里云效仓库，必须添加
+        maven {
+            credentials {
+                username '609cc5623a10edbf36da9615'
+                password 'EbkbzTNHRJ=P'
+            }
+            url 'https://packages.aliyun.com/maven/repository/2102846-release-8EVsoM/'
         }
     }
 }
