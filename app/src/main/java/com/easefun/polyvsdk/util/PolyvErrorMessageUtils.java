@@ -348,7 +348,10 @@ public class PolyvErrorMessageUtils {
 
             case PolyvPlayErrorReason.QUESTION_SERVER_ERROR:
                 return "视频加载失败，请联系管理员";
-
+            case PolyvPlayErrorReason.HLS_PRIVATE_VERSION_ERROR:
+                return "播放器不支持播放该视频，请升级播放器版本";
+            case PolyvPlayErrorReason.HLS_KEY_VERSION_ERROR:
+                return "请升级播放器版本";
             default:
                 return "当前视频无法播放，请向管理员反馈";
         }
