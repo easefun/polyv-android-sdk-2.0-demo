@@ -7,7 +7,7 @@ import android.os.Message;
 import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,21 +20,20 @@ import com.easefun.polyvsdk.sub.danmaku.auxiliary.BilibiliDanmakuTransfer;
 import com.easefun.polyvsdk.sub.danmaku.auxiliary.PolyvDanmakuTransfer;
 import com.easefun.polyvsdk.sub.danmaku.entity.PolyvDanmakuEntity;
 import com.easefun.polyvsdk.sub.danmaku.entity.PolyvDanmakuInfo;
-import com.easefun.polyvsdk.sub.danmaku.entity.PolyvDanmakuSendResult;
 import com.easefun.polyvsdk.sub.danmaku.main.PolyvDanmakuManager;
 import com.easefun.polyvsdk.video.PolyvVideoView;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
-import java.util.HashMap;
+import net.polyv.danmaku.controller.DrawHandler;
+import net.polyv.danmaku.controller.IDanmakuView;
+import net.polyv.danmaku.danmaku.model.BaseDanmaku;
+import net.polyv.danmaku.danmaku.model.DanmakuTimer;
+import net.polyv.danmaku.danmaku.model.IDisplayer;
+import net.polyv.danmaku.danmaku.model.android.DanmakuContext;
+import net.polyv.danmaku.danmaku.parser.BaseDanmakuParser;
 
-import master.flame.danmaku.controller.DrawHandler;
-import master.flame.danmaku.controller.IDanmakuView;
-import master.flame.danmaku.danmaku.model.BaseDanmaku;
-import master.flame.danmaku.danmaku.model.DanmakuTimer;
-import master.flame.danmaku.danmaku.model.IDisplayer;
-import master.flame.danmaku.danmaku.model.android.DanmakuContext;
-import master.flame.danmaku.danmaku.parser.BaseDanmakuParser;
+import java.util.HashMap;
 
 public class PolyvPlayerDanmuFragment extends Fragment {
     private static final String TAG = PolyvPlayerDanmuFragment.class.getSimpleName();
@@ -116,6 +115,15 @@ public class PolyvPlayerDanmuFragment extends Fragment {
                 // mCacheStufferAdapter) // 图文混排使用SpannedCacheStuffer
                 //.setCacheStuffer(new BackgroundCacheStuffer(), mCacheStufferAdapter) // 绘制背景使用BackgroundCacheStuffer
                 .setMaximumLines(maxLinesPair).preventOverlapping(overlappingEnablePair);
+
+        if (getActivity() != null) {
+            //修复高帧率下弹幕会重复的问题
+            Display display = getActivity().getWindowManager().getDefaultDisplay();
+            float refreshRate = display.getRefreshRate();
+            int rate = (int) (1000 / refreshRate);
+            mContext.setFrameUpateRate(rate);
+        }
+
         iDanmakuView.showFPS(false);
         iDanmakuView.enableDanmakuDrawingCache(false);
 

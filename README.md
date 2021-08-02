@@ -2,7 +2,7 @@
 polyv-android-sdk-2.0.0-demo
 ===
 [![build passing](https://img.shields.io/badge/build-passing-brightgreen.svg)](#)
-[![GitHub release](https://img.shields.io/badge/release-v2.16.2-blue.svg)](https://github.com/easefun/polyv-android-sdk-2.0-demo/releases/tag/v2.16.2)
+[![GitHub release](https://img.shields.io/badge/release-v2.16.3-blue.svg)](https://github.com/easefun/polyv-android-sdk-2.0-demo/releases/tag/v2.16.3)
 
 #### 试用
 可以[点击下载](https://www.pgyer.com/B7aw)，安装试用。

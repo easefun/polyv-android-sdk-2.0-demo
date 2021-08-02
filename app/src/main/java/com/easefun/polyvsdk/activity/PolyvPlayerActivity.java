@@ -472,6 +472,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
         videoView.setOpenPreload(true, 2);
         videoView.setOpenMarquee(true);
         videoView.setAutoContinue(true);
+        videoView.setShouldPlayAdBeforeContinue(false);
         videoView.setNeedGestureDetector(true);
         videoView.setSeekType(PolyvSeekType.SEEKTYPE_NORMAL);
         videoView.setLoadTimeoutSecond(false, 60);//加载超时时间，单位：秒。false：不开启。

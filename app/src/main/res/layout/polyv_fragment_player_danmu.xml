@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <master.flame.danmaku.ui.widget.DanmakuView
+    <net.polyv.danmaku.ui.widget.DanmakuView
         android:id="@+id/dv_danmaku"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
