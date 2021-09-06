@@ -51,24 +51,24 @@ public class PolyvPlayerAuxiliaryView extends RelativeLayout {
 	}
 
 	public PolyvPlayerAuxiliaryView(Context context, AttributeSet attrs, int defStyle) {
-		super(context, attrs, defStyle);
-		mContext = context;
-		initViews();
+        super(context, attrs, defStyle);
+        mContext = context;
+        initViews();
+    }
+    
+    public void setPolyvVideoView(PolyvVideoView mVideoView) {
+    	this.mVideoView = mVideoView;
+    }
+
+	public void setDanmakuFragment(PolyvPlayerDanmuFragment danmakuFragment){
+		this.danmuFragment=danmakuFragment;
 	}
-
-	public void setPolyvVideoView(PolyvVideoView mVideoView) {
-		this.mVideoView = mVideoView;
-	}
-
-	public void setDanmakuFragment(PolyvPlayerDanmuFragment danmakuFragment) {
-		this.danmuFragment = danmakuFragment;
-	}
-
-	private void initViews() {
-		LayoutInflater.from(getContext()).inflate(R.layout.polyv_player_auxiliary_view, this);
-		mAdvertisementImage = (ImageView) findViewById(R.id.advertisement_image);
-		mAdvertisementImage.setOnClickListener(new OnClickListener() {
-
+    
+    private void initViews() {
+    	LayoutInflater.from(getContext()).inflate(R.layout.polyv_player_auxiliary_view, this);
+    	mAdvertisementImage = (ImageView) findViewById(R.id.advertisement_image);
+    	mAdvertisementImage.setOnClickListener(new OnClickListener() {
+			
 			@Override
 			public void onClick(View v) {
 				if (mADMatter == null) return;
@@ -79,7 +79,7 @@ public class PolyvPlayerAuxiliaryView extends RelativeLayout {
 					} catch (MalformedURLException e) {
 						return;
 					}
-
+					
 					Intent intent = new Intent(Intent.ACTION_VIEW);
 					intent.setData(Uri.parse(path));
 					mContext.startActivity(intent);
@@ -87,8 +87,8 @@ public class PolyvPlayerAuxiliaryView extends RelativeLayout {
 			}
 		});
 
-		mStartBtn = (ImageButton) findViewById(R.id.advertisement_start_btn);
-		mStartBtn.setOnClickListener(new OnClickListener() {
+    	mStartBtn = (ImageButton) findViewById(R.id.advertisement_start_btn);
+    	mStartBtn.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
@@ -124,12 +124,12 @@ public class PolyvPlayerAuxiliaryView extends RelativeLayout {
 		//暂停图片广告不需要倒计时，是点击开始按钮继续
 		if (PolyvADMatterVO.LOCATION_PAUSE.equals(adMatter.getLocation())) {
 			mStartBtn.setVisibility(View.VISIBLE);
-		} else {
-			mStartBtn.setVisibility(View.GONE);
-		}
+    	} else {
+    		mStartBtn.setVisibility(View.GONE);
+    	}
 
 		setVisibility(View.VISIBLE);
-	}
+    }
 
 	/**
 	 * 设置图片并显示

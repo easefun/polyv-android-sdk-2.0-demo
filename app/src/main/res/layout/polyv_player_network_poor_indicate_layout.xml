@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/plv_poor_network_indicate_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#E61A1A1A"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="5dp"
+        android:layout_marginBottom="50dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="您的网络环境较差，可尝试"
+            android:textSize="12sp"
+            android:textColor="@android:color/white" />
+
+        <TextView
+            android:id="@+id/plv_poor_network_switch_bitrate_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="切换到流畅"
+            android:textSize="12sp"
+            android:textColor="#31adfe" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="或者选择"
+            android:textSize="12sp"
+            android:textColor="@android:color/white" />
+
+        <TextView
+            android:id="@+id/plv_poor_network_ignore_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="不再显示"
+            android:textSize="12sp"
+            android:textColor="#31adfe" />
+
+    </LinearLayout>
+
+</RelativeLayout>

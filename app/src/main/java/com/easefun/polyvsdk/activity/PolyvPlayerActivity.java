@@ -72,6 +72,7 @@ import com.easefun.polyvsdk.util.PolyvImageLoader;
 import com.easefun.polyvsdk.util.PolyvNetworkDetection;
 import com.easefun.polyvsdk.util.PolyvScreenUtils;
 import com.easefun.polyvsdk.video.IPolyvVideoView;
+import com.easefun.polyvsdk.video.PolyvAudioSeekType;
 import com.easefun.polyvsdk.video.PolyvMediaInfoType;
 import com.easefun.polyvsdk.video.PolyvPlayErrorReason;
 import com.easefun.polyvsdk.video.PolyvSeekType;
@@ -97,6 +98,7 @@ import com.easefun.polyvsdk.video.listener.IPolyvOnPPTStatusListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnPlayPauseListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnPreloadPlayListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnPreparedListener2;
+import com.easefun.polyvsdk.video.listener.IPolyvOnSeekStartListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnTeaserCountDownListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnTeaserOutListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnVideoPlayErrorListener2;
@@ -106,6 +108,7 @@ import com.easefun.polyvsdk.video.listener.IPolyvOnVideoSRTPreparedListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnVideoStatusListener;
 import com.easefun.polyvsdk.video.listener.IPolyvOnVideoTimeoutListener;
 import com.easefun.polyvsdk.view.PolyvLoadingLayout;
+import com.easefun.polyvsdk.view.PolyvNetworkPoorIndicateLayout;
 import com.easefun.polyvsdk.view.PolyvTouchSpeedLayout;
 import com.easefun.polyvsdk.vo.PolyvADMatterVO;
 import com.easefun.polyvsdk.vo.PolyvQuestionVO;
@@ -146,6 +149,10 @@ public class PolyvPlayerActivity extends FragmentActivity {
      * 视频控制栏
      */
     private PolyvPlayerMediaController mediaController = null;
+    /**
+     * 网络较差时切换清晰度提示布局
+     */
+    private PolyvNetworkPoorIndicateLayout networkPoorIndicateLayout = null;
     /**
      * 底部字幕文本视图
      */
@@ -390,6 +397,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
         videoView = (PolyvVideoView) findViewById(R.id.polyv_video_view);
         marqueeView = (PolyvMarqueeView) findViewById(R.id.polyv_marquee_view);
         mediaController = (PolyvPlayerMediaController) findViewById(R.id.polyv_player_media_controller);
+        networkPoorIndicateLayout = (PolyvNetworkPoorIndicateLayout) findViewById(R.id.polyv_network_poor_indicate_layout);
         srtTextView = (TextView) findViewById(R.id.srt);
         topSrtTextView = (TextView) findViewById(R.id.top_srt);
         questionView = (PolyvPlayerAnswerView) findViewById(R.id.polyv_player_question_view);
@@ -475,6 +483,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
         videoView.setShouldPlayAdBeforeContinue(false);
         videoView.setNeedGestureDetector(true);
         videoView.setSeekType(PolyvSeekType.SEEKTYPE_NORMAL);
+        videoView.setAudioSeekType(PolyvAudioSeekType.SEEKTYPE_NORMAL);
         videoView.setLoadTimeoutSecond(false, 60);//加载超时时间，单位：秒。false：不开启。
         videoView.setBufferTimeoutSecond(false, 30);//缓冲超时时间，单位：秒。false：不开启。
         videoView.disableScreenCAP(this, false);//防录屏开关，true为开启，如果开启防录屏，投屏功能将不可用
@@ -486,6 +495,9 @@ public class PolyvPlayerActivity extends FragmentActivity {
                     audioSourceCoverView.onlyShowCover(videoView);
                 } else {
                     audioSourceCoverView.hide();
+                }
+                if (networkPoorIndicateLayout != null) {
+                    networkPoorIndicateLayout.reset();
                 }
                 mediaController.preparedView();
                 progressView.setViewMaxValue(videoView.getDuration());
@@ -513,12 +525,14 @@ public class PolyvPlayerActivity extends FragmentActivity {
                     case PolyvMediaInfoType.MEDIA_INFO_BUFFERING_START:
                         danmuFragment.pause(false);
                         touchSpeedLayout.updateStatus(true);
+                        networkPoorIndicateLayout.notifyBufferingStart();
                         break;
                     case PolyvMediaInfoType.MEDIA_INFO_BUFFERING_END:
                         if (!videoView.isPausState()) {
                             danmuFragment.resume(false);
                         }
                         touchSpeedLayout.updateStatus(false);
+                        networkPoorIndicateLayout.notifyBufferingEnd();
                         break;
                 }
 
@@ -915,6 +929,15 @@ public class PolyvPlayerActivity extends FragmentActivity {
             }
         });
 
+        videoView.setOnSeekStartListener(new IPolyvOnSeekStartListener() {
+            @Override
+            public void onSeekStart(long positionBeforeSeek) {
+                if (networkPoorIndicateLayout != null) {
+                    networkPoorIndicateLayout.notifySeek();
+                }
+            }
+        });
+
         flowPlayButton.setOnClickListener(flowButtonOnClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -948,6 +971,21 @@ public class PolyvPlayerActivity extends FragmentActivity {
                     PolyvCommonLog.d(TAG, "drag seek ban because dragSeekStrategy is set to DRAG_SEEK_BAN");
                     Toast.makeText(PolyvPlayerActivity.this, "已设置禁止拖拽进度", Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+
+        networkPoorIndicateLayout.setOnViewActionListener(new PolyvNetworkPoorIndicateLayout.OnViewActionListener() {
+            @Override
+            public int getLowerBitrate() {
+                if (videoView == null) {
+                    return -1;
+                }
+                return videoView.getBitRate() - 1;
+            }
+
+            @Override
+            public boolean changeBitrate(int bitrate) {
+                return videoView.changeBitRate(bitrate);
             }
         });
 
@@ -1134,6 +1172,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
     protected void onDestroy() {
         super.onDestroy();
         videoView.destroy();
+        networkPoorIndicateLayout.destroy();
         questionView.hide();
         auditionView.hide();
         auxiliaryView.hide();

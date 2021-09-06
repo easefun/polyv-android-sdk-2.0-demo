@@ -81,26 +81,28 @@ public class PolyvScreenUtils {
 
 	// 隐藏状态栏
 	public static void hideStatusBar(Activity activity) {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-			activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-					WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		} else {
+		activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+				WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 			View decorView = activity.getWindow().getDecorView();
-			activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-					WindowManager.LayoutParams.FLAG_FULLSCREEN);
-			int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-					| View.SYSTEM_UI_FLAG_IMMERSIVE | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+			int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN
+					| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+					| View.SYSTEM_UI_FLAG_IMMERSIVE
+					| View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
 			decorView.setSystemUiVisibility(uiOptions);
 		}
 	}
 
 	// 恢复为不全屏状态
 	public static void setDecorVisible(Activity activity) {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-			activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		} else {
+		activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 			View decorView = activity.getWindow().getDecorView();
-			activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 			int uiOptions = View.SYSTEM_UI_FLAG_VISIBLE;
 			decorView.setSystemUiVisibility(uiOptions);
 		}

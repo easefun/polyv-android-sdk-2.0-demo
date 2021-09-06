@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="240dp"
+    android:layout_height="48dp"
+    tools:background="#222326">
+
+    <LinearLayout
+        android:id="@+id/polyv_player_knowledge_word_key_ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginLeft="32dp"
+        android:layout_marginRight="32dp"
+        android:layout_centerVertical="true">
+
+        <TextView
+            android:id="@+id/polyv_player_knowledge_word_key_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            tools:text="WordKey"
+            android:singleLine="true"
+            android:ellipsize="marquee" />
+
+        <TextView
+            android:id="@+id/polyv_player_knowledge_point_count_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            tools:text="(1)"
+            android:layout_marginStart="2dp"
+            android:layout_marginLeft="2dp" />
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/polyv_player_knowledge_word_key_separator_view"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#14FFFFFF"
+        android:layout_alignParentBottom="true" />
+
+</RelativeLayout>

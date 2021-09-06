@@ -13,8 +13,8 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -167,6 +167,16 @@ public class PolyvPlayerAnswerView extends RelativeLayout implements View.OnClic
         polyvAnswerSkip.setOnClickListener(this);
         polyvAnswerSubmit.setOnClickListener(this);
     }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="View方法重写">
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        // 避免全屏情况下事件传递至播放器，引起弹出问答窗口后仍可播放视频
+        return true;
+    }
+
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="功能方法">

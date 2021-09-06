@@ -253,16 +253,26 @@
             android:src="@drawable/polyv_vice_selected" />
 
         <TextView
+            android:id="@+id/tv_knowledge"
+            style="@style/tv_click_controller_land_bottom"
+            android:layout_width="45dp"
+            android:layout_toLeftOf="@id/iv_vice_status"
+            android:text="知识点"
+            android:singleLine="true"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <TextView
             android:id="@+id/tv_ppt_dir"
             style="@style/tv_click_controller_land_bottom"
-            android:layout_toLeftOf="@id/iv_vice_status"
+            android:layout_toLeftOf="@id/tv_knowledge"
             android:text="目录" />
 
         <TextView
             android:id="@+id/tv_route"
             style="@style/tv_click_controller_land_bottom"
             android:layout_toLeftOf="@id/tv_ppt_dir"
-            android:text="线路"/>
+            android:text="线路" />
 
         <TextView
             android:id="@+id/tv_speed"
@@ -318,6 +328,7 @@
         android:id="@+id/polyv_screen_lock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+
     <ImageView
         android:visibility="gone"
         android:layout_marginBottom="10dp"
@@ -328,4 +339,12 @@
         android:id="@+id/polyv_screen_lock_audio"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+
+    <com.easefun.polyvsdk.player.knowledge.PolyvPlayerKnowledgeLayout
+        android:id="@+id/knowledge_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:visibility="gone" />
 </RelativeLayout>

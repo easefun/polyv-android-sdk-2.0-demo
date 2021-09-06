@@ -1,5 +1,6 @@
 package com.easefun.polyvsdk.fragment;
 
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,11 +17,14 @@ import android.widget.Toast;
 import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.bean.PolyvAddDanmakuResult;
 import com.easefun.polyvsdk.log.PolyvCommonLog;
+import com.easefun.polyvsdk.player.PolyvPlayerMediaController;
 import com.easefun.polyvsdk.sub.danmaku.auxiliary.BilibiliDanmakuTransfer;
 import com.easefun.polyvsdk.sub.danmaku.auxiliary.PolyvDanmakuTransfer;
 import com.easefun.polyvsdk.sub.danmaku.entity.PolyvDanmakuEntity;
 import com.easefun.polyvsdk.sub.danmaku.entity.PolyvDanmakuInfo;
 import com.easefun.polyvsdk.sub.danmaku.main.PolyvDanmakuManager;
+import com.easefun.polyvsdk.util.PolyvScreenUtils;
+import com.easefun.polyvsdk.video.PolyvBaseMediaController;
 import com.easefun.polyvsdk.video.PolyvVideoView;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -98,9 +102,9 @@ public class PolyvPlayerDanmuFragment extends Fragment {
         //-------------------仅对加载的弹幕有效-------------------//
         // 设置最大显示行数
         HashMap<Integer, Integer> maxLinesPair = new HashMap<Integer, Integer>();
-        maxLinesPair.put(BaseDanmaku.TYPE_SCROLL_RL, 5); // 滚动弹幕最大显示5行
-        maxLinesPair.put(BaseDanmaku.TYPE_FIX_TOP, 2);
-        maxLinesPair.put(BaseDanmaku.TYPE_FIX_BOTTOM, 2);
+        maxLinesPair.put(BaseDanmaku.TYPE_SCROLL_RL, 6); // 滚动弹幕、顶部弹幕半屏6行，全屏12行
+        maxLinesPair.put(BaseDanmaku.TYPE_FIX_TOP, 6);
+        maxLinesPair.put(BaseDanmaku.TYPE_FIX_BOTTOM, 1);
         // 设置是否禁止重叠
         HashMap<Integer, Boolean> overlappingEnablePair = new HashMap<Integer, Boolean>();
         overlappingEnablePair.put(BaseDanmaku.TYPE_SCROLL_RL, true);
@@ -116,7 +120,7 @@ public class PolyvPlayerDanmuFragment extends Fragment {
                 //.setCacheStuffer(new BackgroundCacheStuffer(), mCacheStufferAdapter) // 绘制背景使用BackgroundCacheStuffer
                 .setMaximumLines(maxLinesPair).preventOverlapping(overlappingEnablePair);
 
-        if (getActivity() != null) {
+        if(getActivity() != null) {
             //修复高帧率下弹幕会重复的问题
             Display display = getActivity().getWindowManager().getDefaultDisplay();
             float refreshRate = display.getRefreshRate();
@@ -352,7 +356,7 @@ public class PolyvPlayerDanmuFragment extends Fragment {
             danmaku.textShadowColor = Color.BLACK; // 重要：如果有图文混排，最好不要设置描边(设textShadowColor=0)，否则会进行两次复杂的绘制导致运行效率降低
         else
             danmaku.textShadowColor = Color.WHITE;
-        danmaku.underlineColor = Color.GREEN;
+//        danmaku.underlineColor = Color.GREEN;
 //        danmaku.borderColor = Color.BLUE;
         iDanmakuView.addDanmaku(danmaku);
     }
@@ -368,5 +372,31 @@ public class PolyvPlayerDanmuFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         release();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if (getContext() == null) {
+            return;
+        }
+
+        boolean isFullScreen = PolyvScreenUtils.isLandscape(getContext());
+        PolyvBaseMediaController mediaController = videoView.getMediaController();
+        if (mediaController instanceof PolyvPlayerMediaController) {
+            isFullScreen = ((PolyvPlayerMediaController) mediaController).isFullScreen();
+        }
+
+        HashMap<Integer, Integer> maxLinesPair = new HashMap<>();
+        if (isFullScreen) {
+            maxLinesPair.put(BaseDanmaku.TYPE_SCROLL_RL, 12); // 滚动弹幕、顶部弹幕全屏12行
+            maxLinesPair.put(BaseDanmaku.TYPE_FIX_TOP, 12);
+            maxLinesPair.put(BaseDanmaku.TYPE_FIX_BOTTOM, 1);
+        } else {
+            maxLinesPair.put(BaseDanmaku.TYPE_SCROLL_RL, 6); // 滚动弹幕、顶部弹幕半屏6行
+            maxLinesPair.put(BaseDanmaku.TYPE_FIX_TOP, 6);
+            maxLinesPair.put(BaseDanmaku.TYPE_FIX_BOTTOM, 1);
+        }
+        mContext.setMaximumLines(maxLinesPair);
     }
 }

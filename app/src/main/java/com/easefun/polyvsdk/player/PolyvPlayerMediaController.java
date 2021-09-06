@@ -36,6 +36,8 @@ import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.fragment.PolyvPlayerDanmuFragment;
 import com.easefun.polyvsdk.fragment.PolyvPlayerTopFragment;
 import com.easefun.polyvsdk.ijk.PolyvPlayerScreenRatio;
+import com.easefun.polyvsdk.player.knowledge.PolyvPlayerKnowledgeLayout;
+import com.easefun.polyvsdk.player.knowledge.vo.PolyvPlayerKnowledgeVO;
 import com.easefun.polyvsdk.ppt.PolyvPPTDirLayout;
 import com.easefun.polyvsdk.ppt.PolyvViceScreenLayout;
 import com.easefun.polyvsdk.sub.auxilliary.IOUtil;
@@ -123,7 +125,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     //横屏的切屏按钮，横屏的播放/暂停按钮,横屏的返回按钮，设置按钮，分享按钮，弹幕开关
     private ImageView iv_port, iv_play_land, iv_finish, iv_set, iv_share, iv_dmswitch, iv_vice_status, iv_pip;
     // 横屏的显示播放进度控件,视频的标题,选择播放速度按钮，选择码率按钮，选择线路按钮
-    private TextView tv_curtime_land, tv_tottime_land, tv_title, tv_speed, tv_bit, tv_route, tv_ppt_dir;
+    private TextView tv_curtime_land, tv_tottime_land, tv_title, tv_speed, tv_bit, tv_route, tv_ppt_dir, tvKnowledge;
     // 横屏的进度条
     private PolyvTickSeekBar sb_play_land;
     /**
@@ -201,6 +203,8 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     private TextView tv_route1, tv_route2, tv_route3;
     //关闭布局按钮
     private ImageView iv_close_route;
+    // 知识清单布局
+    private PolyvPlayerKnowledgeLayout knowledgeLayout;
     //-----------------------------------------
     // 进度条是否处于拖动的状态
     private boolean status_dragging;
@@ -445,6 +449,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         tv_bit = (TextView) view.findViewById(R.id.tv_bit);
         tv_route = (TextView) view.findViewById(R.id.tv_route);
         tv_ppt_dir = (TextView) view.findViewById(R.id.tv_ppt_dir);
+        tvKnowledge = (TextView) view.findViewById(R.id.tv_knowledge);
         //设置布局的view
         rl_center_set = (RelativeLayout) view.findViewById(R.id.rl_center_set);
         sb_light = (SeekBar) view.findViewById(R.id.sb_light);
@@ -524,6 +529,8 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         tv_route2 = (TextView) view.findViewById(R.id.tv_route2);
         tv_route3 = (TextView) view.findViewById(R.id.tv_route3);
         iv_close_route = (ImageView) view.findViewById(R.id.iv_close_route);
+        // 知识清单布局
+        knowledgeLayout = (PolyvPlayerKnowledgeLayout) view.findViewById(R.id.knowledge_layout);
 
         sensorHelper = new PolyvSensorHelper(videoActivity);
         tickTips = (PolyvTickTips) view.findViewById(R.id.fl_tt);
@@ -536,6 +543,34 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                         videoView.seekTo(seekPosition);
                     }
                     tickTips.hide();
+                }
+            }
+        });
+
+        knowledgeLayout.setOnViewActionListener(new PolyvPlayerKnowledgeLayout.OnViewActionListener() {
+            @Override
+            public void onReady() {
+                tvKnowledge.setVisibility(VISIBLE);
+            }
+
+            @Override
+            public void onClickClose() {
+                if (isShowing() && status_showalways) {
+                    show(longTime);
+                }
+            }
+
+            @Override
+            public void onClickKnowledgePoint(PolyvPlayerKnowledgeVO.WordType.WordKey.KnowledgePoint knowledgePoint) {
+                if (knowledgePoint != null && knowledgePoint.getTime() != null) {
+                    videoView.seekTo(knowledgePoint.getTime() * 1000);
+                }
+            }
+
+            @Override
+            public void onAutoClose() {
+                if (isShowing() && status_showalways) {
+                    show(longTime);
                 }
             }
         });
@@ -653,6 +688,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         iv_vice_status_portrait.setOnClickListener(this);
         iv_vice_status.setOnClickListener(this);
         tv_ppt_dir.setOnClickListener(this);
+        tvKnowledge.setOnClickListener(this);
         iv_pip_portrait.setOnClickListener(this);
         iv_pip.setOnClickListener(this);
     }
@@ -862,6 +898,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         resetRouteLayout(View.GONE);
         hidePortraitPopupView();
         tickTips.hide();
+        knowledgeLayout.show(false);
     }
 
     /**
@@ -2184,6 +2221,10 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                         viceLayout.hide();
                     }
                 }
+                break;
+            case R.id.tv_knowledge:
+                knowledgeLayout.show(!knowledgeLayout.isShowing());
+                show(-1);
                 break;
         }
         //如果控制栏不是处于一直显示的状态，那么重置控制栏隐藏的时间

@@ -113,6 +113,12 @@
             android:layout_height="match_parent"
             android:visibility="gone" />
 
+        <com.easefun.polyvsdk.view.PolyvNetworkPoorIndicateLayout
+            android:id="@+id/polyv_network_poor_indicate_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
         <!-- 普通问答 -->
         <com.easefun.polyvsdk.player.PolyvPlayerAnswerView
             android:id="@+id/polyv_player_question_view"
