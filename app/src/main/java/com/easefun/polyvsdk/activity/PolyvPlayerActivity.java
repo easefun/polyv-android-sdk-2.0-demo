@@ -45,8 +45,10 @@ import com.easefun.polyvsdk.fragment.PolyvPlayerTabFragment;
 import com.easefun.polyvsdk.fragment.PolyvPlayerTopFragment;
 import com.easefun.polyvsdk.fragment.PolyvPlayerViewPagerFragment;
 import com.easefun.polyvsdk.log.PolyvCommonLog;
-import com.easefun.polyvsdk.marquee.PolyvMarqueeItem;
-import com.easefun.polyvsdk.marquee.PolyvMarqueeView;
+import com.easefun.polyvsdk.marquee.IPLVMarqueeView;
+import com.easefun.polyvsdk.marquee.PLVMarqueeView;
+import com.easefun.polyvsdk.marquee.model.PLVMarqueeAnimationVO;
+import com.easefun.polyvsdk.marquee.model.PLVMarqueeModel;
 import com.easefun.polyvsdk.player.PolyvPlayerAnswerView;
 import com.easefun.polyvsdk.player.PolyvPlayerAudioCoverView;
 import com.easefun.polyvsdk.player.PolyvPlayerAuditionView;
@@ -143,8 +145,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
     /**
      * 跑马灯控件
      */
-    private PolyvMarqueeView marqueeView = null;
-    private PolyvMarqueeItem marqueeItem = null;
+    private IPLVMarqueeView marqueeView = null;
     /**
      * 视频控制栏
      */
@@ -395,7 +396,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
     private void findIdAndNew() {
         viewLayout = (RelativeLayout) findViewById(R.id.view_layout);
         videoView = (PolyvVideoView) findViewById(R.id.polyv_video_view);
-        marqueeView = (PolyvMarqueeView) findViewById(R.id.polyv_marquee_view);
+        marqueeView = (PLVMarqueeView) findViewById(R.id.polyv_marquee_view);
         mediaController = (PolyvPlayerMediaController) findViewById(R.id.polyv_player_media_controller);
         networkPoorIndicateLayout = (PolyvNetworkPoorIndicateLayout) findViewById(R.id.polyv_network_poor_indicate_layout);
         srtTextView = (TextView) findViewById(R.id.srt);
@@ -452,23 +453,28 @@ public class PolyvPlayerActivity extends FragmentActivity {
         videoView.setAuxiliaryVideoView(auxiliaryVideoView);
         videoView.setPlayerBufferingIndicator(loadingLayout);
         loadingLayout.bindVideoView(videoView);
+
         // 设置跑马灯
-        videoView.setMarqueeView(marqueeView, marqueeItem = new PolyvMarqueeItem()
-                .setStyle(PolyvMarqueeItem.STYLE_ROLL) //样式
-                .setDuration(10000) //时长
-                .setText("POLYV Android SDK") //文本
-                .setSize(16) //字体大小
-                .setColor(Color.YELLOW) //字体颜色
-                .setTextAlpha(70) //字体透明度
-                .setInterval(1000) //隐藏时间
-                .setLifeTime(1000) //显示时间
-                .setTweenTime(1000) //渐隐渐现时间
-                .setHasStroke(true) //是否有描边
-                .setBlurStroke(true) //是否模糊描边
-                .setStrokeWidth(3) //描边宽度
-                .setStrokeColor(Color.MAGENTA) //描边颜色
-                .setReappearTime(3000) // 设置跑马灯再次出现的间隔
-                .setStrokeAlpha(70)); //描边透明度
+        PLVMarqueeModel plvMarqueeModel = new PLVMarqueeModel()
+                .setUserName("保利威SDK")
+                .setFontAlpha(255)
+                .setFontSize(40)
+                .setFontColor(Color.RED)
+                .setFilter(false)
+                .setFilterAlpha(255)
+                .setFilterColor(Color.BLACK)
+                .setFilterBlurX(2)
+                .setFilterBlurY(2)
+                .setFilterStrength(4)
+                .setSetting(PLVMarqueeAnimationVO.ROLL)
+                .setInterval(3)
+                .setTweenTime(1)
+                .setLifeTime(2)
+                .setSpeed(200)
+                .setAlwaysShowWhenRun(false)
+                .setHiddenWhenPause(true);
+
+        marqueeView.setPLVMarqueeModel(plvMarqueeModel);
     }
 
     private void initView() {
@@ -505,8 +511,13 @@ public class PolyvPlayerActivity extends FragmentActivity {
                 // danmuFragment.start();
 
                 //设置logo
-                logoView.addLogo(new PolyvPlayerLogoView.LogoParam().setWidth(0.1f).setHeight(0.1f)
-                        .setAlpha(100).setOffsetX(0.05f).setOffsetY(0.05f).setPos(2).setResId(R.drawable.polyv_logo));
+                logoView.addLogo(new PolyvPlayerLogoView.LogoParam()
+                        .setWidth(0.1f).setHeight(0.1f)
+                        .setAlpha(100).setOffsetX(0.05f)
+                        .setOffsetY(0.05f).setPos(2).setResId(R.drawable.polyv_logo));
+                if (marqueeView != null) {
+                    marqueeView.start();
+                }
             }
         });
 
@@ -546,6 +557,9 @@ public class PolyvPlayerActivity extends FragmentActivity {
                 coverView.stopAnimation();
                 danmuFragment.pause();
                 mediaController.updatePictureInPictureActions(R.drawable.polyv_btn_play_port, "pause", 1, 1);
+                if (marqueeView != null) {
+                    marqueeView.pause();
+                }
             }
 
             @Override
@@ -553,12 +567,18 @@ public class PolyvPlayerActivity extends FragmentActivity {
                 coverView.startAnimation();
                 danmuFragment.resume();
                 mediaController.updatePictureInPictureActions(R.drawable.polyv_btn_pause_port, "start", 2, 2);
+                if (marqueeView != null) {
+                    marqueeView.start();
+                }
             }
 
             @Override
             public void onCompletion() {
                 coverView.stopAnimation();
                 mediaController.updatePictureInPictureActions(R.drawable.polyv_btn_play_port, "pause", 1, 1);
+                if (marqueeView != null) {
+                    marqueeView.stop();
+                }
             }
         });
 
@@ -1156,6 +1176,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
     protected void onStop() {
         super.onStop();
         mediaController.pause();
+        marqueeView.stop();
         if (!isInPipMode()) {
             if (!isBackgroundPlay || isInPictureInPictureMode) {
                 //弹出去暂停

@@ -102,7 +102,7 @@
             android:visibility="gone" />
 
         <!-- 跑马灯 -->
-        <com.easefun.polyvsdk.marquee.PolyvMarqueeView
+        <com.easefun.polyvsdk.marquee.PLVMarqueeView
             android:id="@+id/polyv_marquee_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
