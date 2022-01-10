@@ -1,26 +1,48 @@
-
 polyv-android-sdk-2.0.0-demo
 ===
 [![build passing](https://img.shields.io/badge/build-passing-brightgreen.svg)](#)
 [![GitHub release](https://img.shields.io/badge/release-v2.16.5-blue.svg)](https://github.com/easefun/polyv-android-sdk-2.0-demo/releases/tag/v2.16.5)
 
-#### 试用
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+- [polyv-android-sdk-2.0.0-demo](#polyv-android-sdk-200-demo)
+    - [简介](#简介)
+    - [试用](#试用)
+    - [文档](#文档)
+    - [运行环境](#运行环境)
+    - [支持功能](#支持功能)
+    - [与SDK 1.0对比](#与sdk-10对比)
+      - [关系？](#关系)
+      - [如果你接触过SDK1.0，那么你可能想了解SDK2.0.0里面优化了什么。](#如果你接触过sdk10那么你可能想了解sdk200里面优化了什么)
+      - [为什么要升级到SDK2.0.0](#为什么要升级到sdk200)
+      - [集成SDK2.0.0较SDK1.0最大的改变是什么？](#集成sdk200较sdk10最大的改变是什么)
+      - [如何从SDK1.0升级到SDK2.0.6和更早版本](#如何从sdk10升级到sdk206和更早版本)
+      - [如何从SDK1.0升级到SDK2.2.1和更新版本](#如何从sdk10升级到sdk221和更新版本)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+***
+### 简介
+SDK 2.0.0 是Polyv为开发者用户提供的点播SDK ，是jar文件和so文件。易于集成，内部包含`视频播放` `弹幕` `视频下载` `视频上传`等功能。首先需要在[链接到官网](http://www.polyv.net)注册账户并开通点播功能，然后集成SDK2.0.0到你的项目中。
+
+SDK 2.0.0 demo是SDK2.0.0的demo示例Android studio项目工程，其中包含了最新SDK2.0.0并且演示了如何在项目中集成SDK2.0.0。
+
+### 试用
 可以[点击下载](https://www.pgyer.com/B7aw)，安装试用。
 安装密码：polyv
 
+### 文档
+1. [wiki 文档](https://help.polyv.net/#/vod/android/)
+2. [全版本更新记录](./CHANGELOG.md)
+3. [API 文档](https://github.com/easefun/polyv-android-sdk-2.0-demo/blob/master/API%E6%96%87%E6%A1%A3%E7%9B%AE%E5%BD%95.md)
 ***
-#### polyv-android-sdk-2.0.0（以下称SDK2.0.0）是什么？
-SDK2.0.0是Polyv为开发者用户提供的点播SDK ，是jar文件和so文件。易于集成，内部包含`视频播放` `弹幕` `视频下载` `视频上传`等功能。首先需要在[链接到官网](http://www.polyv.net)注册账户并开通点播功能，然后集成SDK2.0.0到你的项目中。
-#### polyv-android-sdk-2.0.0-demo（以下称**SDK2.0.0demo**）是什么？
-SDK2.0.0demo是SDK2.0.0的demo示例Android studio项目工程，其中包含了最新SDK2.0.0并且演示了如何在项目中集成SDK2.0.0。
-***
-#### 运行环境
+### 运行环境
 * JDK 1.7 或以上
 * Android SDK 14 或以上
 * Android Studio 2.2.0 或以上
 * **abiFilters 建议配置为[arm64-v8a、armeabi-v7a、x86]。不要使用armeabi，仅使用armeabi可能会在部分机型上出现音画不同步、跳秒播放等异常情况**
 ***
-#### 支持功能
+### 支持功能
 * 普通功能
   * 播放
   * 暂停
@@ -59,9 +81,10 @@ SDK2.0.0demo是SDK2.0.0的demo示例Android studio项目工程，其中包含了
 * 上传
 * 弹幕
 ***
-### 如果未接触过[polyv-android-sdk-demo（1.0）](https://github.com/easefun/polyv-android-sdk-demo)（以下简称SDK1.0demo）和polyv-android-sdk(1.0)（以下称SDK1.0）可以跳过SDK1.0相关部分。
+### 与SDK 1.0对比
+如果未接触过[polyv-android-sdk-demo（1.0）](https://github.com/easefun/polyv-android-sdk-demo)（以下简称SDK1.0demo）和polyv-android-sdk(1.0)（以下称SDK1.0）可以跳过SDK1.0相关部分。
 
-#### SDK2.0.0和SDK1.0是什么关系？
+#### 关系？
 SDK2.0.0是SDK1.0的升级版，在SDK1.0的基础上，进行升级，重构，优化。
 #### 如果你接触过SDK1.0，那么你可能想了解SDK2.0.0里面优化了什么。
 * 点播逻辑和直播逻辑完全分离开来
@@ -92,8 +115,3 @@ SDK1.0demo和SDK1.0不再进行功能更新。
 * 删除SDK1.0中的so库。
 * 删除SDK1.0中的jar包。
 * 增加2.2.1和更高版本中的依赖。
-
-***
-#### 更多关于SDK2.0.0demo和SDK2.0.0的详细介绍请看[Wiki](https://github.com/easefun/polyv-android-sdk-2.0-demo/wiki)。
-
-#### 相关 API 可查看 [API 文档](https://github.com/easefun/polyv-android-sdk-2.0-demo/blob/master/API%E6%96%87%E6%A1%A3%E7%9B%AE%E5%BD%95.md)
