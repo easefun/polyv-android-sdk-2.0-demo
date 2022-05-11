@@ -81,7 +81,6 @@ public class PolyvApplication extends MultiDexApplication {
 		}
 	}
 
-
 	private class LoadConfigTask extends AsyncTask<String, String, String> {
 
 		@Override

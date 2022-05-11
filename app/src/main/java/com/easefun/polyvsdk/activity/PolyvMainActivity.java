@@ -154,6 +154,11 @@ public class PolyvMainActivity extends Activity implements OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.polyv_activity_main);
+
+        //---------------------
+        //开启httpdns，请确保先获取用户隐私授权
+        PolyvSDKClient.getInstance().enableHttpDns(true);
+
         findIdAndNew();
         initView();
 
