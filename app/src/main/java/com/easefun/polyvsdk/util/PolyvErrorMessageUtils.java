@@ -229,7 +229,7 @@ public class PolyvErrorMessageUtils {
             case PolyvPlayErrorReason.TIMEOUT_FLOW:
                 return "账号过期，请向管理员反馈";
 
-            case PolyvPlayErrorReason.LOCAL_VIEWO_ERROR:
+            case PolyvPlayErrorReason.LOCAL_VIDEO_ERROR:
                 return "本地视频文件损坏，请重新下载";
 
             case PolyvPlayErrorReason.START_ERROR:

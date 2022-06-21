@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.text.format.Formatter;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -295,11 +294,8 @@ public class PolyvDownloadListViewAdapter extends BaseSwipeAdapter {
             return lv_download != null && viewHolder.get() != null && lv_download.getChildAt(position - lv_download.getFirstVisiblePosition()) != null;
         }
 
-        private void removeToDownloadedQueue(int position) {
-            if(position >= lists.size()){
-                return;
-            }
-            PolyvDownloadInfo downloadInfo = lists.remove(position);
+        private void removeToDownloadedQueue() {
+            lists.remove(downloadInfo);
             ((BaseSwipeAdapter) wr_lv_download.get().getAdapter()).notifyDataSetChanged();
             if (downloadSuccessListener != null) {
                 downloadSuccessListener.onDownloadSuccess(downloadInfo);
@@ -334,7 +330,7 @@ public class PolyvDownloadListViewAdapter extends BaseSwipeAdapter {
                 viewHolder.get().tv_speed.setVisibility(View.GONE);
 
 //                Toast.makeText(appContext, "第" + (position + 1) + "个任务下载成功", Toast.LENGTH_SHORT).show();
-                removeToDownloadedQueue(position);
+                removeToDownloadedQueue();
             }
         }
 

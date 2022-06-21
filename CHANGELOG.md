@@ -1,3 +1,49 @@
+### 2022-06-21 polyv-android-sdk-2.0.0-demo v2.16.6
+
+由于[ bintray 停服 ](https://jfrog.com/blog/into-the-sunset-bintray-jcenter-gocenter-and-chartcenter/) 导致历史版本依赖将不可使用。旧版本用户请升级至v2.15.2+。如集成Demo层建议同步更新。
+
+### 功能完善&bug修复
+
++ 【SDK】提升账号安全性
++ 【SDK】初始化支持多个加密串同时使用
++ 【SDK】播放器支持https+ip访问开启了SNI验证的服务器
++ 【SDK & Demo】修复elog错误信息缺失问题
++ 【SDK】修复已知问题
+
+### 修改依赖
+
+  ``` groovy
+  // 打开项目级别根目录的 build.gradle，补充MavenCentral源地址
+  allprojects {
+      repositories {
+          //...省略
+          //mavenCentral 源
+          mavenCentral()
+          //阿里云效关于central的镜像
+          maven{
+              url 'https://maven.aliyun.com/repository/central'
+          }
+          //阿里云效仓库，必须添加
+          maven {
+              credentials {
+                  username '609cc5623a10edbf36da9615'
+                  password 'EbkbzTNHRJ=P'
+              }
+              url 'https://packages.aliyun.com/maven/repository/2102846-release-8EVsoM/'
+          }
+      }
+  }
+  
+  // 修改对应的sdk依赖，注意groupId已经变更，请整个依赖复制修改，请勿仅改动版本号
+  implementation 'net.polyv.android:polyvPlayer:2.16.6'//SDK核心包
+  implementation 'net.polyv.android:polyvDownload:2.16.6'//SDK下载功能
+  implementation 'net.polyv.android:polyvUpload:2.3.4'//SDK上传功能
+  implementation 'net.polyv.android:polyvSub:2.16.6'//弹幕、截图功能中使用
+  ```
+
+
+  API文档请看[v2.16.6 API](http://repo.polyv.net/android/sdk/2.16.6/api/index.html)
+
 ### 2021-10-28 polyv-android-sdk-2.0.0-demo v2.16.5
 
 由于[ bintray 停服 ](https://jfrog.com/blog/into-the-sunset-bintray-jcenter-gocenter-and-chartcenter/) 导致历史版本依赖将不可使用。旧版本用户请升级至v2.15.2+。如集成Demo层建议同步更新。
