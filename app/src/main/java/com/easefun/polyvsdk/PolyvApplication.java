@@ -4,7 +4,9 @@ import android.os.AsyncTask;
 import android.support.multidex.MultiDexApplication;
 import android.text.TextUtils;
 
+import com.apowersoft.dlnasender.api.listener.WxDlnaSenderInitCallback;
 import com.easefun.polyvsdk.cast.PolyvScreencastManager;
+import com.easefun.polyvsdk.log.PolyvCommonLog;
 import com.easefun.polyvsdk.util.PolyvSPUtils;
 
 //继承的类是为了解决64K 引用限制
@@ -26,10 +28,20 @@ public class PolyvApplication extends MultiDexApplication {
 	}
 
 	public void initScreencast() {
-		//TODO appId和appSecret需与包名绑定，获取方式请咨询Polyv技术支持
-		PolyvScreencastManager.init("10747", "34fa2201e4e7441635ca4fa97fd4b21e");//该appId，appSecret仅能在demo中使用
-		//初始化单例
-		PolyvScreencastManager.getInstance(this);
+		// TODO appId和appSecret需与包名绑定，获取方式请咨询Polyv技术支持
+		PolyvScreencastManager.init(this, "S1XWK2pTkh63044d96eeedf675616175", "9425E-9F79E-B57CE-CD036", new WxDlnaSenderInitCallback() {
+			@Override
+			public void onSuccess() {
+				PolyvCommonLog.i(TAG, "initScreencast success");
+				// 初始化单例
+				PolyvScreencastManager.getInstance(PolyvApplication.this);
+			}
+
+			@Override
+			public void onFail(int code, String msg) {
+				PolyvCommonLog.i(TAG, "initScreencast fail, code = " + code + ", msg = " + msg);
+			}
+		});
 	}
 
 	//加密秘钥和加密向量，在后台->设置->API接口中获取，用于解密SDK加密串

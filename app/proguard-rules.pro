@@ -121,3 +121,8 @@
 
 #json
 -keep class org.json.** {*;}
+
+###letsview
+-keep class com.apowersoft.**{*;}
+-keep class com.apowersoft.**$*{*;}
+-dontwarn com.hpplay.**

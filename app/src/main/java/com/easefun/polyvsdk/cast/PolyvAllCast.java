@@ -1,243 +1,171 @@
 package com.easefun.polyvsdk.cast;
 
-import android.app.Activity;
-import android.content.Context;
-import android.util.Log;
+import com.apowersoft.dlnasender.api.Constant;
+import com.apowersoft.dlnasender.api.DLNASender;
+import com.apowersoft.dlnasender.api.bean.DeviceInfo;
+import com.apowersoft.dlnasender.api.bean.MediaInfo;
+import com.apowersoft.dlnasender.api.bean.PositionInfo;
+import com.apowersoft.dlnasender.api.listener.DLNADeviceConnectListener;
+import com.apowersoft.dlnasender.api.listener.DLNARegistryListener;
+import com.apowersoft.dlnasender.api.listener.WXDLNAMethodCallback;
+import com.easefun.polyvsdk.log.PolyvCommonLog;
 
-import com.hpplay.sdk.source.api.IBindSdkListener;
-import com.hpplay.sdk.source.api.IConnectListener;
-import com.hpplay.sdk.source.api.ILelinkPlayerListener;
-import com.hpplay.sdk.source.api.LelinkPlayerInfo;
-import com.hpplay.sdk.source.api.LelinkSourceSDK;
-import com.hpplay.sdk.source.bean.MediaAssetBean;
-import com.hpplay.sdk.source.browse.api.IAPI;
-import com.hpplay.sdk.source.browse.api.IBrowseListener;
-import com.hpplay.sdk.source.browse.api.IParceResultListener;
-import com.hpplay.sdk.source.browse.api.LelinkServiceInfo;
-
-import java.util.List;
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class PolyvAllCast {
 
-    private static final String TAG = "PolyvAllCast";
+    private static final String TAG = PolyvAllCast.class.getSimpleName();
 
-    private boolean isMirror;
-    public static final int MEDIA_TYPE_VIDEO = LelinkPlayerInfo.TYPE_VIDEO;
-    public static final int MEDIA_TYPE_AUDIO = LelinkPlayerInfo.TYPE_AUDIO;
-    public static final int MEDIA_TYPE_IMAGE = LelinkPlayerInfo.TYPE_IMAGE;
+    private IPLVScreencastPlayerListener screencastPlayerListener;
 
-    public PolyvAllCast(Context context, String appid, String appSecret) {
-        initLelinkService(context, appid, appSecret);
+    private Timer getPositionTimer;
+
+    public PolyvAllCast() {
+
     }
 
-    public void setOnBrowseListener(IBrowseListener listener) {
-        LelinkSourceSDK.getInstance().setBrowseResultListener(listener);
+    public void initService(DLNADeviceConnectListener dlnaDeviceConnectListener, DLNARegistryListener dlnaRegistryListener) {
+        DLNASender.getInstance().initService(dlnaDeviceConnectListener, dlnaRegistryListener);
     }
 
-    public void setConnectListener(IConnectListener listener) {
-        LelinkSourceSDK.getInstance().setConnectListener(listener);
-    }
-
-    public void setPlayerListener(ILelinkPlayerListener listener) {
-        LelinkSourceSDK.getInstance().setPlayListener(listener);
-    }
-
-    private void initLelinkService(Context context, String appid, String appSecret) {
-        LelinkSourceSDK.getInstance()
-                .setBindSdkListener(new IBindSdkListener() {
-                    @Override
-                    public void onBindCallback(boolean result) {
-                        Log.e(TAG, "Polyv Cast SDK Init Result :" + result);
-                        if (result) {
-                            LelinkSourceSDK.getInstance().setOption(IAPI.OPTION_5, false);
-                            LelinkSourceSDK.getInstance().setDebugMode(true);
-                            LelinkSourceSDK.getInstance().enableLogCache(true);
-                        }
-                    }
-                })
-                .setSdkInitInfo(context, appid, appSecret)
-                .bindSdk();
-    }
-
-    public List<LelinkServiceInfo> getConnectInfos() {
-        return LelinkSourceSDK.getInstance().getConnectInfos();
-    }
-
-
-    public void addQRServiceInfo(String qrCode, IParceResultListener listener) {
-        LelinkSourceSDK.getInstance().addQRCodeToLelinkServiceInfo(qrCode, listener);
-    }
-
-    public void addPinCodeServiceInfo(String pinCode) {
-        LelinkSourceSDK.getInstance().addPinCodeToLelinkServiceInfo(pinCode, new IParceResultListener() {
-            @Override
-            public void onParceResult(int resultCode, LelinkServiceInfo lelinkServiceInfo) {
-                if (resultCode == IParceResultListener.PARCE_SUCCESS) {
-                    connect(lelinkServiceInfo);
-                }
-            }
-        });
+    public void setPlayerListener(IPLVScreencastPlayerListener listener) {
+        this.screencastPlayerListener = listener;
     }
 
     public void browse() {
-        LelinkSourceSDK.getInstance().startBrowse();
+        DLNASender.getInstance().startBrowser();
     }
 
     public void stopBrowse() {
-        LelinkSourceSDK.getInstance().stopBrowse();
+
     }
 
-    public void connect(LelinkServiceInfo pInfo) {
-        LelinkSourceSDK.getInstance().connect(pInfo);
+    public void connect(DeviceInfo pInfo) {
+        DLNASender.getInstance().addCallback(callback);
+        DLNASender.getInstance().connectDevice(pInfo);
     }
 
-    public void disConnect(LelinkServiceInfo pInfo) {
-        LelinkSourceSDK.getInstance().disConnect(pInfo);
-    }
-
-    public boolean canPlayMedia(LelinkServiceInfo info) {
-        return LelinkSourceSDK.getInstance().canPlayLocalMedia(info);
-    }
-
-
-    public boolean canPlayScreen(LelinkServiceInfo serviceInfo) {
-        return LelinkSourceSDK.getInstance().canPlayScreen(serviceInfo);
+    public void disConnect(DeviceInfo pInfo) {
+        stopGetPositionTimer();
+        DLNASender.getInstance().stopDLNA();
+        DLNASender.getInstance().removeCallback(callback);
     }
 
     // <editor-fold defaultstate="collapsed" desc="播放相关方法">
 
-    public void playLocalMedia(String url, int type, String screenCode) {
-        LelinkPlayerInfo lelinkPlayerInfo = new LelinkPlayerInfo();
-        lelinkPlayerInfo.setType(type);
-        lelinkPlayerInfo.setLocalPath(url);
-        lelinkPlayerInfo.setOption(IAPI.OPTION_6, screenCode);
-        // lelinkPlayerInfo.setStartPosition(8);
-
-        LelinkSourceSDK.getInstance().startPlayMedia(lelinkPlayerInfo);
+    public void playNetMediaWithHeader(MediaInfo mediaInfo) {
+        DLNASender.getInstance().setDataSource(mediaInfo);
+        DLNASender.getInstance().startDLNACast();
+        startGetPositionTimer();
     }
 
-    public void playNetMedia(String url, int type, String screenCode) {
-        LelinkPlayerInfo lelinkPlayerInfo = new LelinkPlayerInfo();
-        lelinkPlayerInfo.setType(type);
-        lelinkPlayerInfo.setUrl(url);
-        lelinkPlayerInfo.setOption(IAPI.OPTION_6, screenCode);
-        // lelinkPlayerInfo.setStartPosition(15);
-
-        LelinkSourceSDK.getInstance().startPlayMedia(lelinkPlayerInfo);
+    public void resume() {
+        DLNASender.getInstance().play();
     }
 
-    public void playNetMediaWithPosition(String url, int type, int seconds) {
-        LelinkPlayerInfo lelinkPlayerInfo = new LelinkPlayerInfo();
-        lelinkPlayerInfo.setType(type);
-        lelinkPlayerInfo.setUrl(url);
-        lelinkPlayerInfo.setStartPosition(seconds);
-
-        LelinkSourceSDK.getInstance().startPlayMedia(lelinkPlayerInfo);
+    public void pause() {
+        DLNASender.getInstance().pause();
     }
 
-    public void playNetMediaWithAsset(String url, int type) {
-        LelinkPlayerInfo lelinkPlayerInfo = new LelinkPlayerInfo();
-        lelinkPlayerInfo.setType(type);
-        lelinkPlayerInfo.setUrl(url);
-        MediaAssetBean mediaAssetBean = new MediaAssetBean();
-        mediaAssetBean.setActor("qiuju");
-        mediaAssetBean.setDirector("zhangyimou");
-        mediaAssetBean.setId("xxxxx");
-        mediaAssetBean.setName("qiujudaguansi");
-        lelinkPlayerInfo.setMediaAsset(mediaAssetBean);
-
-        LelinkSourceSDK.getInstance().startPlayMedia(lelinkPlayerInfo);
+    public void stopPlay() {
+        stopGetPositionTimer();
+        DLNASender.getInstance().stopDLNA();
     }
 
-    public void playNetMediaWithHeader(String url, int type) {
-        LelinkPlayerInfo lelinkPlayerInfo = new LelinkPlayerInfo();
-        lelinkPlayerInfo.setType(type);
-//        lelinkPlayerInfo.setHeader("{\"header\":\"header data\"}");
-        lelinkPlayerInfo.setAesKey("bf465ebdb8ae575c5efe4e6a54f2147c");
-        lelinkPlayerInfo.setAesIv("9ad37d28d3f3e74e4040a9cdd6ebdffd");
-        lelinkPlayerInfo.setUrl("http://hls.videocc.net/3704709a81/f/3704709a81455e99119c8a261d6c186f_1.m3u8?pid=1545874882540X1041774");
-        lelinkPlayerInfo.setLoopMode(LelinkPlayerInfo.LOOP_MODE_SINGLE);
-        // lelinkPlayerInfo.setStartPosition(15);
-
-        LelinkSourceSDK.getInstance().startPlayMedia(lelinkPlayerInfo);
+    public void seekTo(int position) {
+        DLNASender.getInstance().seekTo(position);
     }
 
-    public void playNetMediaWithHeader(LelinkPlayerInfo lelinkPlayerInfo) {
+    public void setVolume(int percent) {
+        DLNASender.getInstance().setCurrentVolume(percent);
+    }
 
-        LelinkSourceSDK.getInstance().startPlayMedia(lelinkPlayerInfo);
+    public void volumeUp() {
+        DLNASender.getInstance().setVolume(true, 5);
+    }
+
+    public void volumeDown() {
+        DLNASender.getInstance().setVolume(false, 5);
     }
 
     // </editor-fold>
 
-    public void startWithLoopMode(String url, boolean isLocalFile) {
-        LelinkPlayerInfo playerInfo = new LelinkPlayerInfo();
-        if (isLocalFile) {
-            playerInfo.setLocalPath(url);
-        } else {
-            playerInfo.setUrl(url);
+    // <editor-fold defaultstate="collapsed" desc="回调">
+
+    private final WXDLNAMethodCallback callback = new WXDLNAMethodCallback() {
+        private long lastNonZeroTrackDurationSeconds = 0;
+        @Override
+        public void onSuccess(String method, Object obj) {
+            if (screencastPlayerListener == null) {
+                return;
+            }
+            switch (method) {
+                case Constant.Action.START:
+                    screencastPlayerListener.onStart();
+                    break;
+                case Constant.Action.PAUSE:
+                    screencastPlayerListener.onPause();
+                    break;
+                case Constant.Action.STOP:
+                    screencastPlayerListener.onStop();
+                    break;
+                case Constant.Action.GET_POSITION:
+                    try {
+                        PositionInfo positionInfo = (PositionInfo) obj;
+                        screencastPlayerListener.onPositionUpdate(positionInfo.getTrackElapsedSeconds());
+                        if (positionInfo.getTrackDurationSeconds() > 0) {
+                            lastNonZeroTrackDurationSeconds = positionInfo.getTrackDurationSeconds();
+                        }
+                        if (lastNonZeroTrackDurationSeconds > 0 && positionInfo.getTrackElapsedSeconds() >= lastNonZeroTrackDurationSeconds) {
+                            screencastPlayerListener.onComplete();
+                        }
+                    } catch (Exception e) {
+                        PolyvCommonLog.e(TAG, "onPositionUpdate error" + e.getMessage());
+                    }
+                    break;
+                default:
+            }
         }
-        playerInfo.setType(MEDIA_TYPE_VIDEO);
-        playerInfo.setLoopMode(LelinkPlayerInfo.LOOP_MODE_SINGLE);
 
-        LelinkSourceSDK.getInstance().startPlayMedia(playerInfo);
+        // dlna消息发送异常
+        private int ERROR_CODE_DLNA_SEND_MESSAGE_ERROR = 4;
+        // dlna服务异常
+        private int ERROR_CODE_DLNA_SERVICE_ERROR = 5;
+        // dlna状态异常
+        private int ERROR_CODE_DLNA_STATUS_ERROR = 6;
+        // dlna接收端不支持此命令
+        private int ERROR_CODE_RECEIVER_NOT_SUPPORT_ACTION = 8;
+
+        @Override
+        public void onFailure(String method, int errorCode, String errorMsg) {
+            if (screencastPlayerListener != null) {
+                screencastPlayerListener.onError(method, errorCode, errorMsg);
+            }
+        }
+    };
+
+    // </editor-fold>
+
+    private void startGetPositionTimer() {
+        if (getPositionTimer != null) {
+            getPositionTimer.cancel();
+        }
+        getPositionTimer = new Timer();
+        getPositionTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                DLNASender.getInstance().getPosition();
+            }
+        }, new Date(), 500);
     }
 
-    public void startNetVideoWith3rdMonitor(String netVideoUrl) {
-        LelinkPlayerInfo playerInfo = new LelinkPlayerInfo();
-        playerInfo.setUrl(netVideoUrl);
-        playerInfo.setType(MEDIA_TYPE_VIDEO);
-        playerInfo.putMonitor(LelinkPlayerInfo.MONITOR_START, "http://aa.qiyi.com/report?u=_UID_&h=_HID_&m=_MAC_&t=_TIME_&model=_MODEL_&a=_APPID_&p=_POS_&i=_IP_");
-        playerInfo.putMonitor(LelinkPlayerInfo.MONITOR_STOP, "http://aa.qiyi.com/report?u=_UID_&h=_HID_&m=_MAC_&t=_TIME_&model=_MODEL_&a=_APPID_&p=_POS_&i=_IP_");
-        playerInfo.putMonitor(LelinkPlayerInfo.MONITOR_RESUME, "http://aa.qiyi.com/report?u=_UID_&h=_HID_&m=_MAC_&t=_TIME_&model=_MODEL_&a=_APPID_&p=_POS_&i=_IP_");
-        playerInfo.putMonitor(LelinkPlayerInfo.MONITOR_PAUSE, "http://aa.qiyi.com/report?u=_UID_&h=_HID_&m=_MAC_&t=_TIME_&model=_MODEL_&a=_APPID_&p=_POS_&i=_IP_");
-
-        LelinkSourceSDK.getInstance().startMirror(playerInfo);
+    private void stopGetPositionTimer() {
+        if (getPositionTimer != null) {
+            getPositionTimer.cancel();
+        }
     }
-
-    public void resume() {
-        LelinkSourceSDK.getInstance().resume();
-    }
-
-    public void pause() {
-        LelinkSourceSDK.getInstance().pause();
-    }
-
-    public void stopPlay() {
-        LelinkSourceSDK.getInstance().stopPlay();
-    }
-
-    public void seekTo(int position) {
-        LelinkSourceSDK.getInstance().seekTo(position);
-    }
-
-
-    public void setVolume(int percent) {
-        LelinkSourceSDK.getInstance().setVolume(percent);
-    }
-
-    public void voulumeUp() {
-        LelinkSourceSDK.getInstance().addVolume();
-    }
-
-    public void voulumeDown() {
-        LelinkSourceSDK.getInstance().subVolume();
-    }
-
-    public void startMirror(Activity pActivity, LelinkServiceInfo lelinkServiceInfo,
-                            int resolutionLevel, int bitrateLevel, boolean isAudioEnnable, String screenCode) {
-
-        isMirror = true;
-        LelinkPlayerInfo lelinkPlayerInfo = new LelinkPlayerInfo();
-        lelinkPlayerInfo.setType(LelinkPlayerInfo.TYPE_MIRROR);
-        lelinkPlayerInfo.setOption(IAPI.OPTION_6, screenCode);
-        lelinkPlayerInfo.setLelinkServiceInfo(lelinkServiceInfo);
-        lelinkPlayerInfo.setMirrorAudioEnable(isAudioEnnable);
-        lelinkPlayerInfo.setResolutionLevel(resolutionLevel);
-        lelinkPlayerInfo.setBitRateLevel(bitrateLevel);
-
-        LelinkSourceSDK.getInstance().startMirror(lelinkPlayerInfo);
-    }
-
 
 }

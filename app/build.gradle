@@ -4,7 +4,7 @@ android {
     compileSdkVersion 29
     buildToolsVersion '29.0.3'
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion 16
         targetSdkVersion 29
         versionCode Integer.parseInt(VERSIONCODE)
         versionName VERSIONNAME
@@ -67,7 +67,8 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:support-v4:27.1.1'
     implementation 'com.android.support:design:27.1.1'
-    implementation 'net.polyv.android:polyvPlayer:2.16.6'//SDK核心包
+    implementation 'net.polyv.android:polyvPlayer:2.17.0'//SDK核心包
+    implementation 'net.polyv.android:polyvModuleABI:1.7.5'//SDK核心包
     implementation 'net.polyv.android:polyvDownload:2.16.6'//SDK下载功能
     implementation 'net.polyv.android:polyvUpload:2.3.4'//SDK上传功能
     implementation 'de.hdodenhof:circleimageview:2.2.0'//圆形imageview，音频封面图使用
@@ -75,6 +76,9 @@ dependencies {
 //    implementation 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'//demo中图片使用
     implementation "com.daimajia.swipelayout:library:1.2.0@aar"//demo中下载列表使用
     implementation 'net.polyv.android:polyvGif:2.2.2'//demo中课程讨论区显示的内容里用到的包
-    implementation 'net.polyv.android:polyvSub:2.16.6'//弹幕、截图功能中使用
-    implementation files("libs/source-lecast-release.aar")//乐播投屏sdk
+    implementation 'net.polyv.android:polyvSub:2.17.0'//弹幕、截图功能中使用
+    implementation files("libs/wx-commonlib-1.0.1.aar")//投屏sdk
+    implementation files("libs/wx-dlnasdk-1.0.1.aar")//投屏sdk
+    implementation files("libs/wx-dlnasender-1.0.1.aar")//投屏sdk
+    implementation files("libs/wx-jettylib-1.0.1.aar")//投屏sdk
 }

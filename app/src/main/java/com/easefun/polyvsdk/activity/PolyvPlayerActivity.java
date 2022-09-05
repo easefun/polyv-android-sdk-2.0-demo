@@ -26,6 +26,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -266,6 +267,12 @@ public class PolyvPlayerActivity extends FragmentActivity {
             savedInstanceState.putParcelable("android:support:fragments", null);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.polyv_activity_player);
+        //修复部分手机状态栏关闭之后异常
+        WindowManager.LayoutParams params = this.getWindow().getAttributes();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            params.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+        }
+        this.getWindow().setAttributes(params);
         addFragment();
         findIdAndNew();
         initView();
@@ -436,8 +443,8 @@ public class PolyvPlayerActivity extends FragmentActivity {
         iv_screencast_search = (ImageView) mediaController.findViewById(R.id.iv_screencast_search);
         iv_screencast_search_land = (ImageView) mediaController.findViewById(R.id.iv_screencast_search_land);
         //投屏功能默认隐藏，如果需要请注释下面两行代码
-        iv_screencast_search.setVisibility(View.GONE);
-        iv_screencast_search_land.setVisibility(View.GONE);
+//        iv_screencast_search.setVisibility(View.GONE);
+//        iv_screencast_search_land.setVisibility(View.GONE);
 
         mediaController.initConfig(viewLayout);
         mediaController.setAudioCoverView(coverView);
@@ -1155,6 +1162,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
         if (!isInPipMode()) {
             if (!isBackgroundPlay) {
                 //回来后继续播放

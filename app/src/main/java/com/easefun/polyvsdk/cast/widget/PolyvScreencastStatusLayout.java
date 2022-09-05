@@ -15,13 +15,13 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.apowersoft.dlnasender.api.bean.DeviceInfo;
 import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.player.PolyvPlayerMediaController;
 import com.easefun.polyvsdk.util.PolyvScreenUtils;
 import com.easefun.polyvsdk.util.PolyvTimeUtils;
 import com.easefun.polyvsdk.video.PolyvVideoView;
 import com.easefun.polyvsdk.vo.PolyvVideoVO;
-import com.hpplay.sdk.source.browse.api.LelinkServiceInfo;
 
 public class PolyvScreencastStatusLayout extends FrameLayout implements View.OnClickListener {
     //连接状态，设备名称
@@ -43,7 +43,7 @@ public class PolyvScreencastStatusLayout extends FrameLayout implements View.OnC
     private PolyvScreencastSearchLayout screencastSearchLayout, landScreencastSearchLayout;
     private PolyvVideoView videoView;
     private PolyvPlayerMediaController mediaController;
-    private LelinkServiceInfo serviceInfo;
+    private DeviceInfo deviceInfo;
 
     private int currentPlayBitrate = -1;
     private long maxProgress;
@@ -239,8 +239,8 @@ public class PolyvScreencastStatusLayout extends FrameLayout implements View.OnC
         ll_volume_layout.setVisibility(View.GONE);
     }
 
-    public void show(LelinkServiceInfo info) {
-        serviceInfo = info;
+    public void show(DeviceInfo info) {
+        deviceInfo = info;
         callConnectStatus(info.getName());
         if (getVisibility() == View.VISIBLE)
             return;
@@ -285,14 +285,14 @@ public class PolyvScreencastStatusLayout extends FrameLayout implements View.OnC
                 iv_play.setSelected(!iv_play.isSelected());
                 break;
             case R.id.tv_retry:
-                callConnectStatus(serviceInfo.getName());
+                callConnectStatus(deviceInfo.getName());
                 getScreencastSearchLayout().reconnectPlay();
                 break;
             case R.id.iv_volume_add:
-                getScreencastSearchLayout().voulumeUp();
+                getScreencastSearchLayout().volumeUp();
                 break;
             case R.id.iv_volume_reduce:
-                getScreencastSearchLayout().voulumeDown();
+                getScreencastSearchLayout().volumeDown();
                 break;
             case R.id.tv_sc:
                 changeBitrate(3);
