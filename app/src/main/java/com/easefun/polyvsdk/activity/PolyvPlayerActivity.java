@@ -443,8 +443,8 @@ public class PolyvPlayerActivity extends FragmentActivity {
         iv_screencast_search = (ImageView) mediaController.findViewById(R.id.iv_screencast_search);
         iv_screencast_search_land = (ImageView) mediaController.findViewById(R.id.iv_screencast_search_land);
         //投屏功能默认隐藏，如果需要请注释下面两行代码
-//        iv_screencast_search.setVisibility(View.GONE);
-//        iv_screencast_search_land.setVisibility(View.GONE);
+        iv_screencast_search.setVisibility(View.GONE);
+        iv_screencast_search_land.setVisibility(View.GONE);
 
         mediaController.initConfig(viewLayout);
         mediaController.setAudioCoverView(coverView);
