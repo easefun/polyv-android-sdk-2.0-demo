@@ -1,7 +1,7 @@
 polyv-android-sdk-2.0.0-demo
 ===
 [![build passing](https://img.shields.io/badge/build-passing-brightgreen.svg)](#)
-[![GitHub release](https://img.shields.io/badge/release-v2.16.6-blue.svg)](https://github.com/easefun/polyv-android-sdk-2.0-demo/releases/tag/v2.16.6)
+[![GitHub release](https://img.shields.io/badge/release-v2.18.0-blue.svg)](https://github.com/easefun/polyv-android-sdk-2.0-demo/releases/tag/v2.18.0)
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->

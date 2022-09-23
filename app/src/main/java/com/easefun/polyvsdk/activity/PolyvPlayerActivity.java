@@ -254,6 +254,17 @@ public class PolyvPlayerActivity extends FragmentActivity {
 
     private BroadcastReceiver pipReceiver;
     private boolean isInPictureInPictureMode;
+    /**
+     * 画中画模式不同机型回调表现有差异
+     * <p>
+     * 部分机型会正常回调生命周期 {@link #onDestroy()}，可以正常销毁页面
+     * <p>
+     * 部分机型会只会回调 {@link #onStop()} -> {@link #onPictureInPictureModeChanged(boolean, Configuration)}，
+     * 不会回调 {@link #onDestroy()}，引起不能正常销毁页面
+     * <p>
+     * 为了兼容这种情况，在 {@link #onStop()} 中判断是否在画中画模式，触发退出画中画模式并且已经回调 {@link #onStop()} 时主动销毁页面
+     */
+    private boolean isCalledStopOnPipModeChanged = false;
 
     private boolean isOnBackKeyPressed;
     private ServiceConnection playConnection;
@@ -1160,6 +1171,12 @@ public class PolyvPlayerActivity extends FragmentActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        isCalledStopOnPipModeChanged = false;
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
 
@@ -1183,6 +1200,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        isCalledStopOnPipModeChanged = isInPipMode();
         mediaController.pause();
         marqueeView.stop();
         if (!isInPipMode()) {
@@ -1272,6 +1290,10 @@ public class PolyvPlayerActivity extends FragmentActivity {
                 viewLayout.getViewTreeObserver().removeOnGlobalLayoutListener(videoviewChange);
             }
 
+        }
+
+        if (isCalledStopOnPipModeChanged && !isInPictureInPictureMode) {
+            finish();
         }
     }
 

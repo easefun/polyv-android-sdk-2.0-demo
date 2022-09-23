@@ -1,3 +1,19 @@
+### 2022-09-23 polyv-android-sdk-2.0.0-demo v2.18.0
+
+### 功能完善&bug修复
+* 【SDK】新增支持播放vrm13加密视频
+* 【Demo】修复部分机型小窗播放关闭后播放器未销毁的问题
+* 【SDK】修复部分视频播放未触发 onPlay 回调的问题
+
+### 修改依赖
+``` groovy
+// 修改对应的sdk依赖
+implementation 'net.polyv.android:polyvPlayer:2.18.0'//SDK核心包
+implementation 'net.polyv.android:polyvDownload:2.18.0'//SDK下载功能
+```
+
+API文档请看 [v2.18.0 API](http://repo.polyv.net/android/sdk/2.18.0/api/index.html)
+
 ### 2022-06-21 polyv-android-sdk-2.0.0-demo v2.16.6
 
 由于[ bintray 停服 ](https://jfrog.com/blog/into-the-sunset-bintray-jcenter-gocenter-and-chartcenter/) 导致历史版本依赖将不可使用。旧版本用户请升级至v2.15.2+。如集成Demo层建议同步更新。

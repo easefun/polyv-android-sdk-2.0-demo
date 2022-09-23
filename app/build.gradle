@@ -67,9 +67,9 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:support-v4:27.1.1'
     implementation 'com.android.support:design:27.1.1'
-    implementation 'net.polyv.android:polyvPlayer:2.17.0'//SDK核心包
+    implementation 'net.polyv.android:polyvPlayer:2.18.0'//SDK核心包
     implementation 'net.polyv.android:polyvModuleABI:1.7.5'//SDK核心包
-    implementation 'net.polyv.android:polyvDownload:2.16.6'//SDK下载功能
+    implementation 'net.polyv.android:polyvDownload:2.18.0'//SDK下载功能
     implementation 'net.polyv.android:polyvUpload:2.3.4'//SDK上传功能
     implementation 'de.hdodenhof:circleimageview:2.2.0'//圆形imageview，音频封面图使用
     implementation 'com.github.bumptech.glide:glide:4.7.1'//demo中的ppt图片加载使用
