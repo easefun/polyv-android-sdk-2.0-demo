@@ -87,7 +87,7 @@ public class PolyvScreencastManager {
     }
 
     public void initService() {
-        mAllCast.initService(dlnaDeviceConnectListener, dlnaRegistryListener);
+        mAllCast.initService(dlnaRegistryListener);
         mAllCast.setPlayerListener(mPlayerListener);
     }
 
@@ -101,7 +101,7 @@ public class PolyvScreencastManager {
     }
 
     public void connect(DeviceInfo info) {
-        mAllCast.connect(info);
+        mAllCast.connect(info, dlnaDeviceConnectListener);
         connectedDeviceInfo = info;
         lastConnectedDeviceInfo = info;
     }
@@ -203,7 +203,7 @@ public class PolyvScreencastManager {
         }
 
         @Override
-        public void onDisconnect(final DeviceInfo deviceInfo, final int type, final int errorCode) {
+        public void onDisconnect(final DeviceInfo deviceInfo, final int errorCode) {
             if (mUIHandler != null) {
                 final String text = deviceInfo.getName() + "连接断开";
                 mUIHandler.sendMessage(buildTextMessage(text));
@@ -212,7 +212,7 @@ public class PolyvScreencastManager {
                     @Override
                     public void run() {
                         if (mActivityConnectListener != null) {
-                            mActivityConnectListener.onDisconnect(deviceInfo, type, errorCode);
+                            mActivityConnectListener.onDisconnect(deviceInfo, errorCode);
                         }
                     }
                 });

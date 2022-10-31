@@ -75,6 +75,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/rl_bot" />
+
+    <!-- 软硬解切换布局 -->
+    <include
+        layout="@layout/polyv_controller_media_center_codec"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/rl_bot" />
+
     <!-- 中间选择倍速布局 -->
 
     <include
@@ -286,12 +294,18 @@
             android:layout_toLeftOf="@id/tv_speed"
             android:text="流畅" />
 
+        <TextView
+            android:id="@+id/tv_codec_land"
+            style="@style/tv_click_controller_land_bottom"
+            android:layout_toLeftOf="@id/tv_bit"
+            android:text="硬解" />
+
         <ImageView
             android:id="@+id/iv_dmswitch"
             style="@style/iv_click_controller_land_bottom"
             android:layout_centerVertical="true"
             android:layout_marginRight="@dimen/center_bottom_margin_left_s"
-            android:layout_toLeftOf="@id/tv_bit"
+            android:layout_toLeftOf="@id/tv_codec_land"
             android:background="@null"
             android:src="@drawable/polyv_dm_switch" />
     </RelativeLayout>

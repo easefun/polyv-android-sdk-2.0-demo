@@ -13,6 +13,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/rl_bot_portrait" />
+
+    <!-- 软硬解布局 -->
+    <include
+        layout="@layout/polyv_controller_media_center_codec_portrait"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/rl_bot_portrait" />
+
     <!-- 中间选择倍速布局 -->
 
     <include
@@ -114,6 +122,17 @@
             android:background="@drawable/polyv_commom_click_color_gray"
             android:gravity="center"
             android:text="流畅"
+            android:textColor="@color/polyv_play_bt_color"
+            android:textSize="@dimen/bottom_right_text_size" />
+
+        <TextView
+            android:id="@+id/tv_codec_portrait"
+            android:layout_width="@dimen/bottom_layout_height"
+            android:layout_height="match_parent"
+            android:layout_toLeftOf="@+id/tv_bit_portrait"
+            android:background="@drawable/polyv_commom_click_color_gray"
+            android:gravity="center"
+            android:text="硬解"
             android:textColor="@color/polyv_play_bt_color"
             android:textSize="@dimen/bottom_right_text_size" />
     </RelativeLayout>

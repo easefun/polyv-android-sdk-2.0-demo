@@ -22,6 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.apowersoft.dlnasender.api.Constant;
 import com.apowersoft.dlnasender.api.bean.DeviceInfo;
 import com.apowersoft.dlnasender.api.bean.MediaInfo;
 import com.apowersoft.dlnasender.api.listener.DLNADeviceConnectListener;
@@ -36,6 +37,7 @@ import com.easefun.polyvsdk.util.PolyvNetworkUtils;
 import com.easefun.polyvsdk.video.PolyvVideoView;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -523,7 +525,7 @@ public class PolyvScreencastSearchLayout extends FrameLayout implements View.OnC
         }
 
         @Override
-        public void onDisconnect(DeviceInfo serviceInfo, int type, int errorCode) {
+        public void onDisconnect(DeviceInfo serviceInfo, int errorCode) {
             final String text = serviceInfo.getName() + "连接断开";
             post(new Runnable() {
                 @Override
@@ -587,9 +589,11 @@ public class PolyvScreencastSearchLayout extends FrameLayout implements View.OnC
         }
         screencastStatusLayout.callScreencastingStatus(bitrate);
 
-        playerInfo.setMediaId(Base64.encodeToString(playPath.getBytes(), Base64.NO_WRAP));
-        playerInfo.setUri(playPath);
-        playerInfo.setMediaType(MediaInfo.TYPE_VIDEO);
+        final MediaInfo.MediaUrl mediaUrl = playerInfo.getMediaUrls().get(0);
+
+        mediaUrl.setMediaID(Base64.encodeToString(playPath.getBytes(), Base64.NO_WRAP));
+        mediaUrl.setUri(playPath);
+        mediaUrl.setMediaType(Constant.MediaType.VIDEO);
         screencastManager.playNetMedia(playerInfo);
     }
 
@@ -602,18 +606,24 @@ public class PolyvScreencastSearchLayout extends FrameLayout implements View.OnC
                 }
 
                 Video video = screencastStatusLayout.getVideoView().getVideo();
-                MediaInfo mediaInfo = new MediaInfo();
+                final MediaInfo mediaInfo = new MediaInfo();
                 if (video != null) {
                     mediaInfo.setMediaName(video.getTitle());
                 }
+                final MediaInfo.MediaUrl mediaUrl = new MediaInfo.MediaUrl();
+                final List<MediaInfo.MediaUrl> mediaUrlList = new ArrayList<>();
+                mediaUrlList.add(mediaUrl);
+                mediaInfo.setMediaUrls(mediaUrlList);
 
-                PolyvScreencastHelper.getInstance().transformPlayObject(mediaInfo, video,
+                PolyvScreencastHelper.getInstance().transformPlayObject(mediaUrl, video,
                         bitrate, playPath, new PolyvScreencastHelper.PolyvCastTransformCallback() {
                             @Override
                             public void onSucceed(Object object, String newPlayPath) {
                                 PolyvCommonLog.d(TAG, "cast: " + newPlayPath);
                                 int videoPosition = screencastStatusLayout.getCurrentPlayPosition();
-                                play((MediaInfo) object, newPlayPath, bitrate, videoPosition);
+                                mediaUrlList.clear();
+                                mediaUrlList.add((MediaInfo.MediaUrl) object);
+                                play(mediaInfo, newPlayPath, bitrate, videoPosition);
                                 screencastStatusLayout.resetBitRateView(bitrate);
                             }
 

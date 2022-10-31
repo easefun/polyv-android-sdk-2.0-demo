@@ -27,8 +27,18 @@ public class PolyvAllCast {
 
     }
 
-    public void initService(DLNADeviceConnectListener dlnaDeviceConnectListener, DLNARegistryListener dlnaRegistryListener) {
-        DLNASender.getInstance().initService(dlnaDeviceConnectListener, dlnaRegistryListener);
+    public void initService(DLNARegistryListener dlnaRegistryListener) {
+        DLNASender.getInstance().initService(dlnaRegistryListener, new DLNASender.DLNAInitCallback() {
+            @Override
+            public void onSuccess(int i) {
+                PolyvCommonLog.d(TAG, "initService onSuccess");
+            }
+
+            @Override
+            public void onFailure(int code, String msg) {
+                PolyvCommonLog.d(TAG, "initService onFailure, code = " + code + ", msg = " + msg);
+            }
+        });
     }
 
     public void setPlayerListener(IPLVScreencastPlayerListener listener) {
@@ -43,9 +53,9 @@ public class PolyvAllCast {
 
     }
 
-    public void connect(DeviceInfo pInfo) {
+    public void connect(DeviceInfo pInfo, DLNADeviceConnectListener deviceConnectListener) {
         DLNASender.getInstance().addCallback(callback);
-        DLNASender.getInstance().connectDevice(pInfo);
+        DLNASender.getInstance().connectDevice(pInfo, deviceConnectListener);
     }
 
     public void disConnect(DeviceInfo pInfo) {
@@ -57,7 +67,7 @@ public class PolyvAllCast {
     // <editor-fold defaultstate="collapsed" desc="播放相关方法">
 
     public void playNetMediaWithHeader(MediaInfo mediaInfo) {
-        DLNASender.getInstance().setDataSource(mediaInfo);
+        DLNASender.getInstance().setDataSource(mediaInfo, mediaInfo.getMediaName());
         DLNASender.getInstance().startDLNACast();
         startGetPositionTimer();
     }
@@ -141,6 +151,9 @@ public class PolyvAllCast {
 
         @Override
         public void onFailure(String method, int errorCode, String errorMsg) {
+            if (Constant.Action.GET_POSITION.equals(method)) {
+                return;
+            }
             if (screencastPlayerListener != null) {
                 screencastPlayerListener.onError(method, errorCode, errorMsg);
             }

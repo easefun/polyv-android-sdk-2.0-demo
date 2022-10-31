@@ -1,3 +1,22 @@
+### 2022-10-31 polyv-android-sdk-2.0.0-demo v2.18.2
+
+### 功能完善&bug修复
+* 【Demo、SDK】幕享投屏升级到1.1.5新版
+* 【SDK】支持后台配置HttpDNS开关
+* 【Demo、SDK】播放器支持软硬解手动切换功能
+* 【SDK】修复VRM13使用软解播放
+
+### 修改依赖
+``` groovy
+// 修改对应的sdk依赖
+implementation 'net.polyv.android:polyvPlayer:2.18.2'//SDK核心包
+implementation 'net.polyv.android:polyvModuleABI:1.7.6'//SDK核心包
+implementation 'net.polyv.android:polyvDownload:2.18.2'//SDK下载功能
+```
+
+API文档请看 [v2.18.2 API](http://repo.polyv.net/android/sdk/2.18.2/api/index.html)
+
+
 ### 2022-09-23 polyv-android-sdk-2.0.0-demo v2.18.0
 
 ### 功能完善&bug修复
