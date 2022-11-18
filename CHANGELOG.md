@@ -1,3 +1,16 @@
+### 2022-11-18 polyv-android-sdk-2.0.0-demo v2.18.3
+
+### bug修复
+* 【SDK】修复vrm13播放异常
+
+### 修改依赖
+``` groovy
+// 修改对应的sdk依赖
+implementation 'net.polyv.android:polyvPlayer:2.18.3'//SDK核心包
+```
+
+API文档请看 [v2.18.3 API](http://repo.polyv.net/android/sdk/2.18.3/api/index.html)
+
 ### 2022-10-31 polyv-android-sdk-2.0.0-demo v2.18.2
 
 ### 功能完善&bug修复

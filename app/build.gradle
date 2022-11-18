@@ -67,7 +67,7 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:support-v4:27.1.1'
     implementation 'com.android.support:design:27.1.1'
-    implementation 'net.polyv.android:polyvPlayer:2.18.2'//SDK核心包
+    implementation 'net.polyv.android:polyvPlayer:2.18.3'//SDK核心包
     implementation 'net.polyv.android:polyvModuleABI:1.7.6'//SDK核心包
     implementation 'net.polyv.android:polyvDownload:2.18.2'//SDK下载功能
     implementation 'net.polyv.android:polyvUpload:2.3.4'//SDK上传功能
