@@ -1,3 +1,23 @@
+### 2023-03-14 polyv-android-sdk-2.0.0-demo v2.18.4
+
+### 功能完善&bug修复
+* 【SDK】优化播放器超时重连
+* 【SDK】修复错误vid引起崩溃异常
+* 【SDK】修复gif库存在漏洞问题
+* 【SDK】修复错误token引发崩溃问题
+
+### 修改依赖
+``` groovy
+// 修改对应的sdk依赖
+implementation 'net.polyv.android:polyvPlayer:2.18.4'//SDK核心包
+implementation 'net.polyv.android:polyvDownload:2.18.4'
+implementation 'net.polyv.android:polyvGif:2.2.3'
+implementation 'net.polyv.android:polyvSub:2.18.4'
+```
+
+API文档请看 [v2.18.4 API](http://repo.polyv.net/android/sdk/2.18.4/api/index.html)
+
+
 ### 2022-11-18 polyv-android-sdk-2.0.0-demo v2.18.3
 
 ### 功能完善&bug修复

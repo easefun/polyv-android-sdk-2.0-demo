@@ -31,6 +31,16 @@
             android:text="在线视频"
             android:textColor="@color/top_text_color_black"
             android:textSize="@dimen/top_text_size" />
+
+        <TextView
+            android:id="@+id/tv_search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/talk_common_margin_l"
+            android:layout_centerVertical="true"
+            android:text="搜索"
+            android:layout_alignParentRight="true"/>
+
     </RelativeLayout>
 
     <View
