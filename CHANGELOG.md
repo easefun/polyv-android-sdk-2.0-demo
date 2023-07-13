@@ -1,3 +1,23 @@
+### 2023-07-20 polyv-android-sdk-2.0.0-demo v2.19.1
+
+### 功能完善&bug修复
+* 【SDK】离线视频鉴权方式修改
+* 【SDK】播放器支持设置起播位置
+* 【SDK】优化在弱网情况下的视频播放体验
+* 【SDK】修复部分视频音画不同步问题
+* 【SDK】修复已知会引起崩溃的问题
+
+### 修改依赖
+``` groovy
+// 修改对应的sdk依赖
+implementation 'net.polyv.android:polyvPlayer:2.19.1'
+implementation 'net.polyv.android:polyvDownload:2.19.1'
+implementation 'net.polyv.android:polyvUpload:2.19.1'
+implementation 'net.polyv.android:polyvSub:2.19.1'
+```
+
+API文档请看 [v2.19.1 API](http://repo.polyv.net/android/sdk/2.19.1/api/index.html)
+
 ### 2023-03-14 polyv-android-sdk-2.0.0-demo v2.18.4
 
 ### 功能完善&bug修复
