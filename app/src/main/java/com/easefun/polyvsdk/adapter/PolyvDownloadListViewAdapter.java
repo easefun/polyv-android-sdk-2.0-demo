@@ -1,5 +1,6 @@
 package com.easefun.polyvsdk.adapter;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -345,7 +346,10 @@ public class PolyvDownloadListViewAdapter extends BaseSwipeAdapter {
                 message += PolyvErrorMessageUtils.getDownloaderErrorMessage(errorReason.getType(), downloadInfo.getFileType());
                 message += "(error code " + errorReason.getType().getCode() + ")";
 
-//                Toast.makeText(appContext, message, Toast.LENGTH_LONG).show();
+                Context context = contextWeakReference.get();
+                if (!(context instanceof Activity) || ((Activity) context).isFinishing()) {
+                    return;
+                }
                 AlertDialog.Builder builder = new AlertDialog.Builder(contextWeakReference.get());
                 builder.setTitle("错误");
                 builder.setMessage(message);
@@ -355,6 +359,9 @@ public class PolyvDownloadListViewAdapter extends BaseSwipeAdapter {
                     }
                 });
 
+                if (((Activity) context).isFinishing()) {
+                    return;
+                }
                 builder.show();
             }
         }

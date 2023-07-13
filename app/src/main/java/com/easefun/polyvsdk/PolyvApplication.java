@@ -85,9 +85,9 @@ public class PolyvApplication extends MultiDexApplication {
 
 	private void initDownloadDir() {
 		//TODO: Android Q 开始仅限下载在私有目录
-		if(PolyvSDKClient.getInstance().isMultiDownloadAccount()){
+		if (PolyvSDKClient.getInstance().isMultiDownloadAccount()) {
 			// TODO: 2019/4/16 accountid 填入登录用户的id
-			PolyvUserClient.getInstance().login("viewerId",this);
+			PolyvUserClient.getInstance().login("viewerId", this);
 		}else{
 			PolyvUserClient.getInstance().initDownloadDir(this);
 		}

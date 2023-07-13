@@ -1,3 +1,38 @@
+### 2023-07-13 polyv-android-sdk-2.0.0-demo v2.19.0-abn
+
+### 功能完善&bug修复
+* 【SDK】离线视频鉴权方式修改
+* 【SDK】播放器支持设置起播位置
+* 【SDK】优化在弱网情况下的视频播放体验
+* 【SDK】修复部分视频音画不同步问题
+* 【SDK】修复已知会引起崩溃的问题
+
+### 迁移说明
+**由 2.18.x 及以下版本升级到 2.19.0 及以上版本时，需要注意视频下载的迁移**
+
+**自 2.19.0 版本开始，本地播放视频鉴权方式进行了调整，为了在覆盖升级时兼容已下载的旧版本视频，需要在视频播放前，手动调用迁移方法。**
+
+**迁移视频前，请认真核对 secretKey，如果使用错误的 secretKey 迁移，迁移后的离线视频将无法播放。**
+```java
+/**
+ * secretKey：下载对应离线视频时使用的secretKey
+ * videoId：非null时指定只迁移特定的视频，传null会迁移所有视频
+ * callback：迁移回调
+ */
+PLVLocalVideoMigrate.INSTANCE.migrateLocalVideoToVersion2_19(secretKey, videoId, callback);
+```
+
+### 修改依赖
+``` groovy
+// 修改对应的sdk依赖
+implementation 'net.polyv.android:polyvPlayer:2.19.0-abn'
+implementation 'net.polyv.android:polyvDownload:2.19.0-abn'
+implementation 'net.polyv.android:polyvUpload:2.19.0-abn'
+implementation 'net.polyv.android:polyvSub:2.19.0-abn'
+```
+
+API文档请看 [v2.19.0-abn API](http://repo.polyv.net/android/sdk/2.19.0-abn/api/index.html)
+
 ### 2023-03-14 polyv-android-sdk-2.0.0-demo v2.18.4
 
 ### 功能完善&bug修复
