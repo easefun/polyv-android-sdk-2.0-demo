@@ -148,8 +148,8 @@ public class PLVMarqueeRollAnimation extends PLVMarqueeAnimation {
             return;
         }
         animationStatus = STARTED;
-        final float startX = isAlwaysShowWhenRun ? screenWidth - viewWidth : screenWidth;
-        final float endX = isAlwaysShowWhenRun ? 0 : -viewWidth;
+        final float startX = isAlwaysShowWhenRun && screenWidth > viewWidth ? screenWidth - viewWidth : screenWidth;
+        final float endX = isAlwaysShowWhenRun && screenWidth > viewWidth ? 0 : -viewWidth;
         mainAnimator = ObjectAnimator.ofFloat(mainView, "translationX", startX, endX);
         mainAnimator.setStartDelay(isAlwaysShowWhenRun ? 0 : interval);
         mainAnimator.setDuration(duration);

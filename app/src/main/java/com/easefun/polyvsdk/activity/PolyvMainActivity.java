@@ -31,7 +31,6 @@ import com.easefun.polyvsdk.sub.vlms.entity.PolyvVlmsDataBody;
 import com.easefun.polyvsdk.sub.vlms.listener.PolyvVlmsApiListener2;
 import com.easefun.polyvsdk.sub.vlms.main.PolyvVlmsManager2;
 import com.easefun.polyvsdk.sub.vlms.main.PolyvVlmsTestData;
-import com.easefun.polyvsdk.util.PolyvIdUtil;
 import com.easefun.polyvsdk.util.PolyvSPUtils;
 import com.easefun.polyvsdk.view.PolyvSimpleSwipeRefreshLayout;
 
@@ -169,7 +168,6 @@ public class PolyvMainActivity extends Activity implements OnClickListener {
                 gotoActivity(type.getNum());
             }
         });
-        polyvPermission.applyPermission(this, PolyvPermission.OperationType.readImei);
     }
 
     @Override
@@ -233,9 +231,6 @@ public class PolyvMainActivity extends Activity implements OnClickListener {
     private void gotoActivity(int type) {
         PolyvPermission.OperationType OperationType = PolyvPermission.OperationType.getOperationType(type);
         switch (OperationType) {
-            case readImei:
-                PolyvSDKClient.getInstance().setImei(PolyvIdUtil.getAndroidId(this));
-                break;
             case play:
                 startActivity(new Intent(PolyvMainActivity.this, PolyvOnlineVideoActivity.class));
                 break;
@@ -271,7 +266,6 @@ public class PolyvMainActivity extends Activity implements OnClickListener {
         if (polyvPermission.operationHasPermission(requestCode)) {
             gotoActivity(requestCode);
         } else {
-            PolyvSDKClient.getInstance().setImei(PolyvIdUtil.getAndroidId(this));
             for (int i = 0; i < grantResults.length; i++) {
                 if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
                     if (!ActivityCompat.shouldShowRequestPermissionRationale(this, permissions[i])) {

@@ -30,6 +30,17 @@ public class PLVMarqueeTextView extends PLVStrokeTextView {
     }
     // </editor-fold>
 
+    // <editor-fold defaultstate="collapsed" desc="View方法重写">
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        widthMeasureSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
+        heightMeasureSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    }
+
+    // </editor-fold>
+
     // <editor-fold desc="对外API - 设置参数">
     public void setMarqueeTextModel(PLVMarqueeTextVO textVO) {
         this.textModel = textVO;

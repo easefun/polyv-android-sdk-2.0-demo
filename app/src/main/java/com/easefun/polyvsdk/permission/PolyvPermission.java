@@ -27,7 +27,7 @@ public class PolyvPermission {
         download(101),
         upload(102),
         playAndDownload(103),
-        readImei(104);
+        ;
 
         private final int num;
         private OperationType(int num) {
@@ -43,8 +43,6 @@ public class PolyvPermission {
                 return play;
             } else if (num == download.getNum()) {
                 return download;
-            } else if (num == readImei.getNum()) {
-                return readImei;
             } else if (num == upload.getNum()) {
                 return upload;
             } else if (num == playAndDownload.getNum()) {
@@ -76,9 +74,6 @@ public class PolyvPermission {
                 permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
                 permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
                 resultCode = OperationType.play.getNum();
-                break;
-            case readImei:
-                resultCode = OperationType.readImei.getNum();
                 break;
             case download:
                 //下载需要的权限

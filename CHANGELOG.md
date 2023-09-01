@@ -1,3 +1,22 @@
+### 2023-09-01 polyv-android-sdk-2.0.0-demo v2.20.0
+
+### 功能完善
+* 【SDK】支持跨端续播
+* 【SDK】支持溯源水印
+* 【demo】优化跑马灯显示样式
+* 【SDK、demo】移除先前版本中未使用的imei, deviceId字段
+
+### 修改依赖
+``` groovy
+// 修改对应的sdk依赖
+implementation 'net.polyv.android:polyvPlayer:2.20.0'
+implementation 'net.polyv.android:polyvDownload:2.20.0'
+implementation 'net.polyv.android:polyvUpload:2.20.0'
+implementation 'net.polyv.android:polyvSub:2.20.0'
+```
+
+API文档请看 [v2.20.0 API](http://repo.polyv.net/android/sdk/2.20.0/api/index.html)
+
 ### 2023-07-20 polyv-android-sdk-2.0.0-demo v2.19.1
 
 ### 功能完善&bug修复
