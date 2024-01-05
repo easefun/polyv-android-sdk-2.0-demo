@@ -1,3 +1,22 @@
+### 2024-01-05 polyv-android-sdk-2.0.0-demo v2.21.0
+
+### 功能完善
+* 【SDK】优化部分视频的seek速度
+* 【SDK】优化在弱网情况下的视频播放体验
+* 【SDK】修复自动续播失效的问题
+* 【SDK】修复已知会引起崩溃的问题
+
+### 修改依赖
+```groovy
+// 修改对应的sdk依赖
+implementation 'net.polyv.android:polyvPlayer:2.21.0'
+implementation 'net.polyv.android:polyvDownload:2.21.0'
+implementation 'net.polyv.android:polyvUpload:2.21.0'
+implementation 'net.polyv.android:polyvSub:2.21.0'
+```
+
+API文档请看 [v2.21.0 API](http://repo.polyv.net/android/sdk/2.21.0/api/index.html)
+
 ### 2023-09-01 polyv-android-sdk-2.0.0-demo v2.20.0
 
 ### 功能完善
