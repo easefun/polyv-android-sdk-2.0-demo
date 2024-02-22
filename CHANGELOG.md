@@ -1,3 +1,19 @@
+### 2024-02-22 polyv-android-sdk-2.0.0-demo v2.21.1
+
+### 功能完善
+* 【SDK】优化升级httpdns
+
+### 修改依赖
+```groovy
+// 修改对应的sdk依赖
+implementation 'net.polyv.android:polyvPlayer:2.21.1'
+implementation 'net.polyv.android:polyvDownload:2.21.1'
+implementation 'net.polyv.android:polyvUpload:2.21.1'
+implementation 'net.polyv.android:polyvSub:2.21.1'
+```
+
+API文档请看 [v2.21.1 API](http://repo.polyv.net/android/sdk/2.21.1/api/index.html)
+
 ### 2024-01-05 polyv-android-sdk-2.0.0-demo v2.21.0
 
 ### 功能完善
