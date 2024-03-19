@@ -1,3 +1,22 @@
+### 2024-03-19 polyv-android-sdk-2.0.0-demo v2.21.2
+
+### 功能完善&bug修复
+* 【SDK】优化升级httpdns
+* 【SDK】完善错误日志收集
+* 【SDK】兼容旧版投屏功能使用
+* 【SDK】修复已知内存泄露问题
+
+### 修改依赖
+```groovy
+// 修改对应的sdk依赖
+implementation 'net.polyv.android:polyvPlayer:2.21.2'
+implementation 'net.polyv.android:polyvDownload:2.21.2'
+implementation 'net.polyv.android:polyvUpload:2.21.2'
+implementation 'net.polyv.android:polyvSub:2.21.2'
+```
+
+API文档请看 [v2.21.2 API](http://repo.polyv.net/android/sdk/2.21.2/api/index.html)
+
 ### 2024-02-22 polyv-android-sdk-2.0.0-demo v2.21.1
 
 ### 功能完善
