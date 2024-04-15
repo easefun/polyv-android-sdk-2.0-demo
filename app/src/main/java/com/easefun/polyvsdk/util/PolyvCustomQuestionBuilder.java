@@ -1,6 +1,6 @@
 package com.easefun.polyvsdk.util;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.easefun.polyvsdk.player.PolyvPlayerAnswerView;
 import com.easefun.polyvsdk.vo.PolyvQuestionChoicesVO;

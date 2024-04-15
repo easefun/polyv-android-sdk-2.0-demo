@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
-import android.support.annotation.IntRange;
+import androidx.annotation.IntRange;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;

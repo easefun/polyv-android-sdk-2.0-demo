@@ -1,6 +1,6 @@
 package com.easefun.polyvsdk.bean;
 
-import android.support.annotation.Keep;
+import androidx.annotation.Keep;
 
 /**
  * date: 2019/8/9 0009

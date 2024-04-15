@@ -1,7 +1,7 @@
 package com.easefun.polyvsdk;
 
 import android.os.AsyncTask;
-import android.support.multidex.MultiDexApplication;
+import androidx.multidex.MultiDexApplication;
 import android.text.TextUtils;
 
 import com.apowersoft.dlnasender.api.listener.WxDlnaSenderInitCallback;

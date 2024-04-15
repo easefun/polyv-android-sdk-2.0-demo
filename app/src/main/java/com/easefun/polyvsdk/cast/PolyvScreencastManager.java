@@ -5,7 +5,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.apowersoft.dlnasender.api.DLNASender;
 import com.apowersoft.dlnasender.api.bean.DeviceInfo;

@@ -2,7 +2,7 @@ package com.easefun.polyvsdk.marquee;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.AttributeSet;
 
 import com.easefun.polyvsdk.marquee.model.PLVMarqueeTextVO;

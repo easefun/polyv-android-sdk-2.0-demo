@@ -63,7 +63,7 @@
         android:layout_below="@id/rl_top"
         android:background="@color/commom_sline_color_gray" />
 
-    <android.support.v4.view.ViewPager
+    <androidx.viewpager.widget.ViewPager
         android:id="@+id/vp_download"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

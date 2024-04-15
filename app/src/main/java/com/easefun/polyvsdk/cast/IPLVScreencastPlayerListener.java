@@ -1,6 +1,6 @@
 package com.easefun.polyvsdk.cast;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 /**
  * @author Hoshiiro

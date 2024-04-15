@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:background="@color/center_layout_color_gray">
 
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/lv_online"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

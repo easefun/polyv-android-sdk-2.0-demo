@@ -3,7 +3,7 @@ package com.easefun.polyvsdk.marquee.animation;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.os.Build;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
