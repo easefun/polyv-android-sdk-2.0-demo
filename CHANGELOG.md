@@ -1,3 +1,25 @@
+### 2024-06-07 polyv-android-sdk-2.0.0-demo v2.22.0
+
+### 功能完善&bug修复
+* 【Demo】新增广告跳过
+* 【SDK、Demo】新增双字幕
+* 【SDK、Demo】新增广告文案响应后台配置
+* 【SDK】修复部分视频下载失败问题
+* 【SDK】修复续播功能失败问题
+* 【SDK】修复硬编码安全隐患问题
+* 【Demo】修复题目不显示问题
+
+### 修改依赖
+```groovy
+// 修改对应的sdk依赖
+implementation 'net.polyv.android:polyvPlayer:2.22.0'
+implementation 'net.polyv.android:polyvDownload:2.22.0'
+implementation 'net.polyv.android:polyvUpload:2.22.0'
+implementation 'net.polyv.android:polyvSub:2.22.0'
+```
+
+API文档请看 [v2.22.0 API](http://repo.polyv.net/android/sdk/2.22.0/api/index.html)
+
 ### 2024-03-19 polyv-android-sdk-2.0.0-demo v2.21.2
 
 ### 功能完善&bug修复

@@ -40,7 +40,7 @@
         </activity>
         <activity
             android:name="com.easefun.polyvsdk.activity.PolyvPlayerActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
+            android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout|keyboard|navigation"
             android:supportsPictureInPicture="true"
             android:launchMode="singleTask"
             android:label="@string/app_name"

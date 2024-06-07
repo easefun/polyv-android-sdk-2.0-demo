@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -72,6 +73,11 @@ public class PolyvUploadActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                // 在Android14上特有问题，直接使用ACTION_GET_CONTENT和video/* 返回不准确路径
+                // com.android.providers.media.photopicker/media/1000000044.mp4,故使用下面的方式打开
+                if (Build.VERSION.SDK_INT >= 34) {
+                    intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                }
                 intent.setType("video/*");
                 startActivityForResult(Intent.createChooser(intent, "完成操作需使用"), 12);
             }

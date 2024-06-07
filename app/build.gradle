@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     buildToolsVersion '29.0.3'
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 29
-        versionCode 221020
-        versionName "2.21.2"
+        targetSdkVersion 30
+        versionCode 222000
+        versionName "2.22.0"
 
         //64K 引用限制
         multiDexEnabled true
@@ -68,10 +68,10 @@ dependencies {
     implementation 'com.android.support:design:27.1.1'
     implementation 'com.android.support:multidex:1.0.3'
 
-    implementation 'net.polyv.android:polyvPlayer:2.21.2'//SDK核心包
-    implementation 'net.polyv.android:polyvDownload:2.21.2'//SDK下载功能
-    implementation 'net.polyv.android:polyvUpload:2.21.2'//SDK上传功能
-    implementation 'net.polyv.android:polyvSub:2.21.2'//弹幕、截图功能中使用
+    implementation 'net.polyv.android:polyvPlayer:2.22.0'//SDK核心包
+    implementation 'net.polyv.android:polyvDownload:2.22.0'//SDK下载功能
+    implementation 'net.polyv.android:polyvUpload:2.22.0'//SDK上传功能
+    implementation 'net.polyv.android:polyvSub:2.22.0'//弹幕、截图功能中使用
 
     implementation 'de.hdodenhof:circleimageview:2.2.0'//圆形imageview，音频封面图使用
     implementation 'com.github.bumptech.glide:glide:4.7.1'//demo中的ppt图片加载使用
