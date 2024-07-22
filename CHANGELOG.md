@@ -1,3 +1,23 @@
+### 2024-07-22 polyv-android-sdk-2.0.0-demo v2.22.1
+
+### 功能完善&bug修复
+* 【SDK】新增清除播放时长api
+* 【SDK】修复播放器抛出空指针异常
+* 【SDK】修复切换线路崩溃异常
+* 【SDK】修复上传日志崩溃异常
+
+
+### 修改依赖
+```groovy
+// 修改对应的sdk依赖
+implementation 'net.polyv.android:polyvPlayer:2.22.1'
+implementation 'net.polyv.android:polyvDownload:2.22.1'
+implementation 'net.polyv.android:polyvUpload:2.22.1'
+implementation 'net.polyv.android:polyvSub:2.22.1'
+```
+
+API文档请看 [v2.22.1 API](http://repo.polyv.net/android/sdk/2.22.1/api/index.html)
+
 ### 2024-06-07 polyv-android-sdk-2.0.0-demo v2.22.0
 
 ### 功能完善&bug修复
