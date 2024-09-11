@@ -1,3 +1,23 @@
+### 2024-09-11 polyv-android-sdk-2.0.0-demo v2.22.2
+
+### 功能完善&bug修复
+* 【SDK、Demo】优化视频宽高动态变化问题
+* 【SDK】修复ipv6下载加密视频失败问题
+* 【SDK】zip4j解压库版本升级
+* 【SDK、Demo】下载视频token失效添加失败回调
+
+
+### 修改依赖
+```groovy
+// 修改对应的sdk依赖
+implementation 'net.polyv.android:polyvPlayer:2.22.2'
+implementation 'net.polyv.android:polyvDownload:2.22.2'
+implementation 'net.polyv.android:polyvUpload:2.22.2'
+implementation 'net.polyv.android:polyvSub:2.22.2'
+```
+
+API文档请看 [v2.22.2 API](http://repo.polyv.net/android/sdk/2.22.2/api/index.html)
+
 ### 2024-07-22 polyv-android-sdk-2.0.0-demo v2.22.1
 
 ### 功能完善&bug修复
