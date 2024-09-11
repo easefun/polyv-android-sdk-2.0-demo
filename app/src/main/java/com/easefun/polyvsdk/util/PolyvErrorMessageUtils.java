@@ -205,6 +205,9 @@ public class PolyvErrorMessageUtils {
             case VIDEO_JSON_SERVER_ERROR:
                 return "视频加载失败，请联系管理员";
 
+            case VIDEO_TOKEN_ERROR:
+                return "视频加载失败，请尝试切换网络重新下载或者向管理员反馈";
+
             default:
                 return "当前" + tipsTypeMsg + "无法下载，请向管理员反馈";
         }

@@ -61,6 +61,7 @@ import com.easefun.polyvsdk.video.IPolyvVideoView;
 import com.easefun.polyvsdk.video.PolyvBaseMediaController;
 import com.easefun.polyvsdk.video.PolyvVideoUtil;
 import com.easefun.polyvsdk.video.PolyvVideoView;
+import com.easefun.polyvsdk.video.listener.IPolyvOnVideoSizeChangedListener2;
 import com.easefun.polyvsdk.view.PolyvTickSeekBar;
 import com.easefun.polyvsdk.view.PolyvTickTips;
 import com.easefun.polyvsdk.vo.PolyvSRTItemVO;
@@ -766,6 +767,18 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             videoVO = videoView.getVideo();
             videoWidth = videoView.getVideoWidth();
             videoHeight = videoView.getVideoHeight();
+
+            this.videoView.setOnVideoSizeChangedListener(new IPolyvOnVideoSizeChangedListener2() {
+                @Override
+                public void onVideoSizeChanged(int width, int height, int sarNum, int sarDen) {
+                    if (width != videoWidth || height != videoHeight) {
+                        videoWidth = width;
+                        videoHeight = height;
+                        videoView.getRenderView().setVideoSize(width, height);
+                    }
+                }
+            });
+
             showAudioLock(canShowLeftSideView());
             if (videoVO != null)
                 tv_title.setText(videoVO.getTitle());
