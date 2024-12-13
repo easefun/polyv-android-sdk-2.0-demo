@@ -680,7 +680,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
         videoView.setOnVideoPlayErrorListener(new IPolyvOnVideoPlayErrorListener2() {
             @Override
             public boolean onVideoPlayError(@PolyvPlayErrorReason.PlayErrorReason int playErrorReason) {
-                    playErrorView.show(playErrorReason, videoView);
+                    playErrorView.show(playErrorReason, videoView, vid, bitrate);
                 return true;
             }
         });
@@ -1124,6 +1124,18 @@ public class PolyvPlayerActivity extends FragmentActivity {
             @Override
             public void onShow() {
                 playRouteView.show(videoView);
+            }
+        });
+
+        playErrorView.setFixFileListener(new PolyvPlayerPlayErrorView.IFixFileListener() {
+            @Override
+            public void onFixOne() {
+                playErrorView.fixOne(vid, bitrate);
+            }
+
+            @Override
+            public void onFixAll() {
+                playErrorView.fixAll();
             }
         });
     }

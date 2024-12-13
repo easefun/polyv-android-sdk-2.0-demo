@@ -1,6 +1,7 @@
 package com.easefun.polyvsdk.util;
 
 import android.app.Activity;
+import android.provider.Settings;
 import android.view.OrientationEventListener;
 
 import java.lang.ref.WeakReference;
@@ -16,6 +17,9 @@ public class PolyvSensorHelper {
             @Override
             public void onOrientationChanged(int orientation) {
                 Activity activity1 = wr_activity.get();
+                if (!isAutoRotateOn(activity1)) {
+                    return;
+                }
                 if (activity1 != null) {
                     boolean isPortrait = PolyvScreenUtils.isPortrait(activity1);
                     if ((orientation > -1 && orientation <= 10) || orientation >= 350 || (orientation <= 190 && orientation >= 170)) {
@@ -53,5 +57,9 @@ public class PolyvSensorHelper {
     public void toggle(boolean switchFlag, boolean isLandscape) {
         this.switchFlag = switchFlag;
         this.isLandscape = isLandscape;
+    }
+
+    private boolean isAutoRotateOn(Activity activity) {
+        return (Settings.System.getInt(activity.getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 0) == 1);
     }
 }

@@ -1,3 +1,32 @@
+### 2024-12-13 polyv-android-sdk-2.0.0-demo v2.22.3
+
+### 功能完善&bug修复
+* 【SDK】兼容先初始化下载目录调用顺序导致的下载视频迁移问题
+* 【SDK、Demo】增加修复迁移失败视频的方法和UI交互
+* 【SDK、Demo】兼容多用户下载的视频迁移问题
+* 【Demo】修复某些情况下跑马灯字体过小问题
+* 【SDK】修复已知偶现下载崩溃问题
+* 【SDK】修复没有画面的视频使用音频模式播放问题
+* 【Demo】修复设备锁定屏幕旋转后，播放器还会响应重力感应旋转问题
+
+
+### 修改依赖
+```groovy
+// 修改对应的sdk依赖
+implementation 'net.polyv.android:polyvPlayer:2.22.3'
+implementation 'net.polyv.android:polyvDownload:2.22.3'
+implementation 'net.polyv.android:polyvUpload:2.22.3'
+implementation 'net.polyv.android:polyvSub:2.22.3'
+```
+
+### 迁移说明
+
+**由 2.18.x 及以下版本升级到 2.19.1 及以上版本时，需要注意视频下载的迁移**
+
+**自 2.19.1 版本开始，本地播放视频鉴权方式进行了调整，为了在覆盖升级时兼容已下载的旧版本视频，初始换sdk时会自动迁移，必须严格测试本地缓存视频是否迁移成功。必须确保`client.settingsWithConfigStrin`g在`initDownloadDir`之前调用，否则迁移失败视频将无法播放。**
+
+API文档请看 [v2.22.3 API](http://repo.polyv.net/android/sdk/2.22.3/api/index.html)
+
 ### 2024-09-11 polyv-android-sdk-2.0.0-demo v2.22.2
 
 ### 功能完善&bug修复
