@@ -23,7 +23,7 @@ implementation 'net.polyv.android:polyvSub:2.22.3'
 
 **由 2.18.x 及以下版本升级到 2.19.1 及以上版本时，需要注意视频下载的迁移**
 
-**自 2.19.1 版本开始，本地播放视频鉴权方式进行了调整，为了在覆盖升级时兼容已下载的旧版本视频，初始换sdk时会自动迁移，必须严格测试本地缓存视频是否迁移成功。必须确保`client.settingsWithConfigStrin`g在`initDownloadDir`之前调用，否则迁移失败视频将无法播放。**
+**自 2.19.1 版本开始，本地播放视频鉴权方式进行了调整，为了在覆盖升级时兼容已下载的旧版本视频，初始换sdk时会自动迁移，必须严格测试本地缓存视频是否迁移成功。**
 
 API文档请看 [v2.22.3 API](http://repo.polyv.net/android/sdk/2.22.3/api/index.html)
 
