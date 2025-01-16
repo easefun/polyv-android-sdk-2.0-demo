@@ -17,7 +17,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
 import android.support.annotation.DrawableRes;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -43,6 +42,8 @@ import com.easefun.polyvsdk.fragment.PolyvPlayerTopFragment;
 import com.easefun.polyvsdk.ijk.PolyvPlayerScreenRatio;
 import com.easefun.polyvsdk.player.knowledge.PolyvPlayerKnowledgeLayout;
 import com.easefun.polyvsdk.player.knowledge.vo.PolyvPlayerKnowledgeVO;
+import com.easefun.polyvsdk.player.marker.PLVProgressMarker;
+import com.easefun.polyvsdk.player.marker.PLVProgressMarkerView;
 import com.easefun.polyvsdk.ppt.PolyvPPTDirLayout;
 import com.easefun.polyvsdk.ppt.PolyvViceScreenLayout;
 import com.easefun.polyvsdk.sub.auxilliary.IOUtil;
@@ -66,6 +67,7 @@ import com.easefun.polyvsdk.view.PolyvTickSeekBar;
 import com.easefun.polyvsdk.view.PolyvTickTips;
 import com.easefun.polyvsdk.vo.PolyvSRTItemVO;
 import com.easefun.polyvsdk.vo.PolyvVideoVO;
+import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -73,6 +75,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 public class PolyvPlayerMediaController extends PolyvBaseMediaController implements View.OnClickListener {
     private static final String TAG = PolyvPlayerMediaController.class.getSimpleName();
@@ -235,6 +240,8 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     private PolyvTickTips tickTips;
 
     private ImageView polyvScreenLock, polyvScreenLockAudio;
+    private PLVProgressMarkerView mediaControllerMarkerViewPort;
+    private PLVProgressMarkerView mediaControllerMarkerViewLand;
 
     //网络监测
     private PolyvNetworkDetection networkDetection;
@@ -263,7 +270,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     public static final int DRAG_SEEK_ALLOW = 0;//允许拖动进度条跳转进度
     public static final int DRAG_SEEK_BAN = 1;//禁止拖动进度条跳转进度
     public static final int DRAG_SEEK_PLAYED = 2;//只允许在已播放进度区域拖动跳转播放进度
-    private int dragSeekStrategy = DRAG_SEEK_PLAYED;
+    private int dragSeekStrategy = DRAG_SEEK_ALLOW;
     private OnDragSeekListener onDragSeekListener;
 
     private static final int SAVE_PROGRESS = 30;
@@ -561,6 +568,8 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         iv_close_route = (ImageView) view.findViewById(R.id.iv_close_route);
         // 知识清单布局
         knowledgeLayout = (PolyvPlayerKnowledgeLayout) view.findViewById(R.id.knowledge_layout);
+        mediaControllerMarkerViewPort = findViewById(R.id.plv_media_controller_marker_view_port);
+        mediaControllerMarkerViewLand = findViewById(R.id.plv_media_controller_marker_view_land);
 
         sensorHelper = new PolyvSensorHelper(videoActivity);
         tickTips = (PolyvTickTips) view.findViewById(R.id.fl_tt);
@@ -785,6 +794,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             int totalTime = videoView.getDuration();
             tv_tottime.setText(PolyvTimeUtils.generateTime(totalTime));
             tv_tottime_land.setText(PolyvTimeUtils.generateTime(totalTime));
+            mockMarkers();
             //初始化播放器的银幕比率的显示控件
             initRatioView(videoView.getCurrentAspectRatio());
             //初始化倍速控件及其可见性
@@ -2356,5 +2366,37 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         void onDragSeekSuccess(int positionBeforeSeek, int positionAfterSeek);
 
         void onDragSeekBan(int dragSeekStrategy);
+    }
+
+    private void mockMarkers() {
+        if (videoView == null) {
+            return;
+        }
+        final long duration = videoView.getDuration();
+        List<PLVProgressMarker> markers = new ArrayList<>();
+        for (int i = 1; i < 5; ++i) {
+            long time = i * duration / 5;
+            long second = time / 1000;
+            PLVProgressMarker marker = new PLVProgressMarker(
+                    time,
+                    second + "s",
+                    "marker" + second,
+                    0x99000000,
+                    Color.WHITE,
+                    new Function1<PLVProgressMarker, Unit>() {
+                        @Override
+                        public Unit invoke(PLVProgressMarker marker) {
+                            String text = new Gson().toJson(marker);
+                            Toast.makeText(videoView.getContext(), text, Toast.LENGTH_SHORT).show();
+                            return null;
+                        }
+                    }
+            );
+            markers.add(marker);
+        }
+        mediaControllerMarkerViewPort.setDuration(duration);
+        mediaControllerMarkerViewPort.setMarkers(markers);
+        mediaControllerMarkerViewLand.setDuration(duration);
+        mediaControllerMarkerViewLand.setMarkers(markers);
     }
 }

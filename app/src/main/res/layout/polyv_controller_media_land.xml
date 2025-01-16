@@ -310,6 +310,18 @@
             android:src="@drawable/polyv_dm_switch" />
     </RelativeLayout>
 
+    <com.easefun.polyvsdk.player.heatmap.PLVHeatMapMask
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignBottom="@+id/plv_media_controller_heat_map_view_land" />
+
+    <com.easefun.polyvsdk.player.heatmap.PLVHeatMapView
+        android:id="@+id/plv_media_controller_heat_map_view_land"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_marginBottom="-15dp"
+        android:layout_above="@+id/sb_play_land" />
+
     <com.easefun.polyvsdk.view.PolyvTickSeekBar
         android:id="@+id/sb_play_land"
         android:layout_width="match_parent"
@@ -326,6 +338,13 @@
         android:secondaryProgress="0"
         android:thumb="@drawable/polyv_sb_thumb"
         android:thumbOffset="0dp" />
+
+    <com.easefun.polyvsdk.player.marker.PLVProgressMarkerView
+        android:id="@+id/plv_media_controller_marker_view_land"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="-12dp"
+        android:layout_above="@+id/sb_play_land" />
 
     <com.easefun.polyvsdk.view.PolyvTickTips
         android:id="@+id/fl_tt"
