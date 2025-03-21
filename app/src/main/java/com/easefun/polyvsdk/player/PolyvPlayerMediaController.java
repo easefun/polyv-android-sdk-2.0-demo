@@ -103,7 +103,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     // 竖屏的控制栏
     private RelativeLayout rl_port;
     // 竖屏的切屏按钮，竖屏的播放/暂停按钮
-    private ImageView iv_land, iv_play, iv_vice_status_portrait, iv_pip_portrait;
+    private ImageView iv_land, iv_play, iv_vice_status_portrait, iv_pip_portrait, iv_lines_portrait;
     // 竖屏的显示播放进度控件，切换清晰度按钮，切换倍速按钮，切换线路按钮
     private TextView tv_curtime, tv_tottime, tv_bit_portrait, tv_speed_portrait, tv_route_portrait;
     // 竖屏的进度条
@@ -139,7 +139,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     //横屏的控制栏，顶部布局，底部布局
     private RelativeLayout rl_land, rl_top, rl_bot;
     //横屏的切屏按钮，横屏的播放/暂停按钮,横屏的返回按钮，设置按钮，分享按钮，弹幕开关
-    private ImageView iv_port, iv_play_land, iv_finish, iv_set, iv_share, iv_dmswitch, iv_vice_status, iv_pip;
+    private ImageView iv_port, iv_play_land, iv_finish, iv_set, iv_share, iv_dmswitch, iv_vice_status, iv_pip, iv_lines_land;
     // 横屏的显示播放进度控件,视频的标题,选择播放速度按钮，选择码率按钮，选择线路按钮
     private TextView tv_curtime_land, tv_tottime_land, tv_title, tv_speed, tv_bit, tv_route, tv_ppt_dir, tvKnowledge;
     // 横屏的进度条
@@ -257,6 +257,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     private boolean isViceHideInPipMode;
 
     private PolyvSettings videoSetting = new PolyvSettings(getContext());
+    private PolyvPlayerLinePopupView linesPopupView;
 
     //全屏策略
     private static final int FULLSCREEN_RATIO = 0;//根据视频宽高判断，当宽>=高时，使用横屏全屏
@@ -270,7 +271,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     public static final int DRAG_SEEK_ALLOW = 0;//允许拖动进度条跳转进度
     public static final int DRAG_SEEK_BAN = 1;//禁止拖动进度条跳转进度
     public static final int DRAG_SEEK_PLAYED = 2;//只允许在已播放进度区域拖动跳转播放进度
-    private int dragSeekStrategy = DRAG_SEEK_ALLOW;
+    private int dragSeekStrategy = DRAG_SEEK_PLAYED;
     private OnDragSeekListener onDragSeekListener;
 
     private static final int SAVE_PROGRESS = 30;
@@ -394,6 +395,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         this.mContext = context;
         this.videoActivity = (Activity) mContext;
         this.view = LayoutInflater.from(getContext()).inflate(R.layout.polyv_controller_media, this);
+        this.linesPopupView = new PolyvPlayerLinePopupView(this);
         findIdAndNew();
         initView();
     }
@@ -440,6 +442,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         tv_bit_portrait = (TextView) view.findViewById(R.id.tv_bit_portrait);
         tv_speed_portrait = (TextView) view.findViewById(R.id.tv_speed_portrait);
         tv_route_portrait = (TextView) view.findViewById(R.id.tv_route_portrait);
+        iv_lines_portrait = view.findViewById(R.id.iv_lines_portrait);
         sb_play = (SeekBar) view.findViewById(R.id.sb_play);
         controllerCodecPortraitRl = findViewById(R.id.plv_controller_codec_portrait_rl);
         controllerMediaCodecPortraitTv = findViewById(R.id.plv_controller_media_codec_portrait_tv);
@@ -482,6 +485,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         tv_speed = (TextView) view.findViewById(R.id.tv_speed);
         tv_bit = (TextView) view.findViewById(R.id.tv_bit);
         tv_route = (TextView) view.findViewById(R.id.tv_route);
+        iv_lines_land = view.findViewById(R.id.iv_lines_land);
         tv_ppt_dir = (TextView) view.findViewById(R.id.tv_ppt_dir);
         tvKnowledge = (TextView) view.findViewById(R.id.tv_knowledge);
         controllerCodecRl = findViewById(R.id.plv_controller_codec_rl);
@@ -712,7 +716,9 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         polyvScreenLock.setOnClickListener(this);
         polyvScreenLockAudio.setOnClickListener(this);
         tv_route.setOnClickListener(this);
+        iv_lines_land.setOnClickListener(this);
         tv_route_portrait.setOnClickListener(this);
+        iv_lines_portrait.setOnClickListener(this);
         tv_route1.setOnClickListener(this);
         tv_route1_portrait.setOnClickListener(this);
         tv_route2.setOnClickListener(this);
@@ -802,11 +808,6 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             //初始化码率控件及其可见性
             initBitRateView(videoView.getBitRate());
             initBitRateViewVisible(videoView.getBitRate());
-            //初始化切换线路及其可见性
-            initRouteView();
-            //非全屏和全屏的控制栏的切换线路按钮默认不可见，如需更改为可见，注释这两行代码即可
-            tv_route_portrait.setVisibility(View.GONE);
-            tv_route.setVisibility(View.GONE);
 
             //音频模式下，隐藏切换码率/填充模式/字幕/截图的按钮
             int visibility = PolyvVideoVO.MODE_AUDIO.equals(videoView.getCurrentMode()) ? View.GONE : View.VISIBLE;
@@ -2199,6 +2200,10 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                     resetRouteLayout(View.VISIBLE);
                 else
                     resetRouteLayout(View.GONE);
+                break;
+            case R.id.iv_lines_portrait:
+            case R.id.iv_lines_land:
+                linesPopupView.show(videoView, videoView.getCurrentVid(), videoView.getBitRate());
                 break;
             case R.id.tv_route1_portrait:
             case R.id.tv_route1:

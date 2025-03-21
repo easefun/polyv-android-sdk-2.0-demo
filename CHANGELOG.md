@@ -1,3 +1,32 @@
+### 2025-03-21 polyv-android-sdk-2.0.0-demo v2.22.4.1
+
+### 功能完善&bug修复
+* 增加播放线路配置面板(demo)
+* 优化播放错误弹窗面板(demo)
+* 增加网络状态监控恢复播放机制(demo、sdk)
+* 优化异常重试时可按当前进度播放(sdk)
+* 优化接口请求超时配置(sdk)
+* 优化并启用httpdns优选(sdk)
+* 完善播放异常追溯能力(sdk)
+* 优化复杂网络的播放稳定性(sdk)
+
+### 修改依赖
+```groovy
+// 修改对应的sdk依赖
+implementation 'net.polyv.android:polyvPlayer:2.22.4.1'
+implementation 'net.polyv.android:polyvDownload:2.22.4.1'
+implementation 'net.polyv.android:polyvUpload:2.22.4.1'
+implementation 'net.polyv.android:polyvSub:2.22.4.1'
+```
+
+### 迁移说明
+
+**由 2.18.x 及以下版本升级到 2.19.1 及以上版本时，需要注意视频下载的迁移**
+
+**自 2.19.1 版本开始，本地播放视频鉴权方式进行了调整，为了在覆盖升级时兼容已下载的旧版本视频，初始换sdk时会自动迁移，必须严格测试本地缓存视频是否迁移成功。**
+
+API文档请看 [v2.22.4.1 API](http://repo.polyv.net/android/sdk/2.22.4.1/api/index.html)
+
 ### 2025-01-16 polyv-android-sdk-2.0.0-demo v2.22.4
 
 ### 功能完善&bug修复

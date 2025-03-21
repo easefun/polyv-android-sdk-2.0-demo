@@ -530,13 +530,16 @@ public class PolyvPlayerActivity extends FragmentActivity {
         videoView.setNeedGestureDetector(true);
         videoView.setSeekType(PolyvSeekType.SEEKTYPE_NORMAL);
         videoView.setAudioSeekType(PolyvAudioSeekType.SEEKTYPE_NORMAL);
-        videoView.setLoadTimeoutSecond(false, 60);//加载超时时间，单位：秒。false：不开启。
+        videoView.setAutoRecover(true);
+        videoView.setLoadTimeoutSecond(false, 30);//加载超时时间，单位：秒。false：不开启。
         videoView.setBufferTimeoutSecond(false, 30);//缓冲超时时间，单位：秒。false：不开启。
         videoView.disableScreenCAP(this, false);//防录屏开关，true为开启，如果开启防录屏，投屏功能将不可用
 
         videoView.setOnPreparedListener(new IPolyvOnPreparedListener2() {
             @Override
             public void onPrepared() {
+                // 恢复播放后，应该隐藏错误提示框
+                playErrorView.hide();
                 if (videoView.getVideo() != null && videoView.getVideo().isMp3Source()) {
                     audioSourceCoverView.onlyShowCover(videoView);
                 } else {
@@ -1117,25 +1120,6 @@ public class PolyvPlayerActivity extends FragmentActivity {
             @Override
             public void onRetry() {
                 play(vid, bitrate, true, isMustFromLocal);
-            }
-        });
-
-        playErrorView.setShowRouteViewListener(new PolyvPlayerPlayErrorView.IShowRouteViewListener() {
-            @Override
-            public void onShow() {
-                playRouteView.show(videoView);
-            }
-        });
-
-        playErrorView.setFixFileListener(new PolyvPlayerPlayErrorView.IFixFileListener() {
-            @Override
-            public void onFixOne() {
-                playErrorView.fixOne(vid, bitrate);
-            }
-
-            @Override
-            public void onFixAll() {
-                playErrorView.fixAll();
             }
         });
     }
