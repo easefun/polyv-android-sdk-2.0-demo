@@ -2,7 +2,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="#ffffff">
 
     <FrameLayout
         android:id="@+id/fl_top"
@@ -287,6 +288,7 @@
             android:id="@+id/polyv_player_play_error_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop="16dp"
             android:visibility="gone" />
 
         <!-- 线路切换界面 -->
