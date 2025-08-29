@@ -40,6 +40,8 @@ import com.easefun.polyvsdk.application.PolyvSettings;
 import com.easefun.polyvsdk.fragment.PolyvPlayerDanmuFragment;
 import com.easefun.polyvsdk.fragment.PolyvPlayerTopFragment;
 import com.easefun.polyvsdk.ijk.PolyvPlayerScreenRatio;
+import com.easefun.polyvsdk.player.heatmap.PLVHeatMapMask;
+import com.easefun.polyvsdk.player.heatmap.PLVHeatMapView;
 import com.easefun.polyvsdk.player.knowledge.PolyvPlayerKnowledgeLayout;
 import com.easefun.polyvsdk.player.knowledge.vo.PolyvPlayerKnowledgeVO;
 import com.easefun.polyvsdk.player.marker.PLVProgressMarker;
@@ -118,7 +120,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     //播放速度布局
     private RelativeLayout rl_center_speed_portrait;
     //选择播放速度控件
-    private TextView tv_speed05_portrait, tv_speed10_portrait, tv_speed12_portrait, tv_speed15_portrait, tv_speed20_portrait;
+    private TextView tv_speed05_portrait, tv_speed075_portrait, tv_speed10_portrait, tv_speed125_portrait, tv_speed15_portrait, tv_speed20_portrait, tv_speed30_portrait;
     /**
      * 竖屏的播放码率布局
      */
@@ -205,7 +207,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     //播放速度布局
     private RelativeLayout rl_center_speed;
     //选择播放速度控件
-    private TextView tv_speed05, tv_speed10, tv_speed12, tv_speed15, tv_speed20;
+    private TextView tv_speed05, tv_speed075, tv_speed10, tv_speed125, tv_speed15, tv_speed20, tv_speed30;
     //关闭布局按钮
     private ImageView iv_close_speed;
     /**
@@ -242,6 +244,8 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     private ImageView polyvScreenLock, polyvScreenLockAudio;
     private PLVProgressMarkerView mediaControllerMarkerViewPort;
     private PLVProgressMarkerView mediaControllerMarkerViewLand;
+    private PLVHeatMapMask mediaControllerHeatMapMaskLand;
+    private PLVHeatMapView mediaControllerHeatMapViewLand;
 
     //网络监测
     private PolyvNetworkDetection networkDetection;
@@ -451,10 +455,12 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         //竖屏的播放速度布局的view
         rl_center_speed_portrait = (RelativeLayout) view.findViewById(R.id.rl_center_speed_portrait);
         tv_speed05_portrait = (TextView) view.findViewById(R.id.tv_speed05_portrait);
+        tv_speed075_portrait = (TextView) view.findViewById(R.id.tv_speed075_portrait);
         tv_speed10_portrait = (TextView) view.findViewById(R.id.tv_speed10_portrait);
-        tv_speed12_portrait = (TextView) view.findViewById(R.id.tv_speed12_portrait);
+        tv_speed125_portrait = (TextView) view.findViewById(R.id.tv_speed125_portrait);
         tv_speed15_portrait = (TextView) view.findViewById(R.id.tv_speed15_portrait);
         tv_speed20_portrait = (TextView) view.findViewById(R.id.tv_speed20_portrait);
+        tv_speed30_portrait = (TextView) view.findViewById(R.id.tv_speed30_portrait);
         //竖屏的播放码率布局的view
         rl_center_bit_portrait = (RelativeLayout) view.findViewById(R.id.rl_center_bit_portrait);
         tv_sc_portrait = (TextView) view.findViewById(R.id.tv_sc_portrait);
@@ -552,10 +558,12 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         //横屏的播放速度布局的view
         rl_center_speed = (RelativeLayout) view.findViewById(R.id.rl_center_speed);
         tv_speed05 = (TextView) view.findViewById(R.id.tv_speed05);
+        tv_speed075 = (TextView) view.findViewById(R.id.tv_speed075);
         tv_speed10 = (TextView) view.findViewById(R.id.tv_speed10);
-        tv_speed12 = (TextView) view.findViewById(R.id.tv_speed12);
+        tv_speed125 = (TextView) view.findViewById(R.id.tv_speed125);
         tv_speed15 = (TextView) view.findViewById(R.id.tv_speed15);
         tv_speed20 = (TextView) view.findViewById(R.id.tv_speed20);
+        tv_speed30 = (TextView) view.findViewById(R.id.tv_speed30);
         iv_close_speed = (ImageView) view.findViewById(R.id.iv_close_speed);
         //横屏的播放码率布局的view
         rl_center_bit = (RelativeLayout) view.findViewById(R.id.rl_center_bit);
@@ -574,6 +582,8 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         knowledgeLayout = (PolyvPlayerKnowledgeLayout) view.findViewById(R.id.knowledge_layout);
         mediaControllerMarkerViewPort = findViewById(R.id.plv_media_controller_marker_view_port);
         mediaControllerMarkerViewLand = findViewById(R.id.plv_media_controller_marker_view_land);
+        mediaControllerHeatMapMaskLand = findViewById(R.id.plv_media_controller_heat_map_mask_land);
+        mediaControllerHeatMapViewLand = findViewById(R.id.plv_media_controller_heat_map_view_land);
 
         sensorHelper = new PolyvSensorHelper(videoActivity);
         tickTips = (PolyvTickTips) view.findViewById(R.id.fl_tt);
@@ -681,14 +691,18 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         tv_speed_portrait.setOnClickListener(this);
         tv_speed05.setOnClickListener(this);
         tv_speed05_portrait.setOnClickListener(this);
+        tv_speed075.setOnClickListener(this);
+        tv_speed075_portrait.setOnClickListener(this);
         tv_speed10.setOnClickListener(this);
         tv_speed10_portrait.setOnClickListener(this);
-        tv_speed12.setOnClickListener(this);
-        tv_speed12_portrait.setOnClickListener(this);
+        tv_speed125.setOnClickListener(this);
+        tv_speed125_portrait.setOnClickListener(this);
         tv_speed15.setOnClickListener(this);
         tv_speed15_portrait.setOnClickListener(this);
         tv_speed20.setOnClickListener(this);
         tv_speed20_portrait.setOnClickListener(this);
+        tv_speed30.setOnClickListener(this);
+        tv_speed30_portrait.setOnClickListener(this);
         tv_bit.setOnClickListener(this);
         tv_bit_portrait.setOnClickListener(this);
         tv_sc.setOnClickListener(this);
@@ -804,7 +818,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             //初始化播放器的银幕比率的显示控件
             initRatioView(videoView.getCurrentAspectRatio());
             //初始化倍速控件及其可见性
-            initSpeedView((int) (videoView.getSpeed() * 10));
+            initSpeedView(videoView.getSpeed());
             //初始化码率控件及其可见性
             initBitRateView(videoView.getBitRate());
             initBitRateViewVisible(videoView.getBitRate());
@@ -1225,6 +1239,9 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         if (!onlyHideTop) {
             rl_bot.setVisibility(isVisible);
             sb_play_land.setVisibility(isVisible);
+            mediaControllerHeatMapMaskLand.setVisibility(isVisible);
+            mediaControllerHeatMapViewLand.setVisibility(isVisible);
+            mediaControllerMarkerViewLand.setVisibility(isVisible);
         }
     }
 
@@ -1455,56 +1472,70 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     }
 
     //初始化选择播放速度的控件
-    public void initSpeedView(int speed) {
+    public void initSpeedView(float speed) {
         tv_speed05.setSelected(false);
         tv_speed05_portrait.setSelected(false);
+        tv_speed075.setSelected(false);
+        tv_speed075_portrait.setSelected(false);
         tv_speed10.setSelected(false);
         tv_speed10_portrait.setSelected(false);
-        tv_speed12.setSelected(false);
-        tv_speed12_portrait.setSelected(false);
+        tv_speed125.setSelected(false);
+        tv_speed125_portrait.setSelected(false);
         tv_speed15.setSelected(false);
         tv_speed15_portrait.setSelected(false);
         tv_speed20.setSelected(false);
         tv_speed20_portrait.setSelected(false);
-        switch (speed) {
-            case 5:
-                tv_speed05.setSelected(true);
-                tv_speed05_portrait.setSelected(true);
-                tv_speed.setText("0.5x");
-                tv_speed_portrait.setText("0.5x");
-                break;
-            case 10:
-                tv_speed10.setSelected(true);
-                tv_speed10_portrait.setSelected(true);
-                tv_speed.setText("1x");
-                tv_speed_portrait.setText("1x");
-                break;
-            case 12:
-                tv_speed12.setSelected(true);
-                tv_speed12_portrait.setSelected(true);
-                tv_speed.setText("1.2x");
-                tv_speed_portrait.setText("1.2x");
-                break;
-            case 15:
-                tv_speed15.setSelected(true);
-                tv_speed15_portrait.setSelected(true);
-                tv_speed.setText("1.5x");
-                tv_speed_portrait.setText("1.5x");
-                break;
-            case 20:
-                tv_speed20.setSelected(true);
-                tv_speed20_portrait.setSelected(true);
-                tv_speed.setText("2x");
-                tv_speed_portrait.setText("2x");
-                break;
+        tv_speed30.setSelected(false);
+        tv_speed30_portrait.setSelected(false);
+        if (speed == 0.5) {
+            tv_speed05.setSelected(true);
+            tv_speed05_portrait.setSelected(true);
+            tv_speed.setText("0.5x");
+            tv_speed_portrait.setText("0.5x");
+        }
+        if (speed == 0.75) {
+            tv_speed075.setSelected(true);
+            tv_speed075_portrait.setSelected(true);
+            tv_speed.setText("0.75x");
+            tv_speed_portrait.setText("0.75x");
+        }
+        if (speed == 1) {
+            tv_speed10.setSelected(true);
+            tv_speed10_portrait.setSelected(true);
+            tv_speed.setText("1x");
+            tv_speed_portrait.setText("1x");
+        }
+        if (speed == 1.25) {
+            tv_speed125.setSelected(true);
+            tv_speed125_portrait.setSelected(true);
+            tv_speed.setText("1.25x");
+            tv_speed_portrait.setText("1.25x");
+        }
+        if (speed == 1.5) {
+            tv_speed15.setSelected(true);
+            tv_speed15_portrait.setSelected(true);
+            tv_speed.setText("1.5x");
+            tv_speed_portrait.setText("1.5x");
+        }
+        if (speed == 2) {
+            tv_speed20.setSelected(true);
+            tv_speed20_portrait.setSelected(true);
+            tv_speed.setText("2x");
+            tv_speed_portrait.setText("2x");
+        }
+        if (speed == 3) {
+            tv_speed30.setSelected(true);
+            tv_speed30_portrait.setSelected(true);
+            tv_speed.setText("3x");
+            tv_speed_portrait.setText("3x");
         }
     }
 
     //重置选择播放速度的控件
-    private void resetSpeedView(int speed) {
+    private void resetSpeedView(float speed) {
         initSpeedView(speed);
         if (videoView != null) {
-            videoView.setSpeed(speed / 10f);
+            videoView.setSpeed(speed);
         }
         hide();
     }
@@ -2167,23 +2198,31 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                 break;
             case R.id.tv_speed05_portrait:
             case R.id.tv_speed05:
-                resetSpeedView(5);
+                resetSpeedView(0.5F);
+                break;
+            case R.id.tv_speed075_portrait:
+            case R.id.tv_speed075:
+                resetSpeedView(0.75F);
                 break;
             case R.id.tv_speed10_portrait:
             case R.id.tv_speed10:
-                resetSpeedView(10);
+                resetSpeedView(1);
                 break;
-            case R.id.tv_speed12_portrait:
-            case R.id.tv_speed12:
-                resetSpeedView(12);
+            case R.id.tv_speed125_portrait:
+            case R.id.tv_speed125:
+                resetSpeedView(1.25F);
                 break;
             case R.id.tv_speed15_portrait:
             case R.id.tv_speed15:
-                resetSpeedView(15);
+                resetSpeedView(1.5F);
                 break;
             case R.id.tv_speed20_portrait:
             case R.id.tv_speed20:
-                resetSpeedView(20);
+                resetSpeedView(2);
+                break;
+            case R.id.tv_speed30_portrait:
+            case R.id.tv_speed30:
+                resetSpeedView(3);
                 break;
             case R.id.iv_close_bit:
                 hide();

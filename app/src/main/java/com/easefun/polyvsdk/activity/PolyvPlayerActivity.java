@@ -10,8 +10,8 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
@@ -24,7 +24,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -65,6 +64,7 @@ import com.easefun.polyvsdk.player.PolyvPlayerPlayRouteView;
 import com.easefun.polyvsdk.player.PolyvPlayerPreviewView;
 import com.easefun.polyvsdk.player.PolyvPlayerProgressView;
 import com.easefun.polyvsdk.player.PolyvPlayerVolumeView;
+import com.easefun.polyvsdk.player.srt.PolyvMathJaxView;
 import com.easefun.polyvsdk.po.ppt.PolyvPptInfo;
 import com.easefun.polyvsdk.ppt.PolyvPPTDirLayout;
 import com.easefun.polyvsdk.ppt.PolyvPPTErrorLayout;
@@ -166,12 +166,12 @@ public class PolyvPlayerActivity extends FragmentActivity {
     /**
      * 底部字幕文本视图
      */
-    private TextView srtTopTextView = null;
-    private TextView srtBottomTextView = null;
+    private PolyvMathJaxView srtTopTextView = null;
+    private PolyvMathJaxView srtBottomTextView = null;
     /**
      * 顶部字幕文本试图
      */
-    private TextView topSrtTextView = null;
+    private PolyvMathJaxView topSrtTextView = null;
     /**
      * 问答界面
      */
@@ -436,9 +436,9 @@ public class PolyvPlayerActivity extends FragmentActivity {
         mediaController = (PolyvPlayerMediaController) findViewById(R.id.polyv_player_media_controller);
         networkPoorIndicateLayout = (PolyvNetworkPoorIndicateLayout) findViewById(R.id.polyv_network_poor_indicate_layout);
 //        srtTextView = (TextView) findViewById(R.id.srt);
-        srtTopTextView = (TextView) findViewById(R.id.srt_top);
-        srtBottomTextView = (TextView) findViewById(R.id.srt_bottom);
-        topSrtTextView = (TextView) findViewById(R.id.top_srt);
+        srtTopTextView = (PolyvMathJaxView) findViewById(R.id.srt_top);
+        srtBottomTextView = (PolyvMathJaxView) findViewById(R.id.srt_bottom);
+        topSrtTextView = (PolyvMathJaxView) findViewById(R.id.top_srt);
         questionView = (PolyvPlayerAnswerView) findViewById(R.id.polyv_player_question_view);
         auditionView = (PolyvPlayerAuditionView) findViewById(R.id.polyv_player_audition_view);
         auxiliaryVideoView = (PolyvAuxiliaryVideoView) findViewById(R.id.polyv_auxiliary_video_view);
@@ -807,19 +807,27 @@ public class PolyvPlayerActivity extends FragmentActivity {
         videoView.setOnVideoSRTListener(new IPolyvOnVideoSRTListener() {
             @Override
             public void onVideoSRT(@Nullable List<PolyvSRTItemVO> subTitleItems) {
-                srtBottomTextView.setText("");
                 srtTopTextView.setText("");
-                topSrtTextView.setText("");
-
+                boolean needSetEmptySrtBottomText = true;
+                boolean needSetEmptyTopSrtText = true;
                 if (subTitleItems != null) {
                     for (PolyvSRTItemVO srtItemVO : subTitleItems) {
                         if (srtItemVO.isBottomCenterSubTitle()) {
-                            setupTextView(srtBottomTextView, SINGLESUBTITLES);
+                            setupMathJaxView(srtBottomTextView, SINGLESUBTITLES);
                             srtBottomTextView.setText(srtItemVO.getSubTitle());
+                            needSetEmptySrtBottomText = false;
                         } else if (srtItemVO.isTopCenterSubTitle()) {
                             topSrtTextView.setText(srtItemVO.getSubTitle());
+                            needSetEmptyTopSrtText = false;
                         }
                     }
+                }
+
+                if (needSetEmptySrtBottomText) {
+                    srtBottomTextView.setText("");
+                }
+                if (needSetEmptyTopSrtText) {
+                    topSrtTextView.setText("");
                 }
 
                 srtBottomTextView.setVisibility(View.VISIBLE);
@@ -828,9 +836,9 @@ public class PolyvPlayerActivity extends FragmentActivity {
 
             @Override
             public void onVideoSRTWithDouble(@Nullable Map<String, List<PolyvSRTItemVO>> subTitleItems) {
-                srtTopTextView.setText("");
-                srtBottomTextView.setText("");
                 topSrtTextView.setText("");
+                boolean needSetEmptySrtBottomText = true;
+                boolean needSetEmptySrtTopTextView = true;
 
                 for (Map.Entry<String, List<PolyvSRTItemVO>> entry : subTitleItems.entrySet()) {
                     if (entry.getValue() == null) {
@@ -840,15 +848,23 @@ public class PolyvPlayerActivity extends FragmentActivity {
                     List<PolyvSRTItemVO> temps = entry.getValue();
                     for (PolyvSRTItemVO polyvSRTItemVO : temps) {
                         if (entry.getKey().equals(TOPSUBTITLES)) {
-                            setupTextView(srtTopTextView, TOPSUBTITLES);
+                            setupMathJaxView(srtTopTextView, TOPSUBTITLES);
                             srtTopTextView.setText(polyvSRTItemVO.getSubTitle());
+                            needSetEmptySrtTopTextView = false;
                         }
 
                         if (entry.getKey().equals(BOTTOMSUBTITLES)) {
-                            setupTextView(srtBottomTextView, BOTTOMSUBTITLES);
+                            setupMathJaxView(srtBottomTextView, BOTTOMSUBTITLES);
                             srtBottomTextView.setText(polyvSRTItemVO.getSubTitle());
+                            needSetEmptySrtBottomText = false;
                         }
                     }
+                }
+                if (needSetEmptySrtTopTextView) {
+                    srtTopTextView.setText("");
+                }
+                if (needSetEmptySrtBottomText) {
+                    srtBottomTextView.setText("");
                 }
                 srtBottomTextView.setVisibility(View.VISIBLE);
                 srtTopTextView.setVisibility(View.VISIBLE);
@@ -1033,7 +1049,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
                     }
                 } else {
                     videoView.setSpeed(beforeTouchSpeed);
-                    mediaController.initSpeedView((int) (beforeTouchSpeed * 10));
+                    mediaController.initSpeedView(beforeTouchSpeed);
                     touchSpeedLayout.hide();
                 }
             }
@@ -1755,7 +1771,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
         }
     }
 
-    private void setupTextView(TextView textView, String type) {
+    private void setupMathJaxView(PolyvMathJaxView textView, String type) {
         if (mVideoVO != null && mVideoVO.getPlayer().getSubtitles().size() > 0) {
             PolyvSubtitleVO subtitle = null;
             for (PolyvSubtitleVO temp : mVideoVO.getPlayer().getSubtitles()) {
@@ -1776,15 +1792,15 @@ public class PolyvPlayerActivity extends FragmentActivity {
             String fontColor = subtitle.getFontColor();
             String backgroundColor = subtitle.getBackgroundColor();
             textView.setTextColor(Color.parseColor(fontColor));
-            textView.setBackgroundColor(Color.parseColor(backgroundColor));
+            textView.setInputBackgroundColor(Color.parseColor(backgroundColor));
             if (subtitle.isFontBold()) {
-                textView.setTypeface(Typeface.SANS_SERIF, Typeface.BOLD);
+                textView.setTypeface(Typeface.BOLD);
             }
             if (subtitle.isFontItalics()) {
-                textView.setTypeface(Typeface.SANS_SERIF, Typeface.ITALIC);
+                textView.setTypeface(Typeface.ITALIC);
             }
             if (subtitle.isFontBold() && subtitle.isFontItalics()) {
-                textView.setTypeface(Typeface.SANS_SERIF, Typeface.BOLD_ITALIC);
+                textView.setTypeface(Typeface.BOLD_ITALIC);
             }
         }
     }

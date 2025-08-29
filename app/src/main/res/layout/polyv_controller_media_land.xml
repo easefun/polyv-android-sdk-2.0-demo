@@ -320,6 +320,7 @@
     </RelativeLayout>
 
     <com.easefun.polyvsdk.player.heatmap.PLVHeatMapMask
+        android:id="@+id/plv_media_controller_heat_map_mask_land"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:layout_alignBottom="@+id/plv_media_controller_heat_map_view_land" />

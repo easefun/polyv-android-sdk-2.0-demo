@@ -7,45 +7,65 @@
     android:background="@color/top_left_layout_color_black"
     android:visibility="gone">
 
-    <LinearLayout
-        android:layout_width="wrap_content"
+    <HorizontalScrollView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:paddingLeft="@dimen/corners_common_l">
+        android:layout_centerInParent="true">
 
-        <TextView
-            android:id="@+id/tv_speed05_portrait"
-            style="@style/tv_click_controller_portrait_center"
-            android:layout_marginRight="@dimen/corners_common_l"
-            android:padding="@dimen/talk_common_margin"
-            android:text="0.5x" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="36dp">
 
-        <TextView
-            android:id="@+id/tv_speed10_portrait"
-            style="@style/tv_click_controller_portrait_center"
-            android:layout_marginRight="@dimen/corners_common_l"
-            android:padding="@dimen/talk_common_margin"
-            android:text="1x" />
+            <TextView
+                android:id="@+id/tv_speed05_portrait"
+                style="@style/tv_click_controller_portrait_center"
+                android:layout_marginRight="@dimen/corners_common_l"
+                android:padding="@dimen/talk_common_margin"
+                android:text="0.5x" />
 
-        <TextView
-            android:id="@+id/tv_speed12_portrait"
-            style="@style/tv_click_controller_portrait_center"
-            android:layout_marginRight="@dimen/corners_common_l"
-            android:padding="@dimen/talk_common_margin"
-            android:text="1.2x" />
+            <TextView
+                android:id="@+id/tv_speed075_portrait"
+                style="@style/tv_click_controller_portrait_center"
+                android:layout_marginRight="@dimen/corners_common_l"
+                android:padding="@dimen/talk_common_margin"
+                android:text="0.75x" />
 
-        <TextView
-            android:id="@+id/tv_speed15_portrait"
-            style="@style/tv_click_controller_portrait_center"
-            android:layout_marginRight="@dimen/corners_common_l"
-            android:padding="@dimen/talk_common_margin"
-            android:text="1.5x" />
+            <TextView
+                android:id="@+id/tv_speed10_portrait"
+                style="@style/tv_click_controller_portrait_center"
+                android:layout_marginRight="@dimen/corners_common_l"
+                android:padding="@dimen/talk_common_margin"
+                android:text="1x" />
 
-        <TextView
-            android:id="@+id/tv_speed20_portrait"
-            style="@style/tv_click_controller_portrait_center"
-            android:padding="@dimen/talk_common_margin"
-            android:text="2x" />
-    </LinearLayout>
+            <TextView
+                android:id="@+id/tv_speed125_portrait"
+                style="@style/tv_click_controller_portrait_center"
+                android:layout_marginRight="@dimen/corners_common_l"
+                android:padding="@dimen/talk_common_margin"
+                android:text="1.25x" />
+
+            <TextView
+                android:id="@+id/tv_speed15_portrait"
+                style="@style/tv_click_controller_portrait_center"
+                android:layout_marginRight="@dimen/corners_common_l"
+                android:padding="@dimen/talk_common_margin"
+                android:text="1.5x" />
+
+            <TextView
+                android:id="@+id/tv_speed20_portrait"
+                style="@style/tv_click_controller_portrait_center"
+                android:layout_marginRight="@dimen/corners_common_l"
+                android:padding="@dimen/talk_common_margin"
+                android:text="2x" />
+
+            <TextView
+                android:id="@+id/tv_speed30_portrait"
+                style="@style/tv_click_controller_portrait_center"
+                android:padding="@dimen/talk_common_margin"
+                android:text="3x" />
+        </LinearLayout>
+
+    </HorizontalScrollView>
 
 </RelativeLayout>

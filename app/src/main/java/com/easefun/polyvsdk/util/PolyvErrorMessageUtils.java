@@ -339,6 +339,12 @@ public class PolyvErrorMessageUtils {
 
             case PolyvPlayErrorReason.QUESTION_SERVER_ERROR:
                 return ErrorMessage.lineMessage("视频加载失败，可尝试切换线路", playErrorReason);
+
+            case PolyvPlayErrorReason.PDX_SERVER_ERROR:
+                return ErrorMessage.lineMessage("视频加载失败，可尝试切换线路", playErrorReason);
+            case PolyvPlayErrorReason.PDX_CLIENT_ERROR:
+                return ErrorMessage.lineMessage("网络异常，可尝试切换网络或线路", playErrorReason);
+
             case PolyvPlayErrorReason.HLS_PRIVATE_VERSION_ERROR:
                 return ErrorMessage.noneMessage("播放器不支持播放该视频，请升级播放器版本", playErrorReason);
             case PolyvPlayErrorReason.HLS_KEY_VERSION_ERROR:

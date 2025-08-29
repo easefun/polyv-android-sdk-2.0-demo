@@ -61,9 +61,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true">
 
-            <TextView
+            <com.easefun.polyvsdk.player.srt.PolyvMathJaxView
                 android:id="@+id/srt_top"
-                android:textColor="@android:color/white"
                 android:layout_above="@+id/srt_bottom"
                 android:layout_centerHorizontal="true"
                 android:layout_marginBottom="5dp"
@@ -71,26 +70,22 @@
                 android:layout_height="wrap_content"
                 android:visibility="gone"/>
 
-            <TextView
+            <com.easefun.polyvsdk.player.srt.PolyvMathJaxView
                 android:id="@+id/srt_bottom"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
-                android:textColor="@android:color/white"
                 android:visibility="gone" />
 
         </RelativeLayout>
 
         <!-- 顶部字幕 -->
-        <TextView
+        <com.easefun.polyvsdk.player.srt.PolyvMathJaxView
             android:id="@+id/top_srt"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:gravity="top|center_horizontal"
-            android:paddingTop="10dp"
-            android:textColor="@android:color/white"
             android:visibility="gone" />
 
         <com.easefun.polyvsdk.player.PolyvPlayerLightView
