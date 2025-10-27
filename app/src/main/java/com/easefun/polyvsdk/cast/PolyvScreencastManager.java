@@ -1,21 +1,21 @@
 package com.easefun.polyvsdk.cast;
 
-import android.app.Application;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.Nullable;
 
-import com.apowersoft.dlnasender.api.DLNASender;
-import com.apowersoft.dlnasender.api.bean.DeviceInfo;
-import com.apowersoft.dlnasender.api.bean.MediaInfo;
-import com.apowersoft.dlnasender.api.listener.DLNADeviceConnectListener;
-import com.apowersoft.dlnasender.api.listener.DLNARegistryListener;
-import com.apowersoft.dlnasender.api.listener.WxDlnaSenderInitCallback;
 import com.easefun.polyvsdk.log.PolyvCommonLog;
 
+import net.polyv.android.common.libs.kava.Nullables;
+import net.polyv.android.media.cast.model.vo.PLVMediaCastDevice;
+import net.polyv.android.media.cast.model.vo.PLVMediaCastResource;
+import net.polyv.android.media.cast.rx.PLVMediaCastManagerAdapterRxJava;
+
 import java.util.List;
+
+import kotlin.jvm.functions.Function0;
 
 /**
  * 投屏封装工具类
@@ -26,15 +26,10 @@ public class PolyvScreencastManager {
     private static final String TAG = PolyvScreencastManager.class.getSimpleName();
 
     private volatile static PolyvScreencastManager INSTANCE;
-    private UIHandler mUIHandler;
-    private PolyvAllCast mAllCast;
+    private final UIHandler mUIHandler = new UIHandler(Looper.getMainLooper());
+    private final PolyvAllCast mAllCast = new PolyvAllCast();
     // 数据
-    private List<DeviceInfo> mInfos;
-    private DeviceInfo connectedDeviceInfo;
-    private DeviceInfo lastConnectedDeviceInfo;
-
-    // 监听器
-    private DLNADeviceConnectListener mActivityConnectListener;
+    private PLVMediaCastDevice lastConnectedDeviceInfo;
 
     public static PolyvScreencastManager getInstance(Context context) {
         if (INSTANCE == null) {
@@ -47,72 +42,42 @@ public class PolyvScreencastManager {
         return INSTANCE;
     }
 
-    public static void init(Application application, String appId, String appSecret, final WxDlnaSenderInitCallback initCallback) {
-        DLNASender.init(application, appId, appSecret, new WxDlnaSenderInitCallback() {
-            @Override
-            public void onSuccess() {
-                if (initCallback != null) {
-                    initCallback.onSuccess();
-                }
-            }
-
-            @Override
-            public void onFail(int i, String s) {
-                if (initCallback != null) {
-                    initCallback.onFail(i, s);
-                }
-            }
-        });
-    }
-
     private PolyvScreencastManager() {
-        mUIHandler = new UIHandler(Looper.getMainLooper());
-        mAllCast = new PolyvAllCast();
+
     }
 
     public void setUIUpdateListener(PolyvIUIUpdateListener pUIUpdateListener) {
         mUIHandler.setUIUpdateListener(pUIUpdateListener);
     }
 
-    public void setActivityConnectListener(DLNADeviceConnectListener connectListener) {
-        this.mActivityConnectListener = connectListener;
+    public List<PLVMediaCastDevice> getInfos() {
+        return PLVMediaCastManagerAdapterRxJava.getListenerRegistry().getDevices().getValue();
     }
 
-    public List<DeviceInfo> getInfos() {
-        return mInfos;
-    }
-
-    public List<DeviceInfo> getConnectInfos() {
-        return mInfos;
+    public PLVMediaCastDevice getConnectInfos() {
+        return Nullables.of(new Function0<PLVMediaCastDevice>() {
+            @Override
+            public PLVMediaCastDevice invoke() {
+                return mAllCast.getCastController().getController().getDevice();
+            }
+        }).getOrNull();
     }
 
     public void initService() {
-        mAllCast.initService(dlnaRegistryListener);
         mAllCast.setPlayerListener(mPlayerListener);
     }
 
     public void browse() {
         mAllCast.browse();
-        callOnDeviceChange();
     }
 
-    public void stopBrowse() {
-        mAllCast.stopBrowse();
-    }
-
-    public void connect(DeviceInfo info) {
-        mAllCast.connect(info, dlnaDeviceConnectListener);
-        connectedDeviceInfo = info;
-        lastConnectedDeviceInfo = info;
-    }
-
-    public DeviceInfo getLastConnectedDeviceInfo() {
+    public PLVMediaCastDevice getLastConnectedDeviceInfo() {
         return lastConnectedDeviceInfo;
     }
 
-    public void disConnect(DeviceInfo info) {
-        mAllCast.disConnect(info);
-        connectedDeviceInfo = null;
+    public void playNetMedia(PLVMediaCastDevice device, PLVMediaCastResource resource, int startSeconds) {
+        this.lastConnectedDeviceInfo = device;
+        mAllCast.playNetMedia(device, resource, startSeconds);
     }
 
     public void resume() {
@@ -166,99 +131,43 @@ public class PolyvScreencastManager {
 
     // <editor-fold defaultstate="collapsed" desc="投屏监听器">
 
-    private DLNARegistryListener dlnaRegistryListener = new DLNARegistryListener() {
-        @Override
-        public void onDeviceChanged(List<DeviceInfo> list) {
-            mInfos = list;
-            callOnDeviceChange();
-        }
-    };
-
-    private void callOnDeviceChange() {
-        if (mUIHandler != null) {
-            if (mInfos == null || mInfos.isEmpty()) {
-                mUIHandler.sendMessage(buildStateMessage(PolyvIUIUpdateListener.STATE_SEARCH_NO_RESULT));
-            } else {
-                mUIHandler.sendMessage(buildStateMessage(PolyvIUIUpdateListener.STATE_SEARCH_SUCCESS));
-            }
-        }
-    }
-
-    private DLNADeviceConnectListener dlnaDeviceConnectListener = new DLNADeviceConnectListener() {
-        @Override
-        public void onConnect(final DeviceInfo deviceInfo, final int errorCode) {
-            if (mUIHandler != null) {
-                final String text = deviceInfo.getName() + "连接成功";
-                mUIHandler.sendMessage(buildTextMessage(text));
-                mUIHandler.sendMessage(buildStateMessage(PolyvIUIUpdateListener.STATE_CONNECT_SUCCESS, text));
-                mUIHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (mActivityConnectListener != null) {
-                            mActivityConnectListener.onConnect(deviceInfo, errorCode);
-                        }
-                    }
-                });
-            }
-        }
-
-        @Override
-        public void onDisconnect(final DeviceInfo deviceInfo, final int errorCode) {
-            if (mUIHandler != null) {
-                final String text = deviceInfo.getName() + "连接断开";
-                mUIHandler.sendMessage(buildTextMessage(text));
-                mUIHandler.sendMessage(buildStateMessage(PolyvIUIUpdateListener.STATE_DISCONNECT, text));
-                mUIHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (mActivityConnectListener != null) {
-                            mActivityConnectListener.onDisconnect(deviceInfo, errorCode);
-                        }
-                    }
-                });
-            }
-        }
-    };
-
     /**
      * 投屏播放监听
      */
-    private IPLVScreencastPlayerListener mPlayerListener = new IPLVScreencastPlayerListener() {
+    private final IPLVScreencastListener mPlayerListener = new IPLVScreencastListener() {
+
+        @Override
+        public void onDeviceScanned(List<PLVMediaCastDevice> devices) {
+            mUIHandler.sendMessage(buildTextMessage("设备扫描结束"));
+            mUIHandler.sendMessage(buildStateMessage(PolyvIUIUpdateListener.STATE_SEARCH_SUCCESS));
+        }
 
         @Override
         public void onStart() {
             PolyvCommonLog.d(TAG, "onStart:");
-            if (mUIHandler != null) {
-                mUIHandler.sendMessage(buildTextMessage("开始播放"));
-                mUIHandler.sendMessage(buildStateMessage(PolyvIUIUpdateListener.STATE_PLAY));
-            }
+            mUIHandler.sendMessage(buildTextMessage("开始播放"));
+            mUIHandler.sendMessage(buildStateMessage(PolyvIUIUpdateListener.STATE_PLAY));
         }
 
         @Override
         public void onPause() {
             PolyvCommonLog.d(TAG, "onPause");
-            if (mUIHandler != null) {
-                mUIHandler.sendMessage(buildTextMessage("暂停播放"));
-                mUIHandler.sendMessage(buildStateMessage(PolyvIUIUpdateListener.STATE_PAUSE));
-            }
+            mUIHandler.sendMessage(buildTextMessage("暂停播放"));
+            mUIHandler.sendMessage(buildStateMessage(PolyvIUIUpdateListener.STATE_PAUSE));
         }
 
         @Override
         public void onStop() {
             PolyvCommonLog.d(TAG, "onStop");
-            if (mUIHandler != null) {
-                mUIHandler.sendMessage(buildTextMessage("播放结束"));
-                mUIHandler.sendMessage(buildStateMessage(PolyvIUIUpdateListener.STATE_STOP));
-            }
+            mUIHandler.sendMessage(buildTextMessage("播放结束"));
+            mUIHandler.sendMessage(buildStateMessage(PolyvIUIUpdateListener.STATE_STOP));
         }
 
         @Override
         public void onComplete() {
             PolyvCommonLog.d(TAG, "onComplete");
-            if (mUIHandler != null) {
-                mUIHandler.sendMessage(buildTextMessage("播放结束"));
-                mUIHandler.sendMessage(buildStateMessage(PolyvIUIUpdateListener.STATE_COMPLETION));
-            }
+            mUIHandler.sendMessage(buildTextMessage("播放结束"));
+            mUIHandler.sendMessage(buildStateMessage(PolyvIUIUpdateListener.STATE_COMPLETION));
         }
 
         @Override
@@ -275,15 +184,11 @@ public class PolyvScreencastManager {
         @Override
         public void onPositionUpdate(long position) {
             PolyvCommonLog.d(TAG, "onPositionUpdate position:" + position);
-            if (mUIHandler != null) {
-                mUIHandler.sendMessage(buildStateMessage(PolyvIUIUpdateListener.STATE_POSITION_UPDATE, position));
-            }
+            mUIHandler.sendMessage(buildStateMessage(PolyvIUIUpdateListener.STATE_POSITION_UPDATE, position));
         }
 
     };
     // </editor-fold >
-
-
 
     private static class UIHandler extends Handler {
 
@@ -321,19 +226,8 @@ public class PolyvScreencastManager {
 
     }
 
-    // <editor-fold defaultstate="collapsed" desc="投屏播放">
-
-    public void playNetMedia(MediaInfo mediaInfo) {
-        mAllCast.playNetMediaWithHeader(mediaInfo);
-    }
-    // </editor-fold >
-
     public void release() {
-        mAllCast.stopBrowse();
         mAllCast.stopPlay();
-        if (connectedDeviceInfo != null) {
-            disConnect(connectedDeviceInfo);
-        }
     }
 
 }

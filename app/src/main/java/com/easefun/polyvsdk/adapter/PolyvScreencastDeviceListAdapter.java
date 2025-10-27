@@ -6,16 +6,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.apowersoft.dlnasender.api.bean.DeviceInfo;
 import com.easefun.polyvsdk.R;
+
+import net.polyv.android.media.cast.model.vo.PLVMediaCastDevice;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class PolyvScreencastDeviceListAdapter extends AbsRecyclerViewAdapter {
-    private List<DeviceInfo> mDatas;
+    private List<PLVMediaCastDevice> mDatas;
     private OnItemClickListener mItemClickListener;
-    private DeviceInfo mSelectInfo;
+    private PLVMediaCastDevice mSelectInfo;
     private int mLayoutId;
 
     public PolyvScreencastDeviceListAdapter(RecyclerView recyclerView, int layoutId) {
@@ -28,7 +29,7 @@ public class PolyvScreencastDeviceListAdapter extends AbsRecyclerViewAdapter {
         this.mItemClickListener = l;
     }
 
-    public void updateDatas(List<DeviceInfo> infos) {
+    public void updateDatas(List<PLVMediaCastDevice> infos) {
         if (null != infos) {
             mDatas.clear();
             mDatas.addAll(infos);
@@ -36,11 +37,11 @@ public class PolyvScreencastDeviceListAdapter extends AbsRecyclerViewAdapter {
         }
     }
 
-    public DeviceInfo getSelectInfo() {
+    public PLVMediaCastDevice getSelectInfo() {
         return mSelectInfo;
     }
 
-    public void setSelectInfo(DeviceInfo selectInfo) {
+    public void setSelectInfo(PLVMediaCastDevice selectInfo) {
         mSelectInfo = selectInfo;
     }
 
@@ -48,7 +49,7 @@ public class PolyvScreencastDeviceListAdapter extends AbsRecyclerViewAdapter {
         @Override
         public void onClick(View v) {
             int position = (int) v.getTag(R.id.id_position);
-            DeviceInfo info = (DeviceInfo) v.getTag(R.id.id_info);
+            PLVMediaCastDevice info = (PLVMediaCastDevice) v.getTag(R.id.id_info);
             if (null != mItemClickListener) {
                 mItemClickListener.onClick(position, info);
             }
@@ -67,14 +68,14 @@ public class PolyvScreencastDeviceListAdapter extends AbsRecyclerViewAdapter {
         super.onBindViewHolder(holder, position);
         if (holder instanceof ItemViewHolder) {
             ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
-            DeviceInfo info = mDatas.get(position);
+            PLVMediaCastDevice info = mDatas.get(position);
             if (null == info) {
                 return;
             }
-            String item = info.getName()/* + " isOnLine:" + info.isOnLine() + " uid:" + info.getUid() + " types:" + info.getTypes()*/;
+            String item = info.getFriendlyName()/* + " isOnLine:" + info.isOnLine() + " uid:" + info.getUid() + " types:" + info.getTypes()*/;
             itemViewHolder.tv_device_name.setText(item);
             if (info == mSelectInfo ||
-                    (mSelectInfo != null && info.getMediaID() != null && info.getMediaID().equals(mSelectInfo.getMediaID()))) {
+                    (mSelectInfo != null && info.getLocation() != null && info.getLocation().equals(mSelectInfo.getLocation()))) {
                 itemViewHolder.tv_device_name.setSelected(true);
             } else {
                 itemViewHolder.tv_device_name.setSelected(false);
@@ -100,6 +101,6 @@ public class PolyvScreencastDeviceListAdapter extends AbsRecyclerViewAdapter {
     }
 
     public interface OnItemClickListener {
-        void onClick(int position, DeviceInfo pInfo);
+        void onClick(int position, PLVMediaCastDevice pInfo);
     }
 }

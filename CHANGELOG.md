@@ -1,3 +1,27 @@
+### 2025-10-27 polyv-android-sdk-2.0.0-demo v2.24.2
+
+### 功能完善&bug修复
+* 投屏功能服务替换为自研投屏
+* 兼容Android15锁屏后的后台下载
+
+
+### 修改依赖
+```groovy
+// 修改对应的sdk依赖
+implementation 'net.polyv.android:polyvPlayer:2.24.2'
+implementation 'net.polyv.android:polyvDownload:2.24.2'
+implementation 'net.polyv.android:polyvUpload:2.24.2'
+implementation 'net.polyv.android:polyvSub:2.24.2'
+```
+
+### 迁移说明
+
+**由 2.18.x 及以下版本升级到 2.19.1 及以上版本时，需要注意视频下载的迁移**
+
+**自 2.19.1 版本开始，本地播放视频鉴权方式进行了调整，为了在覆盖升级时兼容已下载的旧版本视频，初始换sdk时会自动迁移，必须严格测试本地缓存视频是否迁移成功。**
+
+API文档请看 [v2.24.2 API](http://repo.polyv.net/android/sdk/2.24.2/api/index.html)
+
 ### 2025-08-29 polyv-android-sdk-2.0.0-demo v2.24.1
 
 ### 功能完善&bug修复

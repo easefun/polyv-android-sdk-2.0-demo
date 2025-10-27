@@ -15,13 +15,14 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.apowersoft.dlnasender.api.bean.DeviceInfo;
 import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.player.PolyvPlayerMediaController;
 import com.easefun.polyvsdk.util.PolyvScreenUtils;
 import com.easefun.polyvsdk.util.PolyvTimeUtils;
 import com.easefun.polyvsdk.video.PolyvVideoView;
 import com.easefun.polyvsdk.vo.PolyvVideoVO;
+
+import net.polyv.android.media.cast.model.vo.PLVMediaCastDevice;
 
 public class PolyvScreencastStatusLayout extends FrameLayout implements View.OnClickListener {
     //连接状态，设备名称
@@ -43,7 +44,7 @@ public class PolyvScreencastStatusLayout extends FrameLayout implements View.OnC
     private PolyvScreencastSearchLayout screencastSearchLayout, landScreencastSearchLayout;
     private PolyvVideoView videoView;
     private PolyvPlayerMediaController mediaController;
-    private DeviceInfo deviceInfo;
+    private PLVMediaCastDevice deviceInfo;
 
     private int currentPlayBitrate = -1;
     private long maxProgress;
@@ -239,9 +240,9 @@ public class PolyvScreencastStatusLayout extends FrameLayout implements View.OnC
         ll_volume_layout.setVisibility(View.GONE);
     }
 
-    public void show(DeviceInfo info) {
+    public void show(PLVMediaCastDevice info) {
         deviceInfo = info;
-        callConnectStatus(info.getName());
+        callConnectStatus(info.getFriendlyName());
         if (getVisibility() == View.VISIBLE)
             return;
         setVisibility(View.VISIBLE);
@@ -285,7 +286,7 @@ public class PolyvScreencastStatusLayout extends FrameLayout implements View.OnC
                 iv_play.setSelected(!iv_play.isSelected());
                 break;
             case R.id.tv_retry:
-                callConnectStatus(deviceInfo.getName());
+                callConnectStatus(deviceInfo.getFriendlyName());
                 getScreencastSearchLayout().reconnectPlay();
                 break;
             case R.id.iv_volume_add:
@@ -395,7 +396,7 @@ public class PolyvScreencastStatusLayout extends FrameLayout implements View.OnC
             return;
         callScreencastStatusTitle("切换码率");
         initBitRateView(bitRate);
-        getScreencastSearchLayout().loadInfoAndPlay(bitRate);
+        getScreencastSearchLayout().loadInfoAndPlay(deviceInfo, bitRate);
     }
 
     //重置选择码率的控件

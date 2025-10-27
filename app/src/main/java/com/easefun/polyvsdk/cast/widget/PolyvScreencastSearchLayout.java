@@ -13,7 +13,6 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -22,10 +21,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.apowersoft.dlnasender.api.Constant;
-import com.apowersoft.dlnasender.api.bean.DeviceInfo;
-import com.apowersoft.dlnasender.api.bean.MediaInfo;
-import com.apowersoft.dlnasender.api.listener.DLNADeviceConnectListener;
 import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.Video;
 import com.easefun.polyvsdk.adapter.PolyvScreencastDeviceListAdapter;
@@ -36,8 +31,10 @@ import com.easefun.polyvsdk.screencast.PolyvScreencastHelper;
 import com.easefun.polyvsdk.util.PolyvNetworkUtils;
 import com.easefun.polyvsdk.video.PolyvVideoView;
 
+import net.polyv.android.media.cast.model.vo.PLVMediaCastDevice;
+import net.polyv.android.media.cast.model.vo.PLVMediaCastResource;
+
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -58,6 +55,7 @@ public class PolyvScreencastSearchLayout extends FrameLayout implements View.OnC
     private boolean isFirstBrowse;
     private UIHandler delayHandler;
     private int currentCastPosition = -1;//当前投屏进度
+    private boolean isLoading = false;
 
     private boolean isLandLayout;
 
@@ -123,23 +121,20 @@ public class PolyvScreencastSearchLayout extends FrameLayout implements View.OnC
         rv_devices.setAdapter(screencastDeviceListAdapter);
         screencastDeviceListAdapter.setOnItemClickListener(new PolyvScreencastDeviceListAdapter.OnItemClickListener() {
             @Override
-            public void onClick(int position, final DeviceInfo info) {
+            public void onClick(int position, final PLVMediaCastDevice info) {
                 //检测是否点击的相同的设备
-                List<DeviceInfo> connectInfos = null;
-                if (null != screencastManager) {
-                    connectInfos = screencastManager.getConnectInfos();
+                PLVMediaCastDevice connectInfos = null;
+                if (screencastManager != null) {
+                    connectInfos = screencastManager.getLastConnectedDeviceInfo();
                 }
-                if (null != screencastManager && null != connectInfos && !connectInfos.isEmpty()) {
-                    for (DeviceInfo deviceInfo : connectInfos) {
-                        if (deviceInfo != null && deviceInfo.getMediaID() != null && deviceInfo.getMediaID().equals(info.getMediaID())) {
-                            if (!screencastStatusLayout.isShown()) {
-                                screencastStatusLayout.show(deviceInfo);
-                                final int currentBitrate = Math.max(1, screencastStatusLayout.getCurrentPlayBitrate());
-                                loadInfoAndPlay(currentBitrate);
-                            }
-                            return;
-                        }
+                if (connectInfos != null && connectInfos.getLocation() != null && connectInfos.getLocation().equals(info.getLocation())) {
+                    if (!screencastStatusLayout.isShown()) {
+                        screencastStatusLayout.show(connectInfos);
+                        final int currentBitrate = Math.max(1, screencastStatusLayout.getCurrentPlayBitrate());
+                        loadInfoAndPlay(connectInfos, currentBitrate);
+                        hide(true);
                     }
+                    return;
                 }
 
                 //重制投屏进度记录的状态
@@ -148,12 +143,12 @@ public class PolyvScreencastSearchLayout extends FrameLayout implements View.OnC
                 removeCallbacks(runnable);
 
                 stop();
-                disConnect();
                 postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         // 延迟连接，避免在连接成功后返回stop回调
-                        connect(info);
+                        final int currentBitrate = Math.max(1, screencastStatusLayout.getCurrentPlayBitrate());
+                        loadInfoAndPlay(info, currentBitrate);
                         screencastDeviceListAdapter.setSelectInfo(info);
                         screencastDeviceListAdapter.notifyDataSetChanged();
 
@@ -193,7 +188,6 @@ public class PolyvScreencastSearchLayout extends FrameLayout implements View.OnC
         if (getVisibility() == View.VISIBLE)
             return;
         screencastManager.setUIUpdateListener(iUIUpdateListener);
-        screencastManager.setActivityConnectListener(iConnectListener);
         setVisibility(View.VISIBLE);
         if (onVisibilityChangedListener != null) {
             onVisibilityChangedListener.onVisibilityChanged(this, View.VISIBLE);
@@ -216,63 +210,15 @@ public class PolyvScreencastSearchLayout extends FrameLayout implements View.OnC
     }
 
     public void stop() {
-        List<DeviceInfo> connectInfos = null;
-        if (null != screencastManager) {
-            connectInfos = screencastManager.getConnectInfos();
-        }
-        if (null != screencastManager && null != connectInfos && !connectInfos.isEmpty()) {
-            PolyvCommonLog.d(TAG, "stop click");
-            screencastManager.stopPlay();
-        }
-//        else {
-//            PolyvToastUtil.show(getApplicationContext(), "请先连接设备");
-//        }
+        screencastManager.stopPlay();
     }
 
     public void volumeUp() {
-        List<DeviceInfo> connectInfos = null;
-        if (null != screencastManager) {
-            connectInfos = screencastManager.getConnectInfos();
-        }
-        if (null != screencastManager && null != connectInfos && !connectInfos.isEmpty()) {
-            PolyvCommonLog.d(TAG, "volumeUp click");
-            screencastManager.volumeUp();
-        } else {
-            Toast.makeText(getContext(), "请先连接设备", Toast.LENGTH_SHORT);
-        }
+        screencastManager.volumeUp();
     }
 
     public void volumeDown() {
-        List<DeviceInfo> connectInfos = null;
-        if (null != screencastManager) {
-            connectInfos = screencastManager.getConnectInfos();
-        }
-        if (null != screencastManager && null != connectInfos && !connectInfos.isEmpty()) {
-            PolyvCommonLog.d(TAG, "volumeDown click");
-            screencastManager.volumeDown();
-        } else {
-            Toast.makeText(getContext(), "请先连接设备", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    public void disConnect() {
-        disConnect(true);
-    }
-
-    public void disConnect(boolean isSelectNull) {
-        DeviceInfo selectInfo = screencastDeviceListAdapter.getSelectInfo();
-        if (null != screencastManager && null != selectInfo) {
-            PolyvCommonLog.d(TAG, "disConnect click:" + selectInfo.getName());
-            screencastManager.disConnect(selectInfo);
-        }
-
-        if (isSelectNull)
-            selectNull();
-    }
-
-    public void selectNull() {
-        screencastDeviceListAdapter.setSelectInfo(null);
-        screencastDeviceListAdapter.notifyDataSetChanged();
+        screencastManager.volumeDown();
     }
 
     public void removeDelayCastRunnable() {
@@ -309,13 +255,16 @@ public class PolyvScreencastSearchLayout extends FrameLayout implements View.OnC
         PolyvCommonLog.d(TAG, "reconnect click:" + screencastManager.getLastConnectedDeviceInfo());
         if (null != screencastManager) {
             PolyvCommonLog.d(TAG, "start connect:" + screencastManager.getLastConnectedDeviceInfo());
-            disConnect();
             postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    screencastManager.connect(screencastManager.getLastConnectedDeviceInfo());
-                    screencastDeviceListAdapter.setSelectInfo(screencastManager.getLastConnectedDeviceInfo());
-                    screencastDeviceListAdapter.notifyDataSetChanged();
+                    PLVMediaCastDevice lastDevice = screencastManager.getLastConnectedDeviceInfo();
+                    if (lastDevice != null) {
+                        final int currentBitrate = Math.max(1, screencastStatusLayout.getCurrentPlayBitrate());
+                        loadInfoAndPlay(lastDevice, currentBitrate);
+                        screencastDeviceListAdapter.setSelectInfo(lastDevice);
+                        screencastDeviceListAdapter.notifyDataSetChanged();
+                    }
                 }
             }, 200);
         } else {
@@ -323,28 +272,14 @@ public class PolyvScreencastSearchLayout extends FrameLayout implements View.OnC
         }
     }
 
-    private void connect(DeviceInfo info) {
-        PolyvCommonLog.d(TAG, "connect click:" + info.getName());
-        if (null != screencastManager) {
-            PolyvCommonLog.d(TAG, "start connect:" + info.getName());
-            screencastManager.connect(info);
-        } else {
-            Toast.makeText(getContext(), "未初始化或未选择设备", Toast.LENGTH_SHORT).show();
-        }
-    }
-
     private void updateBrowseAdapter() {
         if (null != screencastManager) {
-            List<DeviceInfo> connectInfos = screencastManager.getConnectInfos();
+            PLVMediaCastDevice connectInfos = screencastManager.getConnectInfos();
             if (connectInfos != null) {
-                for (DeviceInfo DeviceInfo : connectInfos) {
-                    if (DeviceInfo != null) {
-                        screencastDeviceListAdapter.setSelectInfo(DeviceInfo);
-                    }
-                }
+                screencastDeviceListAdapter.setSelectInfo(connectInfos);
             }
 
-            List<DeviceInfo> infos = screencastManager.getInfos();
+            List<PLVMediaCastDevice> infos = screencastManager.getInfos();
             screencastDeviceListAdapter.updateDatas(infos);
 
             ll_search.setVisibility(View.GONE);
@@ -377,7 +312,6 @@ public class PolyvScreencastSearchLayout extends FrameLayout implements View.OnC
             PolyvCommonLog.d(TAG, "stop browse");
             PolyvCommonLog.d(TAG, "stop browse");
             isFirstBrowse = false;
-            screencastManager.stopBrowse();
 
             ll_search.setVisibility(View.GONE);
         }
@@ -431,11 +365,11 @@ public class PolyvScreencastSearchLayout extends FrameLayout implements View.OnC
                     screencastDeviceListAdapter.setSelectInfo(null);
                     screencastDeviceListAdapter.notifyDataSetChanged();
 
-                    disConnect();
                     screencastStatusLayout.callPlayErrorStatus();
                     break;
                 case PolyvIUIUpdateListener.STATE_PLAY:
                     PolyvCommonLog.d(TAG, "callback play");
+                    isLoading = false;
 
                     Toast.makeText(getContext(), "开始播放", Toast.LENGTH_SHORT).show();
                     screencastStatusLayout.callOnStart();
@@ -453,10 +387,12 @@ public class PolyvScreencastSearchLayout extends FrameLayout implements View.OnC
                     break;
                 case PolyvIUIUpdateListener.STATE_STOP:
                     PolyvCommonLog.d(TAG, "callback stop");
+                    if (isLoading) {
+                        break;
+                    }
 
                     Toast.makeText(getContext(), "播放结束", Toast.LENGTH_SHORT).show();
                     screencastStatusLayout.hide(true);
-                    disConnect();
                     break;
                 case PolyvIUIUpdateListener.STATE_SEEK:
                     PolyvCommonLog.d(TAG, "callback seek:" + object);
@@ -467,6 +403,7 @@ public class PolyvScreencastSearchLayout extends FrameLayout implements View.OnC
                     if (object instanceof String && ((String) object).contains("无响应"))
                         return;
                     PolyvCommonLog.d(TAG, "callback error:" + object);
+                    isLoading = false;
                     Toast.makeText(getContext(), "播放错误：" + object, Toast.LENGTH_SHORT).show();
                     screencastStatusLayout.callPlayErrorStatus();
                     break;
@@ -485,6 +422,7 @@ public class PolyvScreencastSearchLayout extends FrameLayout implements View.OnC
                 case PolyvIUIUpdateListener.STATE_COMPLETION:
                     PolyvCommonLog.d(TAG, "callback completion");
                     PolyvCommonLog.d(TAG, "PolyvToastUtil 播放完成");
+                    isLoading = false;
                     Toast.makeText(getContext(), "播放完成", Toast.LENGTH_SHORT).show();
                     screencastStatusLayout.hide(true);
                     break;
@@ -503,75 +441,27 @@ public class PolyvScreencastSearchLayout extends FrameLayout implements View.OnC
         removeCallbacks(runnable);
     }
 
-    /**
-     * 根据连接的设备
-     */
-    private DLNADeviceConnectListener iConnectListener = new DLNADeviceConnectListener() {
-        @Override
-        public void onConnect(final DeviceInfo serviceInfo, int extra) {
-            if (TextUtils.isEmpty(serviceInfo.getName())) {
-                return;
-            }
-            removeCallbacks(runnable);
-
-            if (screencastDeviceListAdapter.getSelectInfo() == null) {
-                return;
-            }
-            PolyvCommonLog.d(TAG, "connect success:" + serviceInfo.getName() + "连接成功");
-
-            Toast.makeText(getContext(), serviceInfo.getName() + "连接成功", Toast.LENGTH_SHORT).show();
-            final int currentBitrate = Math.max(1, screencastStatusLayout.getCurrentPlayBitrate());
-            loadInfoAndPlay(currentBitrate);
-        }
-
-        @Override
-        public void onDisconnect(DeviceInfo serviceInfo, int errorCode) {
-            final String text = serviceInfo.getName() + "连接断开";
-            post(new Runnable() {
-                @Override
-                public void run() {
-                    screencastStatusLayout.callPlayErrorStatus(text);
-                }
-            });
-        }
-    };
-
     public void seekTo(int progress) {
         screencastManager.seekTo(progress);
     }
 
     public void pause() {
-        List<DeviceInfo> connectInfos = null;
-        if (null != screencastManager) {
-            connectInfos = screencastManager.getConnectInfos();
-        }
-        if (screencastManager != null && connectInfos != null && !connectInfos.isEmpty()) {
-            PolyvCommonLog.d(TAG, "pause click");
-            screencastManager.pause();
-        }
+        screencastManager.pause();
     }
 
     public void resume() {
-        List<DeviceInfo> connectInfos = null;
-        if (null != screencastManager) {
-            connectInfos = screencastManager.getConnectInfos();
-        }
-        if (null != screencastManager && null != connectInfos && !connectInfos.isEmpty()) {
-            PolyvCommonLog.d(TAG, "resume click");
-            // 暂停中
-            screencastManager.resume();
-        }
+        screencastManager.resume();
     }
 
 
-    public void play(MediaInfo playerInfo, String playPath, int bitrate, int seconds) {
-        PolyvCommonLog.d(TAG, "start play url:" + playPath);
+    public void play(PLVMediaCastDevice device, PLVMediaCastResource resource, int bitrate, int seconds) {
+        PolyvCommonLog.d(TAG, "start play url:" + resource.getMediaUrl());
         if (screencastStatusLayout.getVideoView().isDisableScreenCAP()) {
             Toast.makeText(getContext(), "防录屏状态下不能投屏", Toast.LENGTH_SHORT).show();
             screencastStatusLayout.callPlayErrorStatus();
             return;
         }
-        if (TextUtils.isEmpty(playPath)) {
+        if (TextUtils.isEmpty(resource.getMediaUrl())) {
             Toast.makeText(getContext(), "获取播放地址失败", Toast.LENGTH_SHORT).show();
             screencastStatusLayout.callPlayErrorStatus();
             return;
@@ -581,23 +471,13 @@ public class PolyvScreencastSearchLayout extends FrameLayout implements View.OnC
             screencastStatusLayout.callPlayErrorStatus();
             return;
         }
-        List<DeviceInfo> connectInfos = screencastManager.getConnectInfos();
-        if (null == connectInfos || connectInfos.isEmpty()) {
-            Toast.makeText(getContext(), "请先连接设备", Toast.LENGTH_SHORT).show();
-            screencastStatusLayout.callPlayErrorStatus();
-            return;
-        }
         screencastStatusLayout.callScreencastingStatus(bitrate);
 
-        final MediaInfo.MediaUrl mediaUrl = playerInfo.getMediaUrls().get(0);
-
-        mediaUrl.setMediaID(Base64.encodeToString(playPath.getBytes(), Base64.NO_WRAP));
-        mediaUrl.setUri(playPath);
-        mediaUrl.setMediaType(Constant.MediaType.VIDEO);
-        screencastManager.playNetMedia(playerInfo);
+        screencastManager.playNetMedia(device, resource, seconds);
     }
 
-    public void loadInfoAndPlay(final int bitrate) {
+    public void loadInfoAndPlay(PLVMediaCastDevice device, final int bitrate) {
+        this.isLoading = true;
         screencastStatusLayout.getVideoView().getPlayPathWithBitRateAsync(bitrate, new PolyvVideoView.Consumer<String>() {
             @Override
             public void accept(final String playPath) {
@@ -606,24 +486,18 @@ public class PolyvScreencastSearchLayout extends FrameLayout implements View.OnC
                 }
 
                 Video video = screencastStatusLayout.getVideoView().getVideo();
-                final MediaInfo mediaInfo = new MediaInfo();
-                if (video != null) {
-                    mediaInfo.setMediaName(video.getTitle());
-                }
-                final MediaInfo.MediaUrl mediaUrl = new MediaInfo.MediaUrl();
-                final List<MediaInfo.MediaUrl> mediaUrlList = new ArrayList<>();
-                mediaUrlList.add(mediaUrl);
-                mediaInfo.setMediaUrls(mediaUrlList);
 
-                PolyvScreencastHelper.getInstance().transformPlayObject(mediaUrl, video,
+                PolyvScreencastHelper.getInstance().transformPlayObject(null, video,
                         bitrate, playPath, new PolyvScreencastHelper.PolyvCastTransformCallback() {
                             @Override
                             public void onSucceed(Object object, String newPlayPath) {
                                 PolyvCommonLog.d(TAG, "cast: " + newPlayPath);
                                 int videoPosition = screencastStatusLayout.getCurrentPlayPosition();
-                                mediaUrlList.clear();
-                                mediaUrlList.add((MediaInfo.MediaUrl) object);
-                                play(mediaInfo, newPlayPath, bitrate, videoPosition);
+                                final PLVMediaCastResource mediaResource = new PLVMediaCastResource(
+                                        newPlayPath,
+                                        video.getTitle()
+                                );
+                                play(device, mediaResource, bitrate, videoPosition);
                                 screencastStatusLayout.resetBitRateView(bitrate);
                             }
 

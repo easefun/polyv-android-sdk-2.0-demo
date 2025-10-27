@@ -126,6 +126,13 @@
         </activity>
 
         <service android:name=".service.PolyvBackgroundPlayService" />
+
+        <!-- Download Foreground Service -->
+        <service
+            android:name=".service.PolyvDownloadForegroundService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
     </application>
 
 </manifest>

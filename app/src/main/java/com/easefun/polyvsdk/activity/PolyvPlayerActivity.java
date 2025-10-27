@@ -82,6 +82,7 @@ import com.easefun.polyvsdk.video.PolyvAudioSeekType;
 import com.easefun.polyvsdk.video.PolyvMediaInfoType;
 import com.easefun.polyvsdk.video.PolyvPlayErrorReason;
 import com.easefun.polyvsdk.video.PolyvSeekType;
+import com.easefun.polyvsdk.video.PolyvVideoType;
 import com.easefun.polyvsdk.video.PolyvVideoUtil;
 import com.easefun.polyvsdk.video.PolyvVideoView;
 import com.easefun.polyvsdk.video.auxiliary.PolyvAuxiliaryVideoView;
@@ -1317,7 +1318,6 @@ public class PolyvPlayerActivity extends FragmentActivity {
         mediaController.disable();
         fl_screencast_search.destroy();
         fl_screencast_search_land.destroy();
-        screencastManager.release();
         networkDetection.destroy();
         if (viceScreenLayout != null) {
             viceScreenLayout.destroy();
@@ -1603,6 +1603,10 @@ public class PolyvPlayerActivity extends FragmentActivity {
         iv_screencast_search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!screencastCheckEnable()) {
+                    fl_screencast_search.hide(true);
+                    return;
+                }
                 if (iv_screencast_search.isSelected()) {
                     fl_screencast_search.hide(true);
                 } else {
@@ -1613,6 +1617,9 @@ public class PolyvPlayerActivity extends FragmentActivity {
         iv_screencast_search_land.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!screencastCheckEnable()) {
+                    return;
+                }
                 fl_screencast_search_land.show();
             }
         });
@@ -1623,6 +1630,15 @@ public class PolyvPlayerActivity extends FragmentActivity {
                 iv_screencast_search.setSelected(visibility == View.VISIBLE);
             }
         });
+    }
+
+    private boolean screencastCheckEnable() {
+        boolean isEncryptVideo = videoView != null && videoView.getVideo() != null && videoView.getVideo().getVideoType() == PolyvVideoType.ENCRYPTION_M3U8;
+        if (isEncryptVideo) {
+            Toast.makeText(PolyvPlayerActivity.this, "加密视频不支持投屏", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -1656,14 +1672,6 @@ public class PolyvPlayerActivity extends FragmentActivity {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             if (landPptDirLayout.getVisibility() == View.VISIBLE) {
                 landPptDirLayout.setVisibility(View.GONE);
-                return true;
-            }
-            if (fl_screencast_search.getVisibility() == View.VISIBLE) {
-                fl_screencast_search.hide(true);
-                return true;
-            }
-            if (fl_screencast_search_land.getVisibility() == View.VISIBLE) {
-                fl_screencast_search_land.hide(true);
                 return true;
             }
             if (mediaController != null && mediaController.isLocked()) {
