@@ -1,3 +1,26 @@
+### 2025-12-26 polyv-android-sdk-2.0.0-demo v2.25.1
+
+### 功能完善&bug修复
+* 优化httpdns解析功能
+
+
+### 修改依赖
+```groovy
+// 修改对应的sdk依赖
+implementation 'net.polyv.android:polyvPlayer:2.25.1'
+implementation 'net.polyv.android:polyvDownload:2.25.1'
+implementation 'net.polyv.android:polyvUpload:2.25.1'
+implementation 'net.polyv.android:polyvSub:2.25.1'
+```
+
+### 迁移说明
+
+**由 2.18.x 及以下版本升级到 2.19.1 及以上版本时，需要注意视频下载的迁移**
+
+**自 2.19.1 版本开始，本地播放视频鉴权方式进行了调整，为了在覆盖升级时兼容已下载的旧版本视频，初始换sdk时会自动迁移，必须严格测试本地缓存视频是否迁移成功。**
+
+API文档请看 [v2.25.1 API](http://repo.polyv.net/android/sdk/2.25.1/api/index.html)
+
 ### 2025-12-09 polyv-android-sdk-2.0.0-demo v2.25.0
 
 ### 功能完善&bug修复
