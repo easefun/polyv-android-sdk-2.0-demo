@@ -205,6 +205,9 @@ public class PolyvErrorMessageUtils {
             case VIDEO_JSON_SERVER_ERROR:
                 return "视频加载失败，请联系管理员";
 
+            case VIDEO_TOKEN_ERROR:
+                return "视频加载失败，请尝试切换网络重新下载或者向管理员反馈";
+
             default:
                 return "当前" + tipsTypeMsg + "无法下载，请向管理员反馈";
         }
@@ -214,6 +217,149 @@ public class PolyvErrorMessageUtils {
      * 获取播放错误信息
      * @param playErrorReason 播放错误类型
      * @return 错误信息字符串
+     */
+    public static ErrorMessage getErrorMessage(@PolyvPlayErrorReason.PlayErrorReason int playErrorReason) {
+        switch (playErrorReason) {
+            case PolyvPlayErrorReason.VIDEO_ERROR:
+                return ErrorMessage.lineMessage("视频加载失败，可尝试切换线路", playErrorReason);
+
+            case PolyvPlayErrorReason.NETWORK_DENIED:
+                return ErrorMessage.retryMessage("无法连接网络，请连接网络后重试", playErrorReason);
+
+            case PolyvPlayErrorReason.OUT_FLOW:
+                return ErrorMessage.noneMessage("流量超标，请向管理员反馈", playErrorReason);
+
+            case PolyvPlayErrorReason.TIMEOUT_FLOW:
+                return ErrorMessage.noneMessage("账号过期，请向管理员反馈", playErrorReason);
+
+            case PolyvPlayErrorReason.LOCAL_VIDEO_ERROR:
+                return ErrorMessage.noneMessage("本地视频文件损坏，请重新下载", playErrorReason);
+
+            case PolyvPlayErrorReason.START_ERROR:
+                return ErrorMessage.noneMessage("播放异常，请重新播放", playErrorReason);
+
+            case PolyvPlayErrorReason.NOT_PERMISSION:
+                return ErrorMessage.noneMessage("非法播放，请向管理员反馈", playErrorReason);
+
+            case PolyvPlayErrorReason.USER_TOKEN_ERROR:
+                return ErrorMessage.noneMessage("请先设置播放凭证，再进行播放", playErrorReason);
+
+            case PolyvPlayErrorReason.VIDEO_STATUS_ERROR:
+                return ErrorMessage.noneMessage("视频状态异常，无法播放，请向管理员反馈", playErrorReason);
+
+            case PolyvPlayErrorReason.VID_ERROR:
+                return ErrorMessage.noneMessage("视频id不正确，请设置正确的视频id进行播放", playErrorReason);
+
+            case PolyvPlayErrorReason.BITRATE_ERROR:
+                return ErrorMessage.noneMessage("清晰度不正确，请设置正确的清晰度进行播放", playErrorReason);
+
+            case PolyvPlayErrorReason.MP4_LINK_NUM_ERROR:
+                return ErrorMessage.noneMessage("当前视频无法播放，请向管理员反馈", playErrorReason);
+
+            case PolyvPlayErrorReason.M3U8_LINK_NUM_ERROR:
+                return ErrorMessage.noneMessage("当前视频无法播放，请向管理员反馈", playErrorReason);
+
+            case PolyvPlayErrorReason.HLS_SPEED_TYPE_NULL:
+                return ErrorMessage.noneMessage("播放速度不正确，请设置正确的播放速度进行播放", playErrorReason);
+
+            case PolyvPlayErrorReason.NOT_LOCAL_VIDEO:
+                return ErrorMessage.noneMessage("找不到缓存的视频文件，请连网后重新下载", playErrorReason);
+
+            case PolyvPlayErrorReason.HLS_15X_INDEX_EMPTY:
+                return ErrorMessage.noneMessage("当前视频无法播放，请向管理员反馈", playErrorReason);
+
+            case PolyvPlayErrorReason.HLS_15X_ERROR:
+                return ErrorMessage.noneMessage("当前视频无法播放，请向管理员反馈", playErrorReason);
+
+            case PolyvPlayErrorReason.HLS_15X_URL_ERROR:
+                return ErrorMessage.noneMessage("当前视频无法播放，请向管理员反馈", playErrorReason);
+
+            case PolyvPlayErrorReason.M3U8_15X_LINK_NUM_ERROR:
+                return ErrorMessage.noneMessage("当前视频无法播放，请向管理员反馈", playErrorReason);
+
+            case PolyvPlayErrorReason.CHANGE_EQUAL_HLS_SPEED:
+                return ErrorMessage.noneMessage("切换播放速度相同，请选择其它播放速度", playErrorReason);
+
+            case PolyvPlayErrorReason.CAN_NOT_CHANGE_BITRATE:
+                return ErrorMessage.retryMessage("未开始播放视频不能切换清晰度，请重新播放", playErrorReason);
+
+            case PolyvPlayErrorReason.CAN_NOT_CHANGE_HLS_SPEED:
+                return ErrorMessage.retryMessage("未开始播放视频不能切换播放速度，请重新播放", playErrorReason);
+
+            case PolyvPlayErrorReason.CHANGE_BITRATE_NOT_EXIST:
+                return ErrorMessage.noneMessage("视频没有这个清晰度，请切换其它清晰度", playErrorReason);
+
+            case PolyvPlayErrorReason.HLS_URL_ERROR:
+                return ErrorMessage.noneMessage("当前视频无法播放，请向管理员反馈", playErrorReason);
+
+            case PolyvPlayErrorReason.HLS2_URL_ERROR:
+                return ErrorMessage.noneMessage("当前视频无法播放，请向管理员反馈", playErrorReason);
+
+            case PolyvPlayErrorReason.WRITE_EXTERNAL_STORAGE_DENIED:
+                return ErrorMessage.retryMessage("检测到拒绝读取存储设备，请先为应用程序分配权限，再重新播放", playErrorReason);
+
+            case PolyvPlayErrorReason.SOURCE_URL_EMPTY:
+                return ErrorMessage.noneMessage("当前视频无法播放，请向管理员反馈", playErrorReason);
+
+            case PolyvPlayErrorReason.AUDIO_URL_EMPTY:
+                return ErrorMessage.noneMessage("当前音频无法播放，请向管理员反馈", playErrorReason);
+
+            case PolyvPlayErrorReason.NOT_LOCAL_AUDIO:
+                return ErrorMessage.noneMessage("找不到缓存的音频文件，请连网后重新下载", playErrorReason);
+
+            case PolyvPlayErrorReason.CAN_NOT_CHANGE_AUDIO:
+                return ErrorMessage.noneMessage("未开始播放不能切换到音频，请先开始播放", playErrorReason);
+
+            case PolyvPlayErrorReason.CAN_NOT_CHANGE_VIDEO:
+                return ErrorMessage.noneMessage("未开始播放不能切换到视频，请先开始播放", playErrorReason);
+
+            case PolyvPlayErrorReason.LOCAL_AUDIO_ERROR:
+                return ErrorMessage.noneMessage("本地音频文件损坏，请重新下载", playErrorReason);
+
+            case PolyvPlayErrorReason.LOAD_TIMEOUT:
+                return ErrorMessage.lineMessage("视频加载超时，可尝试切换线路", playErrorReason);
+
+            case PolyvPlayErrorReason.CAN_NOT_CHANGE_ROUTE:
+                return ErrorMessage.retryMessage("当前无法切换播放器的线路，请重新播放", playErrorReason);
+
+            case PolyvPlayErrorReason.TOKEN_CLIENT_ERROR:
+                return ErrorMessage.lineMessage("视频加载失败，可尝试切换线路", playErrorReason);
+
+            case PolyvPlayErrorReason.TOKEN_SERVER_ERROR:
+                return ErrorMessage.lineMessage("视频加载失败，可尝试切换线路", playErrorReason);
+
+            case PolyvPlayErrorReason.VIDEO_JSON_CLIENT_ERROR:
+                return ErrorMessage.lineMessage("视频加载失败，可尝试切换线路", playErrorReason);
+
+            case PolyvPlayErrorReason.VIDEO_JSON_SERVER_ERROR:
+                return ErrorMessage.lineMessage("视频加载失败，可尝试切换线路", playErrorReason);
+
+            case PolyvPlayErrorReason.QUESTION_CLIENT_ERROR:
+                return ErrorMessage.lineMessage("视频加载失败，可尝试切换线路", playErrorReason);
+
+            case PolyvPlayErrorReason.QUESTION_SERVER_ERROR:
+                return ErrorMessage.lineMessage("视频加载失败，可尝试切换线路", playErrorReason);
+
+            case PolyvPlayErrorReason.PDX_SERVER_ERROR:
+                return ErrorMessage.lineMessage("视频加载失败，可尝试切换线路", playErrorReason);
+            case PolyvPlayErrorReason.PDX_CLIENT_ERROR:
+                return ErrorMessage.lineMessage("网络异常，可尝试切换网络或线路", playErrorReason);
+
+            case PolyvPlayErrorReason.HLS_PRIVATE_VERSION_ERROR:
+                return ErrorMessage.noneMessage("播放器不支持播放该视频，请升级播放器版本", playErrorReason);
+            case PolyvPlayErrorReason.HLS_KEY_VERSION_ERROR:
+                return ErrorMessage.noneMessage("请升级播放器版本", playErrorReason);
+            default:
+                return ErrorMessage.retryMessage("当前视频无法播放，请向管理员反馈或重试", playErrorReason);
+        }
+    }
+
+    /**
+     * 获取播放错误信息
+     *
+     * @param playErrorReason 播放错误类型
+     * @return 错误信息字符串
+     * @deprecated
      */
     public static String getPlayErrorMessage(@PolyvPlayErrorReason.PlayErrorReason int playErrorReason) {
         switch (playErrorReason) {
@@ -354,6 +500,40 @@ public class PolyvErrorMessageUtils {
                 return "请升级播放器版本";
             default:
                 return "当前视频无法播放，请向管理员反馈";
+        }
+    }
+
+    public static class ErrorMessage {
+        public static final int CHANGE_STATUS_NONE = 0;
+        public static final int CHANGE_STATUS_RETRY = 1;
+        public static final int CHANGE_STATUS_LINE = 2;
+        public String message;
+        public int changeStatus = CHANGE_STATUS_NONE;
+
+        public ErrorMessage(String mainMessage, int errorCode, int changeStatus) {
+            this.changeStatus = changeStatus;
+            String tempMessage = "";
+            String[] messageArr = mainMessage.split("，");
+            for (int i = 0; i < messageArr.length; i++) {
+                if (i == 0) {
+                    tempMessage += messageArr[i] + "(" + errorCode + ")";
+                } else {
+                    tempMessage += "，" + messageArr[i];
+                }
+            }
+            message = tempMessage;
+        }
+
+        public static ErrorMessage noneMessage(String message, int errorCode) {
+            return new ErrorMessage(message, errorCode, CHANGE_STATUS_NONE);
+        }
+
+        public static ErrorMessage retryMessage(String message, int errorCode) {
+            return new ErrorMessage(message, errorCode, CHANGE_STATUS_RETRY);
+        }
+
+        public static ErrorMessage lineMessage(String message, int errorCode) {
+            return new ErrorMessage(message, errorCode, CHANGE_STATUS_LINE);
         }
     }
 }

@@ -2,7 +2,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="#ffffff">
 
     <FrameLayout
         android:id="@+id/fl_top"
@@ -55,24 +56,36 @@
             android:layout_height="match_parent" />
 
         <!-- 底部字幕 -->
-        <TextView
-            android:id="@+id/srt"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:layout_alignParentBottom="true"
-            android:gravity="bottom|center_horizontal"
-            android:textColor="@android:color/white"
-            android:visibility="gone" />
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true">
+
+            <com.easefun.polyvsdk.player.srt.PolyvMathJaxView
+                android:id="@+id/srt_top"
+                android:layout_above="@+id/srt_bottom"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="5dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"/>
+
+            <com.easefun.polyvsdk.player.srt.PolyvMathJaxView
+                android:id="@+id/srt_bottom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:visibility="gone" />
+
+        </RelativeLayout>
 
         <!-- 顶部字幕 -->
-        <TextView
+        <com.easefun.polyvsdk.player.srt.PolyvMathJaxView
             android:id="@+id/top_srt"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:gravity="top|center_horizontal"
-            android:paddingTop="10dp"
-            android:textColor="@android:color/white"
             android:visibility="gone" />
 
         <com.easefun.polyvsdk.player.PolyvPlayerLightView
@@ -163,6 +176,18 @@
             android:text="广告也精彩：%d秒"
             android:textColor="@android:color/white"
             android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/advertise_skip_tv"
+            android:text="跳过"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="5dp"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/count_down"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
 
         <com.easefun.polyvsdk.player.PolyvPlayerPreviewView
             android:id="@+id/polyv_player_first_start_view"
@@ -258,6 +283,7 @@
             android:id="@+id/polyv_player_play_error_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop="16dp"
             android:visibility="gone" />
 
         <!-- 线路切换界面 -->

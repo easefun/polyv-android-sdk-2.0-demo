@@ -280,12 +280,20 @@
             android:id="@+id/tv_route"
             style="@style/tv_click_controller_land_bottom"
             android:layout_toLeftOf="@id/tv_ppt_dir"
+            android:visibility="gone"
             android:text="线路" />
+
+        <ImageView
+            android:id="@+id/iv_lines_land"
+            style="@style/iv_click_controller_land_bottom"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/tv_ppt_dir"
+            android:src="@drawable/polyv_player_lines_icon" />
 
         <TextView
             android:id="@+id/tv_speed"
             style="@style/tv_click_controller_land_bottom"
-            android:layout_toLeftOf="@id/tv_route"
+            android:layout_toLeftOf="@id/iv_lines_land"
             android:text="1x" />
 
         <TextView
@@ -298,6 +306,7 @@
             android:id="@+id/tv_codec_land"
             style="@style/tv_click_controller_land_bottom"
             android:layout_toLeftOf="@id/tv_bit"
+            android:visibility="gone"
             android:text="硬解" />
 
         <ImageView
@@ -305,10 +314,23 @@
             style="@style/iv_click_controller_land_bottom"
             android:layout_centerVertical="true"
             android:layout_marginRight="@dimen/center_bottom_margin_left_s"
-            android:layout_toLeftOf="@id/tv_codec_land"
+            android:layout_toLeftOf="@id/tv_bit"
             android:background="@null"
             android:src="@drawable/polyv_dm_switch" />
     </RelativeLayout>
+
+    <com.easefun.polyvsdk.player.heatmap.PLVHeatMapMask
+        android:id="@+id/plv_media_controller_heat_map_mask_land"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignBottom="@+id/plv_media_controller_heat_map_view_land" />
+
+    <com.easefun.polyvsdk.player.heatmap.PLVHeatMapView
+        android:id="@+id/plv_media_controller_heat_map_view_land"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_marginBottom="-15dp"
+        android:layout_above="@+id/sb_play_land" />
 
     <com.easefun.polyvsdk.view.PolyvTickSeekBar
         android:id="@+id/sb_play_land"
@@ -326,6 +348,13 @@
         android:secondaryProgress="0"
         android:thumb="@drawable/polyv_sb_thumb"
         android:thumbOffset="0dp" />
+
+    <com.easefun.polyvsdk.player.marker.PLVProgressMarkerView
+        android:id="@+id/plv_media_controller_marker_view_land"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="-12dp"
+        android:layout_above="@+id/sb_play_land" />
 
     <com.easefun.polyvsdk.view.PolyvTickTips
         android:id="@+id/fl_tt"

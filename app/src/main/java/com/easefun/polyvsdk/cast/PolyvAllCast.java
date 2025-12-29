@@ -1,184 +1,255 @@
 package com.easefun.polyvsdk.cast;
 
-import com.apowersoft.dlnasender.api.Constant;
-import com.apowersoft.dlnasender.api.DLNASender;
-import com.apowersoft.dlnasender.api.bean.DeviceInfo;
-import com.apowersoft.dlnasender.api.bean.MediaInfo;
-import com.apowersoft.dlnasender.api.bean.PositionInfo;
-import com.apowersoft.dlnasender.api.listener.DLNADeviceConnectListener;
-import com.apowersoft.dlnasender.api.listener.DLNARegistryListener;
-import com.apowersoft.dlnasender.api.listener.WXDLNAMethodCallback;
-import com.easefun.polyvsdk.log.PolyvCommonLog;
+import static net.polyv.android.common.libs.lang.concurrent.ThreadsKt.postToMainThread;
 
-import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
+import net.polyv.android.common.libs.lang.Duration;
+import net.polyv.android.media.cast.model.vo.PLVMediaCastDevice;
+import net.polyv.android.media.cast.model.vo.PLVMediaCastException;
+import net.polyv.android.media.cast.model.vo.PLVMediaCastPlayState;
+import net.polyv.android.media.cast.model.vo.PLVMediaCastResource;
+import net.polyv.android.media.cast.rx.PLVMediaCastControllerAdapterRxJava;
+import net.polyv.android.media.cast.rx.PLVMediaCastManagerAdapterRxJava;
+
+import java.util.List;
+
+import javax.annotation.Nullable;
+
+import io.reactivex.functions.Consumer;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function0;
+import kotlin.jvm.functions.Function1;
 
 
 public class PolyvAllCast {
 
     private static final String TAG = PolyvAllCast.class.getSimpleName();
 
-    private IPLVScreencastPlayerListener screencastPlayerListener;
-
-    private Timer getPositionTimer;
+    private IPLVScreencastListener screencastPlayerListener;
+    @Nullable
+    private PLVMediaCastControllerAdapterRxJava castController = null;
 
     public PolyvAllCast() {
-
+        PLVMediaCastManagerAdapterRxJava.getListenerRegistry().getCurrentPosition()
+                .observe(new Function1<Duration, Unit>() {
+                    @Override
+                    public Unit invoke(Duration position) {
+                        if (screencastPlayerListener != null) {
+                            screencastPlayerListener.onPositionUpdate(position.toSeconds());
+                        }
+                        return Unit.INSTANCE;
+                    }
+                });
+        PLVMediaCastManagerAdapterRxJava.getListenerRegistry().getOnPlayCompleted()
+                .observe(new Function1<Duration, Unit>() {
+                    @Override
+                    public Unit invoke(Duration duration) {
+                        if (screencastPlayerListener != null) {
+                            screencastPlayerListener.onComplete();
+                        }
+                        return Unit.INSTANCE;
+                    }
+                });
+        PLVMediaCastManagerAdapterRxJava.getListenerRegistry().getPlayState()
+                .observe(new Function1<PLVMediaCastPlayState, Unit>() {
+                    @Override
+                    public Unit invoke(PLVMediaCastPlayState state) {
+                        if (screencastPlayerListener != null) {
+                            if (state == PLVMediaCastPlayState.PLAYING) {
+                                screencastPlayerListener.onStart();
+                            } else if (state == PLVMediaCastPlayState.PAUSED) {
+                                screencastPlayerListener.onPause();
+                            } else if (state == PLVMediaCastPlayState.STOPPED) {
+                                screencastPlayerListener.onStop();
+                            }
+                        }
+                        return Unit.INSTANCE;
+                    }
+                });
     }
 
-    public void initService(DLNARegistryListener dlnaRegistryListener) {
-        DLNASender.getInstance().initService(dlnaRegistryListener, new DLNASender.DLNAInitCallback() {
-            @Override
-            public void onSuccess(int i) {
-                PolyvCommonLog.d(TAG, "initService onSuccess");
-            }
-
-            @Override
-            public void onFailure(int code, String msg) {
-                PolyvCommonLog.d(TAG, "initService onFailure, code = " + code + ", msg = " + msg);
-            }
-        });
-    }
-
-    public void setPlayerListener(IPLVScreencastPlayerListener listener) {
+    public void setPlayerListener(IPLVScreencastListener listener) {
         this.screencastPlayerListener = listener;
     }
 
     public void browse() {
-        DLNASender.getInstance().startBrowser();
+        PLVMediaCastManagerAdapterRxJava.scanDevices(Duration.seconds(5)).subscribe(
+                new Consumer<List<PLVMediaCastDevice>>() {
+                    @Override
+                    public void accept(List<PLVMediaCastDevice> devices) throws Exception {
+                        if (screencastPlayerListener != null) {
+                            screencastPlayerListener.onDeviceScanned(devices);
+                        }
+                    }
+                }
+        );
     }
 
-    public void stopBrowse() {
-
-    }
-
-    public void connect(DeviceInfo pInfo, DLNADeviceConnectListener deviceConnectListener) {
-        DLNASender.getInstance().addCallback(callback);
-        DLNASender.getInstance().connectDevice(pInfo, deviceConnectListener);
-    }
-
-    public void disConnect(DeviceInfo pInfo) {
-        stopGetPositionTimer();
-        DLNASender.getInstance().stopDLNA();
-        DLNASender.getInstance().removeCallback(callback);
+    @Nullable
+    public PLVMediaCastControllerAdapterRxJava getCastController() {
+        return castController;
     }
 
     // <editor-fold defaultstate="collapsed" desc="播放相关方法">
 
-    public void playNetMediaWithHeader(MediaInfo mediaInfo) {
-        DLNASender.getInstance().setDataSource(mediaInfo, mediaInfo.getMediaName());
-        DLNASender.getInstance().startDLNACast();
-        startGetPositionTimer();
+    public void playNetMedia(PLVMediaCastDevice device, PLVMediaCastResource resource, int startSeconds) {
+        PLVMediaCastManagerAdapterRxJava.startCast(device, resource)
+                .subscribe(
+                        new Consumer<PLVMediaCastControllerAdapterRxJava>() {
+                            @Override
+                            public void accept(PLVMediaCastControllerAdapterRxJava controller) throws Exception {
+                                castController = controller;
+                                if (startSeconds > 0) {
+                                    // 延迟200ms避免远端不响应seek
+                                    postToMainThread(Duration.millis(200), new Function0<Unit>() {
+                                        @Override
+                                        public Unit invoke() {
+                                            seekTo(startSeconds);
+                                            return null;
+                                        }
+                                    });
+                                }
+                            }
+                        },
+                        new Consumer<Throwable>() {
+                            @Override
+                            public void accept(Throwable throwable) throws Exception {
+                                if (screencastPlayerListener != null) {
+                                    int errCode = throwable instanceof PLVMediaCastException ? ((PLVMediaCastException) throwable).getCode() : 0;
+                                    screencastPlayerListener.onError("startCast", errCode, throwable.getMessage());
+                                }
+                            }
+                        }
+                );
     }
 
     public void resume() {
-        DLNASender.getInstance().play();
+        if (castController != null) {
+            castController.play().subscribe(
+                    new Consumer<Unit>() {
+                        @Override
+                        public void accept(Unit unit) throws Exception {
+
+                        }
+                    },
+                    new Consumer<Throwable>() {
+                        @Override
+                        public void accept(Throwable throwable) throws Exception {
+                            if (screencastPlayerListener != null) {
+                                int errCode = throwable instanceof PLVMediaCastException ? ((PLVMediaCastException) throwable).getCode() : 0;
+                                screencastPlayerListener.onError("play", errCode, throwable.getMessage());
+                            }
+                        }
+                    }
+            );
+        }
     }
 
     public void pause() {
-        DLNASender.getInstance().pause();
+        if (castController != null) {
+            castController.pause().subscribe(
+                    new Consumer<Unit>() {
+                        @Override
+                        public void accept(Unit unit) throws Exception {
+
+                        }
+                    },
+                    new Consumer<Throwable>() {
+                        @Override
+                        public void accept(Throwable throwable) throws Exception {
+                            if (screencastPlayerListener != null) {
+                                int errCode = throwable instanceof PLVMediaCastException ? ((PLVMediaCastException) throwable).getCode() : 0;
+                                screencastPlayerListener.onError("pause", errCode, throwable.getMessage());
+                            }
+                        }
+                    }
+            );
+        }
     }
 
     public void stopPlay() {
-        stopGetPositionTimer();
-        DLNASender.getInstance().stopDLNA();
+        if (castController != null) {
+            castController.stop().subscribe(
+                    new Consumer<Unit>() {
+                        @Override
+                        public void accept(Unit unit) throws Exception {
+
+                        }
+                    },
+                    new Consumer<Throwable>() {
+                        @Override
+                        public void accept(Throwable throwable) throws Exception {
+                            if (screencastPlayerListener != null) {
+                                int errCode = throwable instanceof PLVMediaCastException ? ((PLVMediaCastException) throwable).getCode() : 0;
+                                screencastPlayerListener.onError("stop", errCode, throwable.getMessage());
+                            }
+                        }
+                    }
+            );
+        }
+        castController = null;
     }
 
     public void seekTo(int position) {
-        DLNASender.getInstance().seekTo(position);
+        if (castController != null) {
+            castController.seek(Duration.seconds(position)).subscribe(
+                    new Consumer<Unit>() {
+                        @Override
+                        public void accept(Unit unit) throws Exception {
+
+                        }
+                    },
+                    new Consumer<Throwable>() {
+                        @Override
+                        public void accept(Throwable throwable) throws Exception {
+                            if (screencastPlayerListener != null) {
+                                int errCode = throwable instanceof PLVMediaCastException ? ((PLVMediaCastException) throwable).getCode() : 0;
+                                screencastPlayerListener.onError("seek", errCode, throwable.getMessage());
+                            }
+                        }
+                    }
+            );
+        }
     }
 
-    public void setVolume(int percent) {
-        DLNASender.getInstance().setCurrentVolume(percent);
+    public void setVolume(int volume) {
+        volume = Math.max(0, Math.min(volume, 100));
+        if (castController != null) {
+            castController.setVolume(volume).subscribe(
+                    new Consumer<Unit>() {
+                        @Override
+                        public void accept(Unit unit) throws Exception {
+
+                        }
+                    },
+                    new Consumer<Throwable>() {
+                        @Override
+                        public void accept(Throwable throwable) throws Exception {
+                            if (screencastPlayerListener != null) {
+                                int errCode = throwable instanceof PLVMediaCastException ? ((PLVMediaCastException) throwable).getCode() : 0;
+                                screencastPlayerListener.onError("setVolume", errCode, throwable.getMessage());
+                            }
+                        }
+                    }
+            );
+        }
     }
 
     public void volumeUp() {
-        DLNASender.getInstance().setVolume(true, 5);
+        if (castController == null) {
+            return;
+        }
+        int volume = castController.getListenerRegistry().getVolume().getValue();
+        setVolume(volume + 5);
     }
 
     public void volumeDown() {
-        DLNASender.getInstance().setVolume(false, 5);
+        if (castController == null) {
+            return;
+        }
+        int volume = castController.getListenerRegistry().getVolume().getValue();
+        setVolume(volume - 5);
     }
 
     // </editor-fold>
-
-    // <editor-fold defaultstate="collapsed" desc="回调">
-
-    private final WXDLNAMethodCallback callback = new WXDLNAMethodCallback() {
-        private long lastNonZeroTrackDurationSeconds = 0;
-        @Override
-        public void onSuccess(String method, Object obj) {
-            if (screencastPlayerListener == null) {
-                return;
-            }
-            switch (method) {
-                case Constant.Action.START:
-                    screencastPlayerListener.onStart();
-                    break;
-                case Constant.Action.PAUSE:
-                    screencastPlayerListener.onPause();
-                    break;
-                case Constant.Action.STOP:
-                    screencastPlayerListener.onStop();
-                    break;
-                case Constant.Action.GET_POSITION:
-                    try {
-                        PositionInfo positionInfo = (PositionInfo) obj;
-                        screencastPlayerListener.onPositionUpdate(positionInfo.getTrackElapsedSeconds());
-                        if (positionInfo.getTrackDurationSeconds() > 0) {
-                            lastNonZeroTrackDurationSeconds = positionInfo.getTrackDurationSeconds();
-                        }
-                        if (lastNonZeroTrackDurationSeconds > 0 && positionInfo.getTrackElapsedSeconds() >= lastNonZeroTrackDurationSeconds) {
-                            screencastPlayerListener.onComplete();
-                        }
-                    } catch (Exception e) {
-                        PolyvCommonLog.e(TAG, "onPositionUpdate error" + e.getMessage());
-                    }
-                    break;
-                default:
-            }
-        }
-
-        // dlna消息发送异常
-        private int ERROR_CODE_DLNA_SEND_MESSAGE_ERROR = 4;
-        // dlna服务异常
-        private int ERROR_CODE_DLNA_SERVICE_ERROR = 5;
-        // dlna状态异常
-        private int ERROR_CODE_DLNA_STATUS_ERROR = 6;
-        // dlna接收端不支持此命令
-        private int ERROR_CODE_RECEIVER_NOT_SUPPORT_ACTION = 8;
-
-        @Override
-        public void onFailure(String method, int errorCode, String errorMsg) {
-            if (Constant.Action.GET_POSITION.equals(method)) {
-                return;
-            }
-            if (screencastPlayerListener != null) {
-                screencastPlayerListener.onError(method, errorCode, errorMsg);
-            }
-        }
-    };
-
-    // </editor-fold>
-
-    private void startGetPositionTimer() {
-        if (getPositionTimer != null) {
-            getPositionTimer.cancel();
-        }
-        getPositionTimer = new Timer();
-        getPositionTimer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                DLNASender.getInstance().getPosition();
-            }
-        }, new Date(), 500);
-    }
-
-    private void stopGetPositionTimer() {
-        if (getPositionTimer != null) {
-            getPositionTimer.cancel();
-        }
-    }
 
 }

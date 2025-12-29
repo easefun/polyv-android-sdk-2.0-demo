@@ -28,4 +28,22 @@
             <enum name="bottom" value="4" />
         </attr>
     </declare-styleable>
+
+    <attr name="radius" format="dimension" />
+    <attr name="mode" format="flags">
+        <flag name="none" value="0" />
+        <flag name="leftTop" value="1" />
+        <flag name="leftBottom" value="2" />
+        <flag name="rightTop" value="4" />
+        <flag name="rightBottom" value="8" />
+        <flag name="left" value="3" />
+        <flag name="top" value="5" />
+        <flag name="bottom" value="10" />
+        <flag name="right" value="12" />
+        <flag name="all" value="15" />
+    </attr>
+    <declare-styleable name="PLVRoundRectLayout">
+        <attr name="radius" />
+        <attr name="mode" />
+    </declare-styleable>
 </resources>

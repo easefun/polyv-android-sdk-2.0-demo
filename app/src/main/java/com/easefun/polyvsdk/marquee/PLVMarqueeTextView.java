@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import androidx.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 
 import com.easefun.polyvsdk.marquee.model.PLVMarqueeTextVO;
 
@@ -53,11 +54,17 @@ public class PLVMarqueeTextView extends PLVStrokeTextView {
     // <editor-fold desc="功能模块 - 设置样式">
     // 设置字体样式
     private void setFontStyle() {
-        setTextSize(textModel.getFontSize());
+        int textSize = Math.max(textModel.getFontSize() * 2, sp2px(textModel.getFontSize()));
+        setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
         setTextColor(Color.argb(textModel.getFontAlpha(),
                 Color.red(textModel.getFontColor()),
                 Color.green(textModel.getFontColor()),
                 Color.blue(textModel.getFontColor())));
+    }
+
+    public int sp2px(final float spValue) {
+        final float fontScale = getContext().getResources().getDisplayMetrics().scaledDensity;
+        return (int) (spValue * fontScale + 0.5f);
     }
 
     // 设置描边样式

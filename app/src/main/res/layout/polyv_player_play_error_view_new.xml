@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.easefun.polyvsdk.view.PLVRoundRectLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/video_error_layout"
+    android:layout_width="266dp"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal"
+    android:alpha="0.7"
+    android:background="@android:color/black"
+    android:clickable="true"
+    android:paddingVertical="16dp"
+    android:paddingLeft="16dp"
+    app:mode="all"
+    app:radius="8dp">
+
+    <TextView
+        android:id="@+id/plv_play_error_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="40dp"
+        android:text="无法链接网络，可尝试切换线路可尝试切换线路"
+        android:textColor="#FFFFFF" />
+
+    <ImageView
+        android:id="@+id/plv_play_error_iv"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="8dp"
+        android:scaleType="center"
+        android:src="@drawable/polyv_player_error_close" />
+</com.easefun.polyvsdk.view.PLVRoundRectLayout>

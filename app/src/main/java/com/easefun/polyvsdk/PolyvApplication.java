@@ -4,9 +4,8 @@ import android.os.AsyncTask;
 import androidx.multidex.MultiDexApplication;
 import android.text.TextUtils;
 
-import com.apowersoft.dlnasender.api.listener.WxDlnaSenderInitCallback;
-import com.easefun.polyvsdk.cast.PolyvScreencastManager;
-import com.easefun.polyvsdk.log.PolyvCommonLog;
+import com.easefun.polyvsdk.service.PolyvDownloadForegroundService;
+import com.easefun.polyvsdk.util.PLVDebounceUtil;
 import com.easefun.polyvsdk.util.PolyvSPUtils;
 
 //继承的类是为了解决64K 引用限制
@@ -21,27 +20,9 @@ public class PolyvApplication extends MultiDexApplication {
 		super.onCreate();
 
 		initPolyvCilent();
-		initScreencast();
 
 		//仅用于Demo测试设置加密串使用，开发者无需集成
 		debugSetConfig();
-	}
-
-	public void initScreencast() {
-		// TODO appId和appSecret需与包名绑定，获取方式请咨询Polyv技术支持
-		PolyvScreencastManager.init(this, "S1XWK2pTkh63044d96eeedf675616175", "9425E-9F79E-B57CE-CD036", new WxDlnaSenderInitCallback() {
-			@Override
-			public void onSuccess() {
-				PolyvCommonLog.i(TAG, "initScreencast success");
-				// 初始化单例
-				PolyvScreencastManager.getInstance(PolyvApplication.this);
-			}
-
-			@Override
-			public void onFail(int code, String msg) {
-				PolyvCommonLog.i(TAG, "initScreencast fail, code = " + code + ", msg = " + msg);
-			}
-		});
 	}
 
 	//加密秘钥和加密向量，在后台->设置->API接口中获取，用于解密SDK加密串
@@ -77,6 +58,22 @@ public class PolyvApplication extends MultiDexApplication {
 		initDownloadDir();
 		// 设置下载队列总数，多少个视频能同时下载。(默认是1，设置负数和0是没有限制)
 		PolyvDownloaderManager.setDownloadQueueCount(1);
+		// 监听下载中队列变化
+		PolyvDownloaderManager.addOnDownloadingListSizeChangeListener(new PolyvDownloaderManager.OnDownloadingListSizeChangeListener() {
+			@Override
+			public void onSizeChanged(int newSize) {
+				PLVDebounceUtil.delayDebounce("download_onSizeChanged_key", 500, new Runnable() {
+					@Override
+					public void run() {
+						if (newSize == 0) {
+							PolyvDownloadForegroundService.stopService(PolyvApplication.this);
+						} else {
+							PolyvDownloadForegroundService.startService(PolyvApplication.this);
+						}
+					}
+				});
+			}
+		});
 	}
 
 	private void openMultiAccount() {

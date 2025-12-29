@@ -10,6 +10,8 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
@@ -62,6 +64,7 @@ import com.easefun.polyvsdk.player.PolyvPlayerPlayRouteView;
 import com.easefun.polyvsdk.player.PolyvPlayerPreviewView;
 import com.easefun.polyvsdk.player.PolyvPlayerProgressView;
 import com.easefun.polyvsdk.player.PolyvPlayerVolumeView;
+import com.easefun.polyvsdk.player.srt.PolyvMathJaxView;
 import com.easefun.polyvsdk.po.ppt.PolyvPptInfo;
 import com.easefun.polyvsdk.ppt.PolyvPPTDirLayout;
 import com.easefun.polyvsdk.ppt.PolyvPPTErrorLayout;
@@ -79,6 +82,7 @@ import com.easefun.polyvsdk.video.PolyvAudioSeekType;
 import com.easefun.polyvsdk.video.PolyvMediaInfoType;
 import com.easefun.polyvsdk.video.PolyvPlayErrorReason;
 import com.easefun.polyvsdk.video.PolyvSeekType;
+import com.easefun.polyvsdk.video.PolyvVideoType;
 import com.easefun.polyvsdk.video.PolyvVideoUtil;
 import com.easefun.polyvsdk.video.PolyvVideoView;
 import com.easefun.polyvsdk.video.auxiliary.PolyvAuxiliaryVideoView;
@@ -115,6 +119,7 @@ import com.easefun.polyvsdk.view.PolyvNetworkPoorIndicateLayout;
 import com.easefun.polyvsdk.view.PolyvTouchSpeedLayout;
 import com.easefun.polyvsdk.vo.PolyvADMatterVO;
 import com.easefun.polyvsdk.vo.PolyvQuestionVO;
+import com.easefun.polyvsdk.vo.PolyvSubtitleVO;
 import com.easefun.polyvsdk.vo.PolyvVideoVO;
 import com.google.gson.Gson;
 
@@ -122,9 +127,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class PolyvPlayerActivity extends FragmentActivity {
     private static final String TAG = PolyvPlayerActivity.class.getSimpleName();
+    private static final String TOPSUBTITLES = "topSubtitles";
+    private static final String BOTTOMSUBTITLES = "bottomSubtitles";
+    private static final String SINGLESUBTITLES = "singleSubtitles";
     private PolyvPlayerTopFragment topFragment;
     private PolyvPlayerTabFragment tabFragment;
     private PolyvPlayerViewPagerFragment viewPagerFragment;
@@ -158,11 +167,12 @@ public class PolyvPlayerActivity extends FragmentActivity {
     /**
      * 底部字幕文本视图
      */
-    private TextView srtTextView = null;
+    private PolyvMathJaxView srtTopTextView = null;
+    private PolyvMathJaxView srtBottomTextView = null;
     /**
      * 顶部字幕文本试图
      */
-    private TextView topSrtTextView = null;
+    private PolyvMathJaxView topSrtTextView = null;
     /**
      * 问答界面
      */
@@ -187,6 +197,12 @@ public class PolyvPlayerActivity extends FragmentActivity {
      * 广告倒计时
      */
     private TextView advertCountDown = null;
+
+    /**
+     * 跳过广告
+     */
+    private TextView advertSkip = null;
+
     /**
      * 缩略图界面
      */
@@ -246,6 +262,9 @@ public class PolyvPlayerActivity extends FragmentActivity {
     private int bitrate;
     private boolean isMustFromLocal;
     private int fileType;
+    private PolyvVideoVO mVideoVO;
+
+    private String advertText = "广告也精彩";
 
     private PolyvNetworkDetection networkDetection;
     private LinearLayout flowPlayLayout;
@@ -417,14 +436,18 @@ public class PolyvPlayerActivity extends FragmentActivity {
         marqueeView = (PLVMarqueeView) findViewById(R.id.polyv_marquee_view);
         mediaController = (PolyvPlayerMediaController) findViewById(R.id.polyv_player_media_controller);
         networkPoorIndicateLayout = (PolyvNetworkPoorIndicateLayout) findViewById(R.id.polyv_network_poor_indicate_layout);
-        srtTextView = (TextView) findViewById(R.id.srt);
-        topSrtTextView = (TextView) findViewById(R.id.top_srt);
+//        srtTextView = (TextView) findViewById(R.id.srt);
+        srtTopTextView = (PolyvMathJaxView) findViewById(R.id.srt_top);
+        srtBottomTextView = (PolyvMathJaxView) findViewById(R.id.srt_bottom);
+        topSrtTextView = (PolyvMathJaxView) findViewById(R.id.top_srt);
         questionView = (PolyvPlayerAnswerView) findViewById(R.id.polyv_player_question_view);
         auditionView = (PolyvPlayerAuditionView) findViewById(R.id.polyv_player_audition_view);
         auxiliaryVideoView = (PolyvAuxiliaryVideoView) findViewById(R.id.polyv_auxiliary_video_view);
         auxiliaryLoadingProgress = (ProgressBar) findViewById(R.id.auxiliary_loading_progress);
         auxiliaryView = (PolyvPlayerAuxiliaryView) findViewById(R.id.polyv_player_auxiliary_view);
         advertCountDown = (TextView) findViewById(R.id.count_down);
+        advertSkip = (TextView) findViewById(R.id.advertise_skip_tv);
+        advertSkip.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);
         firstStartView = (PolyvPlayerPreviewView) findViewById(R.id.polyv_player_first_start_view);
         lightView = (PolyvPlayerLightView) findViewById(R.id.polyv_player_light_view);
         volumeView = (PolyvPlayerVolumeView) findViewById(R.id.polyv_player_volume_view);
@@ -508,13 +531,16 @@ public class PolyvPlayerActivity extends FragmentActivity {
         videoView.setNeedGestureDetector(true);
         videoView.setSeekType(PolyvSeekType.SEEKTYPE_NORMAL);
         videoView.setAudioSeekType(PolyvAudioSeekType.SEEKTYPE_NORMAL);
-        videoView.setLoadTimeoutSecond(false, 60);//加载超时时间，单位：秒。false：不开启。
+        videoView.setAutoRecover(true);
+        videoView.setLoadTimeoutSecond(false, 30);//加载超时时间，单位：秒。false：不开启。
         videoView.setBufferTimeoutSecond(false, 30);//缓冲超时时间，单位：秒。false：不开启。
         videoView.disableScreenCAP(this, false);//防录屏开关，true为开启，如果开启防录屏，投屏功能将不可用
 
         videoView.setOnPreparedListener(new IPolyvOnPreparedListener2() {
             @Override
             public void onPrepared() {
+                // 恢复播放后，应该隐藏错误提示框
+                playErrorView.hide();
                 if (videoView.getVideo() != null && videoView.getVideo().isMp3Source()) {
                     audioSourceCoverView.onlyShowCover(videoView);
                 } else {
@@ -658,7 +684,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
         videoView.setOnVideoPlayErrorListener(new IPolyvOnVideoPlayErrorListener2() {
             @Override
             public boolean onVideoPlayError(@PolyvPlayErrorReason.PlayErrorReason int playErrorReason) {
-                    playErrorView.show(playErrorReason, videoView);
+                    playErrorView.show(playErrorReason, videoView, vid, bitrate);
                 return true;
             }
         });
@@ -684,14 +710,30 @@ public class PolyvPlayerActivity extends FragmentActivity {
         videoView.setOnAdvertisementCountDownListener(new IPolyvOnAdvertisementCountDownListener() {
             @Override
             public void onCountDown(int num) {
-                advertCountDown.setText("广告也精彩：" + num + "秒");
+                StringBuilder sb = new StringBuilder();
+                sb.append(advertText).append(": ").append(num).append("秒");
+                advertCountDown.setText(sb);
                 advertCountDown.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onEnd() {
                 advertCountDown.setVisibility(View.GONE);
+                advertSkip.setVisibility(View.GONE);
                 auxiliaryView.hide();
+            }
+
+            @Override
+            public void onSkipButtonShow(boolean isShow, String advertiseText) {
+                advertSkip.setText(advertiseText);
+                advertSkip.setVisibility(isShow ? View.VISIBLE : View.GONE);
+            }
+
+            @Override
+            public void advertText(String advertText) {
+                if (!TextUtils.isEmpty(advertText)) {
+                    PolyvPlayerActivity.this.advertText = advertText;
+                }
             }
         });
 
@@ -757,7 +799,8 @@ public class PolyvPlayerActivity extends FragmentActivity {
 
         videoView.setOnVideoSRTPreparedListener(new IPolyvOnVideoSRTPreparedListener() {
             @Override
-            public void onVideoSRTPrepared() {
+            public void onVideoSRTPrepared(PolyvVideoVO videoVO) {
+                mVideoVO = videoVO;
                 mediaController.preparedSRT(videoView);
             }
         });
@@ -765,21 +808,67 @@ public class PolyvPlayerActivity extends FragmentActivity {
         videoView.setOnVideoSRTListener(new IPolyvOnVideoSRTListener() {
             @Override
             public void onVideoSRT(@Nullable List<PolyvSRTItemVO> subTitleItems) {
-                srtTextView.setText("");
-                topSrtTextView.setText("");
-
+                srtTopTextView.setText("");
+                boolean needSetEmptySrtBottomText = true;
+                boolean needSetEmptyTopSrtText = true;
                 if (subTitleItems != null) {
                     for (PolyvSRTItemVO srtItemVO : subTitleItems) {
                         if (srtItemVO.isBottomCenterSubTitle()) {
-                            srtTextView.setText(srtItemVO.getSubTitle());
+                            setupMathJaxView(srtBottomTextView, SINGLESUBTITLES);
+                            srtBottomTextView.setText(srtItemVO.getSubTitle());
+                            needSetEmptySrtBottomText = false;
                         } else if (srtItemVO.isTopCenterSubTitle()) {
                             topSrtTextView.setText(srtItemVO.getSubTitle());
+                            needSetEmptyTopSrtText = false;
                         }
                     }
                 }
 
-                srtTextView.setVisibility(View.VISIBLE);
+                if (needSetEmptySrtBottomText) {
+                    srtBottomTextView.setText("");
+                }
+                if (needSetEmptyTopSrtText) {
+                    topSrtTextView.setText("");
+                }
+
+                srtBottomTextView.setVisibility(View.VISIBLE);
                 topSrtTextView.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onVideoSRTWithDouble(@Nullable Map<String, List<PolyvSRTItemVO>> subTitleItems) {
+                topSrtTextView.setText("");
+                boolean needSetEmptySrtBottomText = true;
+                boolean needSetEmptySrtTopTextView = true;
+
+                for (Map.Entry<String, List<PolyvSRTItemVO>> entry : subTitleItems.entrySet()) {
+                    if (entry.getValue() == null) {
+                        continue;
+                    }
+
+                    List<PolyvSRTItemVO> temps = entry.getValue();
+                    for (PolyvSRTItemVO polyvSRTItemVO : temps) {
+                        if (entry.getKey().equals(TOPSUBTITLES)) {
+                            setupMathJaxView(srtTopTextView, TOPSUBTITLES);
+                            srtTopTextView.setText(polyvSRTItemVO.getSubTitle());
+                            needSetEmptySrtTopTextView = false;
+                        }
+
+                        if (entry.getKey().equals(BOTTOMSUBTITLES)) {
+                            setupMathJaxView(srtBottomTextView, BOTTOMSUBTITLES);
+                            srtBottomTextView.setText(polyvSRTItemVO.getSubTitle());
+                            needSetEmptySrtBottomText = false;
+                        }
+                    }
+                }
+                if (needSetEmptySrtTopTextView) {
+                    srtTopTextView.setText("");
+                }
+                if (needSetEmptySrtBottomText) {
+                    srtBottomTextView.setText("");
+                }
+                srtBottomTextView.setVisibility(View.VISIBLE);
+                srtTopTextView.setVisibility(View.VISIBLE);
             }
         });
 
@@ -961,7 +1050,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
                     }
                 } else {
                     videoView.setSpeed(beforeTouchSpeed);
-                    mediaController.initSpeedView((int) (beforeTouchSpeed * 10));
+                    mediaController.initSpeedView(beforeTouchSpeed);
                     touchSpeedLayout.hide();
                 }
             }
@@ -989,6 +1078,13 @@ public class PolyvPlayerActivity extends FragmentActivity {
             public void onClick(View v) {
                 flowPlayLayout.setVisibility(View.GONE);
                 videoView.start();
+            }
+        });
+
+        advertSkip.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                auxiliaryVideoView.skipAdvertise();
             }
         });
 
@@ -1041,13 +1137,6 @@ public class PolyvPlayerActivity extends FragmentActivity {
             @Override
             public void onRetry() {
                 play(vid, bitrate, true, isMustFromLocal);
-            }
-        });
-
-        playErrorView.setShowRouteViewListener(new PolyvPlayerPlayErrorView.IShowRouteViewListener() {
-            @Override
-            public void onShow() {
-                playRouteView.show(videoView);
             }
         });
     }
@@ -1121,7 +1210,8 @@ public class PolyvPlayerActivity extends FragmentActivity {
         landPptErrorLayout.setVisibility(View.GONE);
 
         videoView.release();
-        srtTextView.setVisibility(View.GONE);
+        srtBottomTextView.setVisibility(View.GONE);
+        srtTopTextView.setVisibility(View.GONE);
         topSrtTextView.setVisibility(View.GONE);
         mediaController.hide();
         mediaController.resetView();
@@ -1228,7 +1318,6 @@ public class PolyvPlayerActivity extends FragmentActivity {
         mediaController.disable();
         fl_screencast_search.destroy();
         fl_screencast_search_land.destroy();
-        screencastManager.release();
         networkDetection.destroy();
         if (viceScreenLayout != null) {
             viceScreenLayout.destroy();
@@ -1514,6 +1603,10 @@ public class PolyvPlayerActivity extends FragmentActivity {
         iv_screencast_search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!screencastCheckEnable()) {
+                    fl_screencast_search.hide(true);
+                    return;
+                }
                 if (iv_screencast_search.isSelected()) {
                     fl_screencast_search.hide(true);
                 } else {
@@ -1524,6 +1617,9 @@ public class PolyvPlayerActivity extends FragmentActivity {
         iv_screencast_search_land.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!screencastCheckEnable()) {
+                    return;
+                }
                 fl_screencast_search_land.show();
             }
         });
@@ -1534,6 +1630,15 @@ public class PolyvPlayerActivity extends FragmentActivity {
                 iv_screencast_search.setSelected(visibility == View.VISIBLE);
             }
         });
+    }
+
+    private boolean screencastCheckEnable() {
+        boolean isEncryptVideo = videoView != null && videoView.getVideo() != null && videoView.getVideo().getVideoType() == PolyvVideoType.ENCRYPTION_M3U8;
+        if (isEncryptVideo) {
+            Toast.makeText(PolyvPlayerActivity.this, "加密视频不支持投屏", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -1567,14 +1672,6 @@ public class PolyvPlayerActivity extends FragmentActivity {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             if (landPptDirLayout.getVisibility() == View.VISIBLE) {
                 landPptDirLayout.setVisibility(View.GONE);
-                return true;
-            }
-            if (fl_screencast_search.getVisibility() == View.VISIBLE) {
-                fl_screencast_search.hide(true);
-                return true;
-            }
-            if (fl_screencast_search_land.getVisibility() == View.VISIBLE) {
-                fl_screencast_search_land.hide(true);
                 return true;
             }
             if (mediaController != null && mediaController.isLocked()) {
@@ -1679,6 +1776,40 @@ public class PolyvPlayerActivity extends FragmentActivity {
             }
 
             return null;
+        }
+    }
+
+    private void setupMathJaxView(PolyvMathJaxView textView, String type) {
+        if (mVideoVO != null && mVideoVO.getPlayer().getSubtitles().size() > 0) {
+            PolyvSubtitleVO subtitle = null;
+            for (PolyvSubtitleVO temp : mVideoVO.getPlayer().getSubtitles()) {
+                if (type.equals(SINGLESUBTITLES) && TextUtils.isEmpty(temp.getPosition())) {
+                    subtitle = temp;
+                    break;
+                } else if (type.equals(BOTTOMSUBTITLES) && temp.getPosition().equals("bottom")) {
+                    subtitle = temp;
+                    break;
+                } else if (type.equals(TOPSUBTITLES) && temp.getPosition().equals("top")) {
+                    subtitle = temp;
+                    break;
+                }
+            }
+            if (subtitle == null) {
+                return;
+            }
+            String fontColor = subtitle.getFontColor();
+            String backgroundColor = subtitle.getBackgroundColor();
+            textView.setTextColor(Color.parseColor(fontColor));
+            textView.setInputBackgroundColor(Color.parseColor(backgroundColor));
+            if (subtitle.isFontBold()) {
+                textView.setTypeface(Typeface.BOLD);
+            }
+            if (subtitle.isFontItalics()) {
+                textView.setTypeface(Typeface.ITALIC);
+            }
+            if (subtitle.isFontBold() && subtitle.isFontItalics()) {
+                textView.setTypeface(Typeface.BOLD_ITALIC);
+            }
         }
     }
 }

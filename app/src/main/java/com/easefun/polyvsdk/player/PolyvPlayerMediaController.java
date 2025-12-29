@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
@@ -16,14 +17,16 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
 import androidx.annotation.DrawableRes;
-import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -37,8 +40,12 @@ import com.easefun.polyvsdk.application.PolyvSettings;
 import com.easefun.polyvsdk.fragment.PolyvPlayerDanmuFragment;
 import com.easefun.polyvsdk.fragment.PolyvPlayerTopFragment;
 import com.easefun.polyvsdk.ijk.PolyvPlayerScreenRatio;
+import com.easefun.polyvsdk.player.heatmap.PLVHeatMapMask;
+import com.easefun.polyvsdk.player.heatmap.PLVHeatMapView;
 import com.easefun.polyvsdk.player.knowledge.PolyvPlayerKnowledgeLayout;
 import com.easefun.polyvsdk.player.knowledge.vo.PolyvPlayerKnowledgeVO;
+import com.easefun.polyvsdk.player.marker.PLVProgressMarker;
+import com.easefun.polyvsdk.player.marker.PLVProgressMarkerView;
 import com.easefun.polyvsdk.ppt.PolyvPPTDirLayout;
 import com.easefun.polyvsdk.ppt.PolyvViceScreenLayout;
 import com.easefun.polyvsdk.sub.auxilliary.IOUtil;
@@ -57,9 +64,12 @@ import com.easefun.polyvsdk.video.IPolyvVideoView;
 import com.easefun.polyvsdk.video.PolyvBaseMediaController;
 import com.easefun.polyvsdk.video.PolyvVideoUtil;
 import com.easefun.polyvsdk.video.PolyvVideoView;
+import com.easefun.polyvsdk.video.listener.IPolyvOnVideoSizeChangedListener2;
 import com.easefun.polyvsdk.view.PolyvTickSeekBar;
 import com.easefun.polyvsdk.view.PolyvTickTips;
+import com.easefun.polyvsdk.vo.PolyvSRTItemVO;
 import com.easefun.polyvsdk.vo.PolyvVideoVO;
+import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -67,6 +77,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 public class PolyvPlayerMediaController extends PolyvBaseMediaController implements View.OnClickListener {
     private static final String TAG = PolyvPlayerMediaController.class.getSimpleName();
@@ -92,7 +105,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     // 竖屏的控制栏
     private RelativeLayout rl_port;
     // 竖屏的切屏按钮，竖屏的播放/暂停按钮
-    private ImageView iv_land, iv_play, iv_vice_status_portrait, iv_pip_portrait;
+    private ImageView iv_land, iv_play, iv_vice_status_portrait, iv_pip_portrait, iv_lines_portrait;
     // 竖屏的显示播放进度控件，切换清晰度按钮，切换倍速按钮，切换线路按钮
     private TextView tv_curtime, tv_tottime, tv_bit_portrait, tv_speed_portrait, tv_route_portrait;
     // 竖屏的进度条
@@ -107,7 +120,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     //播放速度布局
     private RelativeLayout rl_center_speed_portrait;
     //选择播放速度控件
-    private TextView tv_speed05_portrait, tv_speed10_portrait, tv_speed12_portrait, tv_speed15_portrait, tv_speed20_portrait;
+    private TextView tv_speed05_portrait, tv_speed075_portrait, tv_speed10_portrait, tv_speed125_portrait, tv_speed15_portrait, tv_speed20_portrait, tv_speed30_portrait;
     /**
      * 竖屏的播放码率布局
      */
@@ -128,7 +141,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     //横屏的控制栏，顶部布局，底部布局
     private RelativeLayout rl_land, rl_top, rl_bot;
     //横屏的切屏按钮，横屏的播放/暂停按钮,横屏的返回按钮，设置按钮，分享按钮，弹幕开关
-    private ImageView iv_port, iv_play_land, iv_finish, iv_set, iv_share, iv_dmswitch, iv_vice_status, iv_pip;
+    private ImageView iv_port, iv_play_land, iv_finish, iv_set, iv_share, iv_dmswitch, iv_vice_status, iv_pip, iv_lines_land;
     // 横屏的显示播放进度控件,视频的标题,选择播放速度按钮，选择码率按钮，选择线路按钮
     private TextView tv_curtime_land, tv_tottime_land, tv_title, tv_speed, tv_bit, tv_route, tv_ppt_dir, tvKnowledge;
     // 横屏的进度条
@@ -161,10 +174,12 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     //调节亮度控件，调节音量控件
     private SeekBar sb_light, sb_volume;
     // 设置播放器银幕比率控件，设置字幕的控件
-    private LinearLayout ll_adaptive_mode, ll_subtitle, ll_subtitle_b;
-    private TextView tv_full, tv_fit, tv_sixteennine, tv_fourthree, tv_srt1, tv_srt2, tv_srt3, tv_srtnone;
+    private LinearLayout ll_adaptive_mode, ll_subtitle;
+    private TextView tv_full, tv_fit, tv_sixteennine, tv_fourthree;
     // 关闭布局按钮
     private ImageView iv_close_set;
+    private GridLayout lg_subtitle_b;
+    private TextView tv_srtnone, srt_change_mode_tv;
     /**
      * 弹幕布局的view
      */
@@ -192,7 +207,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     //播放速度布局
     private RelativeLayout rl_center_speed;
     //选择播放速度控件
-    private TextView tv_speed05, tv_speed10, tv_speed12, tv_speed15, tv_speed20;
+    private TextView tv_speed05, tv_speed075, tv_speed10, tv_speed125, tv_speed15, tv_speed20, tv_speed30;
     //关闭布局按钮
     private ImageView iv_close_speed;
     /**
@@ -227,6 +242,10 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     private PolyvTickTips tickTips;
 
     private ImageView polyvScreenLock, polyvScreenLockAudio;
+    private PLVProgressMarkerView mediaControllerMarkerViewPort;
+    private PLVProgressMarkerView mediaControllerMarkerViewLand;
+    private PLVHeatMapMask mediaControllerHeatMapMaskLand;
+    private PLVHeatMapView mediaControllerHeatMapViewLand;
 
     //网络监测
     private PolyvNetworkDetection networkDetection;
@@ -242,6 +261,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     private boolean isViceHideInPipMode;
 
     private PolyvSettings videoSetting = new PolyvSettings(getContext());
+    private PolyvPlayerLinePopupView linesPopupView;
 
     //全屏策略
     private static final int FULLSCREEN_RATIO = 0;//根据视频宽高判断，当宽>=高时，使用横屏全屏
@@ -259,6 +279,9 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     private OnDragSeekListener onDragSeekListener;
 
     private static final int SAVE_PROGRESS = 30;
+
+    // 字幕模式
+    private boolean isSrtSingleMode = true;
 
     //用于处理控制栏的显示状态
     private Handler handler = new Handler() {
@@ -376,6 +399,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         this.mContext = context;
         this.videoActivity = (Activity) mContext;
         this.view = LayoutInflater.from(getContext()).inflate(R.layout.polyv_controller_media, this);
+        this.linesPopupView = new PolyvPlayerLinePopupView(this);
         findIdAndNew();
         initView();
     }
@@ -422,6 +446,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         tv_bit_portrait = (TextView) view.findViewById(R.id.tv_bit_portrait);
         tv_speed_portrait = (TextView) view.findViewById(R.id.tv_speed_portrait);
         tv_route_portrait = (TextView) view.findViewById(R.id.tv_route_portrait);
+        iv_lines_portrait = view.findViewById(R.id.iv_lines_portrait);
         sb_play = (SeekBar) view.findViewById(R.id.sb_play);
         controllerCodecPortraitRl = findViewById(R.id.plv_controller_codec_portrait_rl);
         controllerMediaCodecPortraitTv = findViewById(R.id.plv_controller_media_codec_portrait_tv);
@@ -430,10 +455,12 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         //竖屏的播放速度布局的view
         rl_center_speed_portrait = (RelativeLayout) view.findViewById(R.id.rl_center_speed_portrait);
         tv_speed05_portrait = (TextView) view.findViewById(R.id.tv_speed05_portrait);
+        tv_speed075_portrait = (TextView) view.findViewById(R.id.tv_speed075_portrait);
         tv_speed10_portrait = (TextView) view.findViewById(R.id.tv_speed10_portrait);
-        tv_speed12_portrait = (TextView) view.findViewById(R.id.tv_speed12_portrait);
+        tv_speed125_portrait = (TextView) view.findViewById(R.id.tv_speed125_portrait);
         tv_speed15_portrait = (TextView) view.findViewById(R.id.tv_speed15_portrait);
         tv_speed20_portrait = (TextView) view.findViewById(R.id.tv_speed20_portrait);
+        tv_speed30_portrait = (TextView) view.findViewById(R.id.tv_speed30_portrait);
         //竖屏的播放码率布局的view
         rl_center_bit_portrait = (RelativeLayout) view.findViewById(R.id.rl_center_bit_portrait);
         tv_sc_portrait = (TextView) view.findViewById(R.id.tv_sc_portrait);
@@ -464,6 +491,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         tv_speed = (TextView) view.findViewById(R.id.tv_speed);
         tv_bit = (TextView) view.findViewById(R.id.tv_bit);
         tv_route = (TextView) view.findViewById(R.id.tv_route);
+        iv_lines_land = view.findViewById(R.id.iv_lines_land);
         tv_ppt_dir = (TextView) view.findViewById(R.id.tv_ppt_dir);
         tvKnowledge = (TextView) view.findViewById(R.id.tv_knowledge);
         controllerCodecRl = findViewById(R.id.plv_controller_codec_rl);
@@ -479,14 +507,12 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         tv_fit = (TextView) view.findViewById(R.id.tv_fit);
         tv_sixteennine = (TextView) view.findViewById(R.id.tv_sixteennine);
         tv_fourthree = (TextView) view.findViewById(R.id.tv_fourthree);
-        tv_srt1 = (TextView) view.findViewById(R.id.tv_srt1);
-        tv_srt2 = (TextView) view.findViewById(R.id.tv_srt2);
-        tv_srt3 = (TextView) view.findViewById(R.id.tv_srt3);
-        tv_srtnone = (TextView) view.findViewById(R.id.tv_srtnone);
         iv_close_set = (ImageView) view.findViewById(R.id.iv_close_set);
         ll_adaptive_mode = (LinearLayout) findViewById(R.id.ll_adaptive_mode);
         ll_subtitle = (LinearLayout) findViewById(R.id.ll_subtitle);
-        ll_subtitle_b = (LinearLayout) findViewById(R.id.ll_subtitle_b);
+        lg_subtitle_b = (GridLayout) findViewById(R.id.lg_subtitle_b);
+        tv_srtnone = (TextView) view.findViewById(R.id.tv_srtnone);
+        srt_change_mode_tv = (TextView) view.findViewById(R.id.srt_change_mode_tv);
         //侧边布局的view
         ll_side = (LinearLayout) view.findViewById(R.id.ll_side);
         iv_danmu = (ImageView) view.findViewById(R.id.iv_danmu);
@@ -532,10 +558,12 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         //横屏的播放速度布局的view
         rl_center_speed = (RelativeLayout) view.findViewById(R.id.rl_center_speed);
         tv_speed05 = (TextView) view.findViewById(R.id.tv_speed05);
+        tv_speed075 = (TextView) view.findViewById(R.id.tv_speed075);
         tv_speed10 = (TextView) view.findViewById(R.id.tv_speed10);
-        tv_speed12 = (TextView) view.findViewById(R.id.tv_speed12);
+        tv_speed125 = (TextView) view.findViewById(R.id.tv_speed125);
         tv_speed15 = (TextView) view.findViewById(R.id.tv_speed15);
         tv_speed20 = (TextView) view.findViewById(R.id.tv_speed20);
+        tv_speed30 = (TextView) view.findViewById(R.id.tv_speed30);
         iv_close_speed = (ImageView) view.findViewById(R.id.iv_close_speed);
         //横屏的播放码率布局的view
         rl_center_bit = (RelativeLayout) view.findViewById(R.id.rl_center_bit);
@@ -552,6 +580,10 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         iv_close_route = (ImageView) view.findViewById(R.id.iv_close_route);
         // 知识清单布局
         knowledgeLayout = (PolyvPlayerKnowledgeLayout) view.findViewById(R.id.knowledge_layout);
+        mediaControllerMarkerViewPort = findViewById(R.id.plv_media_controller_marker_view_port);
+        mediaControllerMarkerViewLand = findViewById(R.id.plv_media_controller_marker_view_land);
+        mediaControllerHeatMapMaskLand = findViewById(R.id.plv_media_controller_heat_map_mask_land);
+        mediaControllerHeatMapViewLand = findViewById(R.id.plv_media_controller_heat_map_view_land);
 
         sensorHelper = new PolyvSensorHelper(videoActivity);
         tickTips = (PolyvTickTips) view.findViewById(R.id.fl_tt);
@@ -655,22 +687,22 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         iv_sharewechat.setOnClickListener(this);
         iv_shareweibo.setOnClickListener(this);
         iv_dmswitch.setOnClickListener(this);
-        tv_srt1.setOnClickListener(this);
-        tv_srt2.setOnClickListener(this);
-        tv_srt3.setOnClickListener(this);
-        tv_srtnone.setOnClickListener(this);
         tv_speed.setOnClickListener(this);
         tv_speed_portrait.setOnClickListener(this);
         tv_speed05.setOnClickListener(this);
         tv_speed05_portrait.setOnClickListener(this);
+        tv_speed075.setOnClickListener(this);
+        tv_speed075_portrait.setOnClickListener(this);
         tv_speed10.setOnClickListener(this);
         tv_speed10_portrait.setOnClickListener(this);
-        tv_speed12.setOnClickListener(this);
-        tv_speed12_portrait.setOnClickListener(this);
+        tv_speed125.setOnClickListener(this);
+        tv_speed125_portrait.setOnClickListener(this);
         tv_speed15.setOnClickListener(this);
         tv_speed15_portrait.setOnClickListener(this);
         tv_speed20.setOnClickListener(this);
         tv_speed20_portrait.setOnClickListener(this);
+        tv_speed30.setOnClickListener(this);
+        tv_speed30_portrait.setOnClickListener(this);
         tv_bit.setOnClickListener(this);
         tv_bit_portrait.setOnClickListener(this);
         tv_sc.setOnClickListener(this);
@@ -698,7 +730,9 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         polyvScreenLock.setOnClickListener(this);
         polyvScreenLockAudio.setOnClickListener(this);
         tv_route.setOnClickListener(this);
+        iv_lines_land.setOnClickListener(this);
         tv_route_portrait.setOnClickListener(this);
+        iv_lines_portrait.setOnClickListener(this);
         tv_route1.setOnClickListener(this);
         tv_route1_portrait.setOnClickListener(this);
         tv_route2.setOnClickListener(this);
@@ -719,6 +753,8 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         controllerMediaCodecTv.setOnClickListener(this);
         controllerCodecCloseIv.setOnClickListener(this);
         tvCodecLand.setOnClickListener(this);
+        tv_srtnone.setOnClickListener(this);
+        srt_change_mode_tv.setOnClickListener(this);
     }
 
     //是否显示左侧边的切换音视频的布局
@@ -731,8 +767,8 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         if (ll_subtitle != null) {
             ll_subtitle.setVisibility(View.GONE);
         }
-        if (ll_subtitle_b != null) {
-            ll_subtitle_b.setVisibility(View.GONE);
+        if (lg_subtitle_b != null) {
+            lg_subtitle_b.setVisibility(View.GONE);
         }
     }
 
@@ -742,9 +778,16 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             this.videoVO = videoView.getVideo();
             //初始化字幕控件
             initSrtView(videoView.getCurrSRTKey());
-            int visibility = PolyvVideoVO.MODE_AUDIO.equals(videoView.getCurrentMode()) ? View.GONE : View.VISIBLE;
+
+            int visibility = PolyvVideoVO.MODE_AUDIO.equals(videoView.getCurrentMode())
+                    || !videoVO.getPlayer().isSubtitlesEnabled()  ? View.GONE : View.VISIBLE;
             ll_subtitle.setVisibility(visibility);
-            ll_subtitle_b.setVisibility(visibility);
+            lg_subtitle_b.setVisibility(visibility);
+
+            srt_change_mode_tv.setVisibility(videoVO.getPlayer().isSubtitleDoubleEnable() ? View.VISIBLE : View.GONE);
+            if (videoVO.getPlayer().isSubtileDefaultDouble()) {
+                changeSrtMode(false);
+            }
         }
     }
 
@@ -753,24 +796,32 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             videoVO = videoView.getVideo();
             videoWidth = videoView.getVideoWidth();
             videoHeight = videoView.getVideoHeight();
+
+            this.videoView.setOnVideoSizeChangedListener(new IPolyvOnVideoSizeChangedListener2() {
+                @Override
+                public void onVideoSizeChanged(int width, int height, int sarNum, int sarDen) {
+                    if (width != videoWidth || height != videoHeight) {
+                        videoWidth = width;
+                        videoHeight = height;
+                        videoView.getRenderView().setVideoSize(width, height);
+                    }
+                }
+            });
+
             showAudioLock(canShowLeftSideView());
             if (videoVO != null)
                 tv_title.setText(videoVO.getTitle());
             int totalTime = videoView.getDuration();
             tv_tottime.setText(PolyvTimeUtils.generateTime(totalTime));
             tv_tottime_land.setText(PolyvTimeUtils.generateTime(totalTime));
+            mockMarkers();
             //初始化播放器的银幕比率的显示控件
             initRatioView(videoView.getCurrentAspectRatio());
             //初始化倍速控件及其可见性
-            initSpeedView((int) (videoView.getSpeed() * 10));
+            initSpeedView(videoView.getSpeed());
             //初始化码率控件及其可见性
             initBitRateView(videoView.getBitRate());
             initBitRateViewVisible(videoView.getBitRate());
-            //初始化切换线路及其可见性
-            initRouteView();
-            //非全屏和全屏的控制栏的切换线路按钮默认不可见，如需更改为可见，注释这两行代码即可
-            tv_route_portrait.setVisibility(View.GONE);
-            tv_route.setVisibility(View.GONE);
 
             //音频模式下，隐藏切换码率/填充模式/字幕/截图的按钮
             int visibility = PolyvVideoVO.MODE_AUDIO.equals(videoView.getCurrentMode()) ? View.GONE : View.VISIBLE;
@@ -1188,6 +1239,9 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         if (!onlyHideTop) {
             rl_bot.setVisibility(isVisible);
             sb_play_land.setVisibility(isVisible);
+            mediaControllerHeatMapMaskLand.setVisibility(isVisible);
+            mediaControllerHeatMapViewLand.setVisibility(isVisible);
+            mediaControllerMarkerViewLand.setVisibility(isVisible);
         }
     }
 
@@ -1363,86 +1417,38 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         }
     }
 
-    //重置选择字幕的控件
-    private void resetSrtView(int srtPosition) {
-        if (videoView != null)
-            videoView.changeSRT(initSrtView(srtPosition));
-    }
-
-    private String initSrtView(int srtPosition) {
-        tv_srt1.setSelected(false);
-        tv_srt2.setSelected(false);
-        tv_srt3.setSelected(false);
-        tv_srtnone.setSelected(false);
-        List<String> srtKeys = new ArrayList<String>();
-        if (videoVO != null)
-            srtKeys.addAll(videoVO.getVideoSRT().keySet());
-        switch (srtPosition) {
-            case 0:
-                tv_srt1.setSelected(true);
-                break;
-            case 1:
-                tv_srt2.setSelected(true);
-                break;
-            case 2:
-                tv_srt3.setSelected(true);
-                break;
-            case 3:
-                tv_srtnone.setSelected(true);
-                break;
+    //切换单/双字幕
+    private void changeSrtMode(boolean isSingle) {
+        if (!isSingle) {
+            selectSrt(-1);
+            srt_change_mode_tv.setSelected(true);
+            List<String> srtKeys = new ArrayList<String>();
+            for (PolyvSRTItemVO srtvo : videoVO.getVideoSRTList()) {
+                srtKeys.add(srtvo.getTitle());
+            }
+            if (srtKeys.size() != 0) {
+            videoView.changeSRT(srtKeys.get(0));
+            }
         }
-        return srtPosition == 3 ? "不显示" : srtKeys.get(srtPosition);
+        isSrtSingleMode = isSingle;
+        if (videoView != null) {
+            videoView.changeSRTMode(isSrtSingleMode);
+        }
     }
 
     //初始化选择字幕的控件
-    private void initSrtView(String srtKey) {
-        tv_srt1.setSelected(false);
-        tv_srt2.setSelected(false);
-        tv_srt3.setSelected(false);
-        tv_srt1.setVisibility(View.VISIBLE);
-        tv_srt2.setVisibility(View.VISIBLE);
-        tv_srt3.setVisibility(View.VISIBLE);
-        tv_srtnone.setSelected(false);
+    void initSrtView(String srtKey) {
         List<String> srtKeys = new ArrayList<String>();
-        if (videoVO != null)
-            srtKeys.addAll(videoVO.getVideoSRT().keySet());
-        switch (srtKeys.size()) {
-            case 0:
-                tv_srt1.setVisibility(View.GONE);
-                tv_srt2.setVisibility(View.GONE);
-                tv_srt3.setVisibility(View.GONE);
-                break;
-            case 1:
-                tv_srt1.setText(srtKeys.get(0));
-                tv_srt2.setVisibility(View.GONE);
-                tv_srt3.setVisibility(View.GONE);
-                break;
-            case 2:
-                tv_srt1.setText(srtKeys.get(0));
-                tv_srt2.setText(srtKeys.get(1));
-                tv_srt3.setVisibility(View.GONE);
-                break;
-            default:
-                tv_srt1.setText(srtKeys.get(0));
-                tv_srt2.setText(srtKeys.get(1));
-                tv_srt3.setText(srtKeys.get(2));
-                break;
+        if (videoVO != null) {
+            for (PolyvSRTItemVO srtItemVO : videoVO.getVideoSRTList()) {
+                srtKeys.add(srtItemVO.getTitle());
+            }
         }
-        if (TextUtils.isEmpty(srtKey)) {
-            tv_srtnone.setSelected(true);
-            return;
+        for (int i = 0; i < srtKeys.size(); i++) {
+            insertTextView(srtKeys.get(i));
         }
-        switch (srtKeys.indexOf(srtKey)) {
-            case 0:
-                tv_srt1.setSelected(true);
-                break;
-            case 1:
-                tv_srt2.setSelected(true);
-                break;
-            case 2:
-                tv_srt3.setSelected(true);
-                break;
-        }
+        // 选择默认字幕
+        selectSrt(srtKeys.indexOf(srtKey) + 2);
     }
 
     //重置选择播放速度的布局
@@ -1466,56 +1472,70 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     }
 
     //初始化选择播放速度的控件
-    public void initSpeedView(int speed) {
+    public void initSpeedView(float speed) {
         tv_speed05.setSelected(false);
         tv_speed05_portrait.setSelected(false);
+        tv_speed075.setSelected(false);
+        tv_speed075_portrait.setSelected(false);
         tv_speed10.setSelected(false);
         tv_speed10_portrait.setSelected(false);
-        tv_speed12.setSelected(false);
-        tv_speed12_portrait.setSelected(false);
+        tv_speed125.setSelected(false);
+        tv_speed125_portrait.setSelected(false);
         tv_speed15.setSelected(false);
         tv_speed15_portrait.setSelected(false);
         tv_speed20.setSelected(false);
         tv_speed20_portrait.setSelected(false);
-        switch (speed) {
-            case 5:
-                tv_speed05.setSelected(true);
-                tv_speed05_portrait.setSelected(true);
-                tv_speed.setText("0.5x");
-                tv_speed_portrait.setText("0.5x");
-                break;
-            case 10:
-                tv_speed10.setSelected(true);
-                tv_speed10_portrait.setSelected(true);
-                tv_speed.setText("1x");
-                tv_speed_portrait.setText("1x");
-                break;
-            case 12:
-                tv_speed12.setSelected(true);
-                tv_speed12_portrait.setSelected(true);
-                tv_speed.setText("1.2x");
-                tv_speed_portrait.setText("1.2x");
-                break;
-            case 15:
-                tv_speed15.setSelected(true);
-                tv_speed15_portrait.setSelected(true);
-                tv_speed.setText("1.5x");
-                tv_speed_portrait.setText("1.5x");
-                break;
-            case 20:
-                tv_speed20.setSelected(true);
-                tv_speed20_portrait.setSelected(true);
-                tv_speed.setText("2x");
-                tv_speed_portrait.setText("2x");
-                break;
+        tv_speed30.setSelected(false);
+        tv_speed30_portrait.setSelected(false);
+        if (speed == 0.5) {
+            tv_speed05.setSelected(true);
+            tv_speed05_portrait.setSelected(true);
+            tv_speed.setText("0.5x");
+            tv_speed_portrait.setText("0.5x");
+        }
+        if (speed == 0.75) {
+            tv_speed075.setSelected(true);
+            tv_speed075_portrait.setSelected(true);
+            tv_speed.setText("0.75x");
+            tv_speed_portrait.setText("0.75x");
+        }
+        if (speed == 1) {
+            tv_speed10.setSelected(true);
+            tv_speed10_portrait.setSelected(true);
+            tv_speed.setText("1x");
+            tv_speed_portrait.setText("1x");
+        }
+        if (speed == 1.25) {
+            tv_speed125.setSelected(true);
+            tv_speed125_portrait.setSelected(true);
+            tv_speed.setText("1.25x");
+            tv_speed_portrait.setText("1.25x");
+        }
+        if (speed == 1.5) {
+            tv_speed15.setSelected(true);
+            tv_speed15_portrait.setSelected(true);
+            tv_speed.setText("1.5x");
+            tv_speed_portrait.setText("1.5x");
+        }
+        if (speed == 2) {
+            tv_speed20.setSelected(true);
+            tv_speed20_portrait.setSelected(true);
+            tv_speed.setText("2x");
+            tv_speed_portrait.setText("2x");
+        }
+        if (speed == 3) {
+            tv_speed30.setSelected(true);
+            tv_speed30_portrait.setSelected(true);
+            tv_speed.setText("3x");
+            tv_speed_portrait.setText("3x");
         }
     }
 
     //重置选择播放速度的控件
-    private void resetSpeedView(int speed) {
+    private void resetSpeedView(float speed) {
         initSpeedView(speed);
         if (videoView != null) {
-            videoView.setSpeed(speed / 10f);
+            videoView.setSpeed(speed);
         }
         hide();
     }
@@ -2124,17 +2144,15 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             case R.id.iv_dmswitch:
                 resetDmSwitchView();
                 break;
-            case R.id.tv_srt1:
-                resetSrtView(0);
-                break;
-            case R.id.tv_srt2:
-                resetSrtView(1);
-                break;
-            case R.id.tv_srt3:
-                resetSrtView(2);
-                break;
             case R.id.tv_srtnone:
-                resetSrtView(3);
+                selectSrt(-1);
+                tv_srtnone.setSelected(true);
+                videoView.changeSRT("不显示");
+                break;
+            case R.id.srt_change_mode_tv:
+                selectSrt(-1);
+                srt_change_mode_tv.setSelected(true);
+                changeSrtMode(false);
                 break;
             case R.id.tv_speed_portrait:
                 boolean isVisible = rl_center_speed_portrait.getVisibility() == View.VISIBLE;
@@ -2180,23 +2198,31 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                 break;
             case R.id.tv_speed05_portrait:
             case R.id.tv_speed05:
-                resetSpeedView(5);
+                resetSpeedView(0.5F);
+                break;
+            case R.id.tv_speed075_portrait:
+            case R.id.tv_speed075:
+                resetSpeedView(0.75F);
                 break;
             case R.id.tv_speed10_portrait:
             case R.id.tv_speed10:
-                resetSpeedView(10);
+                resetSpeedView(1);
                 break;
-            case R.id.tv_speed12_portrait:
-            case R.id.tv_speed12:
-                resetSpeedView(12);
+            case R.id.tv_speed125_portrait:
+            case R.id.tv_speed125:
+                resetSpeedView(1.25F);
                 break;
             case R.id.tv_speed15_portrait:
             case R.id.tv_speed15:
-                resetSpeedView(15);
+                resetSpeedView(1.5F);
                 break;
             case R.id.tv_speed20_portrait:
             case R.id.tv_speed20:
-                resetSpeedView(20);
+                resetSpeedView(2);
+                break;
+            case R.id.tv_speed30_portrait:
+            case R.id.tv_speed30:
+                resetSpeedView(3);
                 break;
             case R.id.iv_close_bit:
                 hide();
@@ -2213,6 +2239,10 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                     resetRouteLayout(View.VISIBLE);
                 else
                     resetRouteLayout(View.GONE);
+                break;
+            case R.id.iv_lines_portrait:
+            case R.id.iv_lines_land:
+                linesPopupView.show(videoView, videoView.getCurrentVid(), videoView.getBitRate());
                 break;
             case R.id.tv_route1_portrait:
             case R.id.tv_route1:
@@ -2323,9 +2353,94 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             resetHideTime(longTime);
     }
 
+    private void insertTextView(final String str) {
+        final TextView textView = new TextView(mContext);
+        textView.setText(str);
+        textView.setClickable(true);
+        textView.setTypeface(Typeface.SANS_SERIF, Typeface.BOLD);
+
+        float size = getResources().getDimension(R.dimen.center_text_size);
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
+        textView.setTextColor(getResources().getColorStateList(R.color.polyv_bit_text_color));
+        int padding = PolyvScreenUtils.dip2px(mContext, getResources().getDimension(R.dimen.talk_common_margin));
+        textView.setPadding(padding, padding, padding, padding);
+        textView.setGravity(Gravity.CENTER);
+
+        final int childCount = lg_subtitle_b.getChildCount();
+        GridLayout.Spec rowSpec = GridLayout.spec((childCount) / 5, 1.0f);
+        GridLayout.Spec columnSpec = GridLayout.spec((childCount) % 5, 1.0f);
+        GridLayout.LayoutParams params = new GridLayout.LayoutParams(rowSpec, columnSpec);
+        params.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+        params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        lg_subtitle_b.addView(textView, params);
+
+        textView.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                selectSrt(childCount);
+                changeSrtMode(true);
+                videoView.changeSRT(str);
+            }
+        });
+    }
+
+    private void selectSrt(int index) {
+        int count = lg_subtitle_b.getChildCount();
+        if (index == -1) {
+            for (int i = 0; i < count; i++) {
+                View textView = lg_subtitle_b.getChildAt(i);
+                textView.setSelected(false);
+            }
+            return;
+        }
+        if (index >= count) {
+            return;
+        }
+        for (int i = 0; i < count; i++) {
+            View textView = lg_subtitle_b.getChildAt(i);
+            if (i == index) {
+                textView.setSelected(true);
+                continue;
+            }
+            textView.setSelected(false);
+        }
+    }
+
     public interface OnDragSeekListener {
         void onDragSeekSuccess(int positionBeforeSeek, int positionAfterSeek);
 
         void onDragSeekBan(int dragSeekStrategy);
+    }
+
+    private void mockMarkers() {
+        if (videoView == null) {
+            return;
+        }
+        final long duration = videoView.getDuration();
+        List<PLVProgressMarker> markers = new ArrayList<>();
+        for (int i = 1; i < 5; ++i) {
+            long time = i * duration / 5;
+            long second = time / 1000;
+            PLVProgressMarker marker = new PLVProgressMarker(
+                    time,
+                    second + "s",
+                    "marker" + second,
+                    0x99000000,
+                    Color.WHITE,
+                    new Function1<PLVProgressMarker, Unit>() {
+                        @Override
+                        public Unit invoke(PLVProgressMarker marker) {
+                            String text = new Gson().toJson(marker);
+                            Toast.makeText(videoView.getContext(), text, Toast.LENGTH_SHORT).show();
+                            return null;
+                        }
+                    }
+            );
+            markers.add(marker);
+        }
+        mediaControllerMarkerViewPort.setDuration(duration);
+        mediaControllerMarkerViewPort.setMarkers(markers);
+        mediaControllerMarkerViewLand.setDuration(duration);
+        mediaControllerMarkerViewLand.setMarkers(markers);
     }
 }

@@ -101,13 +101,21 @@
             android:gravity="center"
             android:text="线路"
             android:textColor="@color/polyv_play_bt_color"
+            android:visibility="gone"
             android:textSize="@dimen/bottom_right_text_size" />
+
+        <ImageView
+            android:id="@+id/iv_lines_portrait"
+            style="@style/iv_click_controller_port_bottom"
+            android:layout_toLeftOf="@+id/iv_vice_status_portrait"
+            android:src="@drawable/polyv_player_lines_icon" />
+
 
         <TextView
             android:id="@+id/tv_speed_portrait"
             android:layout_width="@dimen/bottom_layout_height"
             android:layout_height="match_parent"
-            android:layout_toLeftOf="@id/tv_route_portrait"
+            android:layout_toLeftOf="@id/iv_lines_portrait"
             android:background="@drawable/polyv_commom_click_color_gray"
             android:gravity="center"
             android:text="1x"
@@ -134,6 +142,7 @@
             android:gravity="center"
             android:text="硬解"
             android:textColor="@color/polyv_play_bt_color"
+            android:visibility="gone"
             android:textSize="@dimen/bottom_right_text_size" />
     </RelativeLayout>
 
@@ -196,6 +205,18 @@
             android:textSize="@dimen/center_bottom_text_size" />
     </LinearLayout>
 
+    <com.easefun.polyvsdk.player.heatmap.PLVHeatMapMask
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignBottom="@+id/plv_media_controller_heat_map_view_port" />
+
+    <com.easefun.polyvsdk.player.heatmap.PLVHeatMapView
+        android:id="@+id/plv_media_controller_heat_map_view_port"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_marginBottom="-10dp"
+        android:layout_above="@+id/sb_play" />
+
     <SeekBar
         android:id="@+id/sb_play"
         android:layout_width="match_parent"
@@ -212,6 +233,13 @@
         android:secondaryProgress="0"
         android:thumb="@drawable/polyv_sb_thumb"
         android:thumbOffset="0dp" />
+
+    <com.easefun.polyvsdk.player.marker.PLVProgressMarkerView
+        android:id="@+id/plv_media_controller_marker_view_port"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="-8dp"
+        android:layout_above="@+id/sb_play" />
 
     <LinearLayout
         android:layout_width="wrap_content"
