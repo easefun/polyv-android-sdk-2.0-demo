@@ -294,6 +294,7 @@ public class PolyvPlayerLinePopupView {
             }
             routeAdapter.updateLines(lines);
             routeAdapter.updateSelected(videoView.getCurrentRoute() - 1);
+            ((ViewGroup) routeRv.getParent()).setVisibility(View.VISIBLE);
         } else {
             ((ViewGroup) routeRv.getParent()).setVisibility(View.GONE);
         }
