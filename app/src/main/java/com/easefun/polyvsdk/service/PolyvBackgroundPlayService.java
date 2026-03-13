@@ -8,6 +8,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.ServiceInfo;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
@@ -40,11 +41,23 @@ public class PolyvBackgroundPlayService extends Service {
 
     public class PlayBinder extends Binder {
         public void start(String title, String text, int icon) {
-            startForeground(NOTIFICATION_ID, createNotification(title, text, icon));
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    startForeground(NOTIFICATION_ID, createNotification(title, text, icon), ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
+                } else {
+                    startForeground(NOTIFICATION_ID, createNotification(title, text, icon));
+                }
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
         }
 
         public void stop() {
-            stopForeground(true);
+            try {
+                stopForeground(true);
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -64,7 +77,7 @@ public class PolyvBackgroundPlayService extends Service {
 
     public Notification createNotification(String title, String text, int icon) {
         Intent intent = new Intent(this, PolyvPlayerActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, REQUEST_CODE_PLAY_ACTIVITY, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, REQUEST_CODE_PLAY_ACTIVITY, intent, PendingIntent.FLAG_IMMUTABLE);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID);
         builder.setContentIntent(pendingIntent);
         builder.setShowWhen(false);

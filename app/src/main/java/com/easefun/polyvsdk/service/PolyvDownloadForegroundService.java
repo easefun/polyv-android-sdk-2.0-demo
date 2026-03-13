@@ -66,36 +66,29 @@ public class PolyvDownloadForegroundService extends Service {
     }
 
     private void createNotificationChannel() {
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel serviceChannel = new NotificationChannel(
-                    CHANNEL_ID,
-                    CHANNEL_NAME,
-                    NotificationManager.IMPORTANCE_LOW
-            );
-            serviceChannel.setDescription("Channel for download service");
-            NotificationManager manager = getSystemService(NotificationManager.class);
-            if (manager != null) {
-                manager.createNotificationChannel(serviceChannel);
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setLockscreenVisibility(Notification.VISIBILITY_SECRET);
+            if (notificationManager != null) {
+                // 注册通道，注册后除非卸载再安装否则不改变
+                notificationManager.createNotificationChannel(channel);
             }
         }
     }
 
     private Notification createNotification(String title) {
-        Intent notificationIntent = new Intent(this, PolyvDownloadActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(
-                this,
-                0,
-                notificationIntent,
-                PendingIntent.FLAG_IMMUTABLE
-        );
-
-        return new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle(TextUtils.isEmpty(title) ? "正在后台下载视频" : title)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentIntent(pendingIntent)
-                .setOnlyAlertOnce(true)
-                .setOngoing(true)
-                .build();
+        Intent intent = new Intent(this, PolyvDownloadActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID);
+        builder.setContentIntent(pendingIntent);
+        builder.setShowWhen(false);
+        builder.setSmallIcon(R.mipmap.ic_launcher);
+        builder.setContentTitle(TextUtils.isEmpty(title) ? "正在后台下载视频" : title);
+        builder.setContentText("点击进入下载页面");
+        builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        builder.setVisibility(NotificationCompat.VISIBILITY_SECRET);
+        return builder.build();
     }
 
     public static void startService(Context context) {
@@ -112,7 +105,7 @@ public class PolyvDownloadForegroundService extends Service {
             } else {
                 context.startService(serviceIntent);
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
         }
     }
@@ -121,7 +114,7 @@ public class PolyvDownloadForegroundService extends Service {
         try {
             Intent serviceIntent = new Intent(context, PolyvDownloadForegroundService.class);
             context.stopService(serviceIntent);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
         }
     }

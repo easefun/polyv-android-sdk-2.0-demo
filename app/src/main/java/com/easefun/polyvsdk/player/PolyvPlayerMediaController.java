@@ -1092,6 +1092,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
      * 切换到竖屏小窗
      */
     public void changeToSmallScreen() {
+        PolyvScreenUtils.setDecorVisible(videoActivity);
         PolyvScreenUtils.setPortrait(videoActivity);
         initSmallScreenWH();
     }
@@ -2009,12 +2010,16 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         // This is the PendingIntent that is invoked when a user clicks on the action item.
         // You need to use distinct request codes for play and pause, or the PendingIntent won't
         // be properly updated.
+        int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            flags |= PendingIntent.FLAG_IMMUTABLE;
+        }
         final PendingIntent intent =
                 PendingIntent.getBroadcast(
                         videoActivity,
                         requestCode,
                         new Intent("media_control").putExtra("control_type", controlType),
-                        0);
+                        flags);
         final Icon icon = Icon.createWithResource(videoActivity, iconId);
         actions.add(new RemoteAction(icon, title, title, intent));
 

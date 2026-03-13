@@ -3,13 +3,11 @@ package com.easefun.polyvsdk.permission;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.Intent;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Build;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -64,64 +62,46 @@ public class PolyvPermission {
             return;
         }
 
-        ArrayList<String> permissions = new ArrayList<>();
-        int resultCode = 0;
-        switch (type) {
-            case play:
-                //播放视频需要的权限
-                //投屏功能在android9.0获取wifi名称及搜索设备所需的权限
-                //Android 10起需要精确定位权限，才能获取wifi详细信息
-                permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
-                permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                resultCode = OperationType.play.getNum();
-                break;
-            case download:
-                //下载需要的权限
-                permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                resultCode = OperationType.download.getNum();
-                break;
-            case upload:
-                //上传需要的权限
-                permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                resultCode = OperationType.upload.getNum();
-                break;
-            case playAndDownload:
-                //播放视频和下载需要的权限
-                //投屏功能在android9.0获取wifi名称及搜索设备所需的权限
-                permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
-                permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                resultCode = OperationType.playAndDownload.getNum();
-                break;
-        }
-
-        //筛选出我们已经接受的权限
-        /* 请求的权限列表 */
-        ArrayList<String> permissionsToRequest = findUnAskedPermissions(permissions);
-        //get the permissions we have asked for before but are not granted..
-        //we will store this in a global list to access later.
-        /* 拒绝的权限列表 */
-        ArrayList<String> permissionsRejected = findRejectedPermissions(permissions);
-
-        if(permissionsToRequest.size()>0){//we need to ask for permissions
-            //but have we already asked for them?
-            activity.requestPermissions(permissionsToRequest.toArray(new String[permissionsToRequest.size()]), resultCode);
-        }else{
-            if(permissionsRejected.size()>0){
-                for (int i = 0; i < permissionsRejected.size() ; i++) {
-                    if (!ActivityCompat.shouldShowRequestPermissionRationale(activity, permissionsRejected.get(i))) {
-                        Toast.makeText(activity, "点击权限，并打开全部权限", Toast.LENGTH_LONG).show();
-                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                        intent.setData(Uri.fromParts("package", activity.getPackageName(), null));
-                        activity.startActivityForResult(intent, type.getNum());
-                        return;
-                    }
-                }
-            } else {
+        PLVStoragePermissionCompat.start(activity, new PLVOnPermissionCallback() {
+            @Override
+            public void onAllGranted() {
                 if (responseCallback != null) {
                     responseCallback.callback(type);
                 }
             }
-        }
+
+            @Override
+            public void onPartialGranted(ArrayList<String> grantedPermissions, ArrayList<String> deniedPermissions, ArrayList<String> deniedForeverP) {
+                if (deniedForeverP != null && !deniedForeverP.isEmpty()) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                    builder.setTitle("提示");
+                    builder.setMessage("需要权限被拒绝，是否跳转到权限设置？");
+                    builder.setPositiveButton("是", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            Toast.makeText(activity, "点击权限，并打开全部权限", Toast.LENGTH_LONG).show();
+                            PLVStoragePermissionCompat.jump2Settings(activity);
+                            dialog.dismiss();
+                        }
+                    });
+
+                    builder.setNegativeButton("取消", null);
+                    builder.setCancelable(true);
+                    builder.show();
+                } else {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                    builder.setTitle("提示");
+                    builder.setMessage("请开启功能需要的权限，再使用该功能。");
+                    builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    builder.setCancelable(true);
+                    builder.show();
+                }
+            }
+        });
     }
 
     public boolean operationHasPermission(int num) {

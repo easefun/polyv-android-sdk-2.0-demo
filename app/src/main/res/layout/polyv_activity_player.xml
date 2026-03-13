@@ -2,8 +2,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     android:orientation="vertical"
-    android:background="#ffffff">
+    android:background="@color/center_layout_color_gray_deep">
 
     <FrameLayout
         android:id="@+id/fl_top"

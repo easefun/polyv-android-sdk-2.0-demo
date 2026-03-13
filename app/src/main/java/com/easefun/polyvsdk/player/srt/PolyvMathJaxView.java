@@ -56,7 +56,7 @@ public class PolyvMathJaxView extends FrameLayout {
         WebSettings mWebSettings = mWebView.getSettings();
         mWebSettings.setJavaScriptEnabled(true);
         mWebSettings.setDomStorageEnabled(true);
-        mWebSettings.setAppCacheEnabled(true);
+//        mWebSettings.setAppCacheEnabled(true);
         mWebSettings.setAllowContentAccess(true);
         mWebSettings.setSupportZoom(false);
         mWebSettings.setAllowUniversalAccessFromFileURLs(false);

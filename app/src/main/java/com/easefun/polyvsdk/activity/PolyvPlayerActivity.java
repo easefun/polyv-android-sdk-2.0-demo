@@ -1328,6 +1328,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
         unbindService(playConnection);
     }
 
+    @SuppressLint({"WrongConstant", "UnspecifiedRegisterReceiverFlag"})
     @Override
     public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, Configuration newConfig) {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
@@ -1357,7 +1358,11 @@ public class PolyvPlayerActivity extends FragmentActivity {
                 }
             };
             viewLayout.getViewTreeObserver().addOnGlobalLayoutListener(videoviewChange);
-            registerReceiver(pipReceiver, new IntentFilter("media_control"));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                registerReceiver(pipReceiver, new IntentFilter("media_control"), Context.RECEIVER_EXPORTED);
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                registerReceiver(pipReceiver, new IntentFilter("media_control"));
+            }
             if (playBinder != null) {
                 playBinder.start("正在小窗播放视频", "点击进入播放页面", R.mipmap.ic_launcher);
             }
