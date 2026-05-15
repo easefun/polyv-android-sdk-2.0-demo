@@ -143,7 +143,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     //横屏的切屏按钮，横屏的播放/暂停按钮,横屏的返回按钮，设置按钮，分享按钮，弹幕开关
     private ImageView iv_port, iv_play_land, iv_finish, iv_set, iv_share, iv_dmswitch, iv_vice_status, iv_pip, iv_lines_land;
     // 横屏的显示播放进度控件,视频的标题,选择播放速度按钮，选择码率按钮，选择线路按钮
-    private TextView tv_curtime_land, tv_tottime_land, tv_title, tv_speed, tv_bit, tv_route, tv_ppt_dir, tvKnowledge;
+    private TextView tv_curtime_land, tv_tottime_land, tv_title, tv_speed, tv_bit, tv_route, tv_ppt_dir, tvKnowledge, tv_reset_scale_land;
     // 横屏的进度条
     private PolyvTickSeekBar sb_play_land;
     private RelativeLayout controllerCodecRl;
@@ -492,6 +492,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
         tv_bit = (TextView) view.findViewById(R.id.tv_bit);
         tv_route = (TextView) view.findViewById(R.id.tv_route);
         iv_lines_land = view.findViewById(R.id.iv_lines_land);
+        tv_reset_scale_land = view.findViewById(R.id.tv_reset_scale_land);
         tv_ppt_dir = (TextView) view.findViewById(R.id.tv_ppt_dir);
         tvKnowledge = (TextView) view.findViewById(R.id.tv_knowledge);
         controllerCodecRl = findViewById(R.id.plv_controller_codec_rl);
@@ -761,6 +762,22 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     private boolean canShowLeftSideView() {
         //是否可以获取到音频的播放地址
         return videoVO != null && videoVO.hasAudioPath();
+    }
+
+    public void setOnResetScaleClickListener(OnClickListener listener) {
+        this.tv_reset_scale_land.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listener != null) {
+                    listener.onClick(v);
+                }
+            }
+        });
+    }
+
+    public void setResetScaleViewShow(boolean show) {
+        tv_reset_scale_land.setVisibility(show ? View.VISIBLE : View.GONE);
+        tv_reset_scale_land.setTag(show);
     }
 
     public void resetView() {
@@ -1110,6 +1127,10 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
     protected void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         resetControllerLayout();
+        // 竖屏还原屏幕缩放
+        if (PolyvScreenUtils.isPortrait(mContext) && tv_reset_scale_land.getVisibility() == View.VISIBLE) {
+            tv_reset_scale_land.performClick();
+        }
     }
 
     //根据屏幕状态改变控制栏布局
@@ -1243,6 +1264,16 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             mediaControllerHeatMapMaskLand.setVisibility(isVisible);
             mediaControllerHeatMapViewLand.setVisibility(isVisible);
             mediaControllerMarkerViewLand.setVisibility(isVisible);
+            if (isVisible == View.VISIBLE) {
+                Object tag = tv_reset_scale_land.getTag();
+                if (tag instanceof Boolean && (Boolean) tag) {
+                    tv_reset_scale_land.setVisibility(View.VISIBLE);
+                }
+            } else {
+                tv_reset_scale_land.setVisibility(View.GONE);
+            }
+        } else {
+            tv_reset_scale_land.setVisibility(View.GONE);
         }
     }
 
@@ -1428,7 +1459,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                 srtKeys.add(srtvo.getTitle());
             }
             if (srtKeys.size() != 0) {
-            videoView.changeSRT(srtKeys.get(0));
+                videoView.changeSRT(srtKeys.get(0));
             }
         }
         isSrtSingleMode = isSingle;

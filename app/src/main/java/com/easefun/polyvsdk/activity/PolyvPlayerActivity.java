@@ -44,6 +44,7 @@ import com.easefun.polyvsdk.cast.PolyvScreencastManager;
 import com.easefun.polyvsdk.cast.widget.PolyvScreencastSearchLayout;
 import com.easefun.polyvsdk.cast.widget.PolyvScreencastStatusLayout;
 import com.easefun.polyvsdk.fragment.PolyvPlayerDanmuFragment;
+import com.easefun.polyvsdk.player.gesture.PolyvScaleGestureHandler;
 import com.easefun.polyvsdk.fragment.PolyvPlayerTabFragment;
 import com.easefun.polyvsdk.fragment.PolyvPlayerTopFragment;
 import com.easefun.polyvsdk.fragment.PolyvPlayerViewPagerFragment;
@@ -290,6 +291,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
     private PolyvBackgroundPlayService.PlayBinder playBinder;
 
     private float beforeTouchSpeed;
+    private PolyvScaleGestureHandler scaleGestureHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -479,6 +481,9 @@ public class PolyvPlayerActivity extends FragmentActivity {
         //投屏功能默认隐藏，如果需要请注释下面两行代码
         iv_screencast_search.setVisibility(View.GONE);
         iv_screencast_search_land.setVisibility(View.GONE);
+
+        // 初始化缩放手势处理器
+        scaleGestureHandler = new PolyvScaleGestureHandler(videoView, mediaController);
 
         mediaController.initConfig(viewLayout);
         mediaController.setAudioCoverView(coverView);
@@ -1055,6 +1060,8 @@ public class PolyvPlayerActivity extends FragmentActivity {
                 }
             }
         });
+
+        videoView.setOnGestureScaleListener(scaleGestureHandler);
 
         videoView.setOnSeekStartListener(new IPolyvOnSeekStartListener() {
             @Override

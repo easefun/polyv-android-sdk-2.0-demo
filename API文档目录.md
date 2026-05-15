@@ -1,3 +1,4 @@
+2.27.0版API文档请看[v2.27.0 API](http://repo.polyv.net/android/sdk/2.27.0/api/index.html)<br/>
 2.26.0版API文档请看[v2.26.0 API](http://repo.polyv.net/android/sdk/2.26.0/api/index.html)<br/>
 2.25.2版API文档请看[v2.25.2 API](http://repo.polyv.net/android/sdk/2.25.2/api/index.html)<br/>
 2.25.1版API文档请看[v2.25.1 API](http://repo.polyv.net/android/sdk/2.25.1/api/index.html)<br/>

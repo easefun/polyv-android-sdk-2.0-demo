@@ -390,4 +390,20 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tv_reset_scale_land"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/sb_play_land"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="26dp"
+        android:background="@drawable/polyv_media_player_reset_translation_background"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp"
+        android:text="还原屏幕"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:visibility="gone"
+        tools:visibility="visible" />
 </RelativeLayout>

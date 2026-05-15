@@ -25,6 +25,7 @@ import android.widget.Toast;
 import com.easefun.polyvsdk.PolyvSDKClient;
 import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.adapter.PolyvHotCoursesGridViewAdapter;
+import com.easefun.polyvsdk.log.PolyvPlayerLogCollector;
 import com.easefun.polyvsdk.permission.PolyvPermission;
 import com.easefun.polyvsdk.sub.vlms.entity.PolyvVlmsCoursesInfo;
 import com.easefun.polyvsdk.sub.vlms.entity.PolyvVlmsDataBody;

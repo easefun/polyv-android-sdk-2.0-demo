@@ -21,28 +21,28 @@
             android:id="@+id/polyv_video_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-
-            <!-- 音频模式的封面图(音视频切换) -->
-            <com.easefun.polyvsdk.player.PolyvPlayerAudioCoverView
-                android:id="@+id/polyv_cover_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-            <!-- 视频在加载过程中显示的进度布局 -->
-            <com.easefun.polyvsdk.view.PolyvLoadingLayout
-                android:id="@+id/loading_layout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:visibility="gone" />
-
-            <!--播放器logo-->
-            <com.easefun.polyvsdk.player.PolyvPlayerLogoView
-                android:id="@+id/logo_layout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="visible" />
         </com.easefun.polyvsdk.video.PolyvVideoView>
+
+        <!-- 音频模式的封面图(音视频切换) -->
+        <com.easefun.polyvsdk.player.PolyvPlayerAudioCoverView
+            android:id="@+id/polyv_cover_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <!-- 视频在加载过程中显示的进度布局 -->
+        <com.easefun.polyvsdk.view.PolyvLoadingLayout
+            android:id="@+id/loading_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="gone" />
+
+        <!--播放器logo-->
+        <com.easefun.polyvsdk.player.PolyvPlayerLogoView
+            android:id="@+id/logo_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="visible" />
 
         <!-- mp3源文件播放时的封面图 -->
         <com.easefun.polyvsdk.player.PolyvPlayerAudioCoverView
