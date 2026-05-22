@@ -1459,7 +1459,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
                 srtKeys.add(srtvo.getTitle());
             }
             if (srtKeys.size() != 0) {
-                videoView.changeSRT(srtKeys.get(0));
+            videoView.changeSRT(srtKeys.get(0));
             }
         }
         isSrtSingleMode = isSingle;
