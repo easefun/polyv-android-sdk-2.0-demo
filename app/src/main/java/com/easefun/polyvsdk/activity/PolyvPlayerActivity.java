@@ -36,13 +36,16 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.easefun.polyvsdk.PolyvApplication;
 import com.easefun.polyvsdk.PolyvBitRate;
 import com.easefun.polyvsdk.PolyvDownloader;
+import com.easefun.polyvsdk.PolyvSDKClient;
 import com.easefun.polyvsdk.PolyvSDKUtil;
 import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.cast.PolyvScreencastManager;
 import com.easefun.polyvsdk.cast.widget.PolyvScreencastSearchLayout;
 import com.easefun.polyvsdk.cast.widget.PolyvScreencastStatusLayout;
+import com.easefun.polyvsdk.download.listener.sdk.PLVDownloaderSDKTokenRequestListener;
 import com.easefun.polyvsdk.fragment.PolyvPlayerDanmuFragment;
 import com.easefun.polyvsdk.player.gesture.PolyvScaleGestureHandler;
 import com.easefun.polyvsdk.fragment.PolyvPlayerTabFragment;
@@ -74,6 +77,7 @@ import com.easefun.polyvsdk.ppt.PolyvViceScreenLayout;
 import com.easefun.polyvsdk.service.PolyvBackgroundPlayService;
 import com.easefun.polyvsdk.srt.PolyvSRTItemVO;
 import com.easefun.polyvsdk.sub.vlms.entity.PolyvVlmsCoursesInfo;
+import com.easefun.polyvsdk.sub.vlms.main.PolyvVlmsTestData;
 import com.easefun.polyvsdk.util.PolyvCustomQuestionBuilder;
 import com.easefun.polyvsdk.util.PolyvImageLoader;
 import com.easefun.polyvsdk.util.PolyvNetworkDetection;
@@ -122,6 +126,7 @@ import com.easefun.polyvsdk.vo.PolyvADMatterVO;
 import com.easefun.polyvsdk.vo.PolyvQuestionVO;
 import com.easefun.polyvsdk.vo.PolyvSubtitleVO;
 import com.easefun.polyvsdk.vo.PolyvVideoVO;
+import com.easefun.polyvsdk.vo.listener.IPLVVideoTokenRequestListener;
 import com.google.gson.Gson;
 
 import java.net.MalformedURLException;
@@ -540,6 +545,26 @@ public class PolyvPlayerActivity extends FragmentActivity {
         videoView.setLoadTimeoutSecond(false, 30);//加载超时时间，单位：秒。false：不开启。
         videoView.setBufferTimeoutSecond(false, 30);//缓冲超时时间，单位：秒。false：不开启。
         videoView.disableScreenCAP(this, false);//防录屏开关，true为开启，如果开启防录屏，投屏功能将不可用
+
+        if (PolyvApplication.isUseCustomTokenPlay) {
+            videoView.setVideoTokenRequestListener(new IPLVVideoTokenRequestListener() {
+                @Override
+                public String onRequestToken(PolyvVideoVO videoVO, String viewerId, String viewerName, String viewerParam) {
+                    // 如果是demo测试账号
+                    boolean isDemoUser = PolyvVlmsTestData.USERID_2.equals(PolyvSDKClient.getInstance().getUserId());
+                    String token = null;
+                    if (isDemoUser) {
+                        token = PLVDownloaderSDKTokenRequestListener.onRequestTokenBySecretKey(videoVO.getVid(), videoVO.getMyBr(), PolyvVlmsTestData.SECRETKEY);
+                    } else {
+                        // 通过网络请求，向您的服务器请求视频播放token
+                        // 视频播放传入token方式：https://help.polyv.net/index.html#/vod/android/4.视频播放?id=_12-外部传入播放凭证
+                        // 切到主线程toast，如果返回了token，请注释toast代码
+                        postToast("请参考 https://help.polyv.net/index.html#/vod/android/4.视频播放?id=_12-外部传入播放凭证 获取播放视频凭证");
+                    }
+                    return token;
+                }
+            });
+        }
 
         videoView.setOnPreparedListener(new IPolyvOnPreparedListener2() {
             @Override
@@ -1418,6 +1443,15 @@ public class PolyvPlayerActivity extends FragmentActivity {
             resetVideoHeight();
         }
     };
+
+    private void postToast(final String msg) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(PolyvPlayerActivity.this, msg, Toast.LENGTH_LONG).show();
+            }
+        });
+    }
 
     private boolean isInPipMode() {
         if (Build.VERSION.SDK_INT >= 26) {

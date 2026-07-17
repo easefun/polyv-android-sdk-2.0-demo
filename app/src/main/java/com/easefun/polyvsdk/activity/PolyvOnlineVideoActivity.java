@@ -16,12 +16,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.easefun.polyvsdk.PolyvApplication;
 import com.easefun.polyvsdk.PolyvSDKClient;
 import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.RestVO;
 import com.easefun.polyvsdk.adapter.EndlessRecyclerOnScrollListener;
 import com.easefun.polyvsdk.adapter.HeaderViewRecyclerAdapter;
 import com.easefun.polyvsdk.adapter.PolyvOnlineListViewAdapter;
+import com.easefun.polyvsdk.sub.vlms.main.PolyvVlmsTestData;
 
 import org.json.JSONException;
 
@@ -86,7 +88,26 @@ public class PolyvOnlineVideoActivity extends Activity implements View.OnClickLi
         @Override
         protected List<RestVO> doInBackground(String... arg0) {
             try {
-                return PolyvSDKClient.getInstance().getVideoList(pageNum, pageSize);
+                List<RestVO> list;
+                if (PolyvApplication.isUseCustomTokenPlay) {
+                    // 如果是demo测试账号
+                    boolean isDemoUser = PolyvVlmsTestData.USERID_2.equals(PolyvSDKClient.getInstance().getUserId());
+                    // 如果是使用外部传入token播放，这里可以传入您账号的secretKey获取视频列表进行播放调试
+                    String secretKey = isDemoUser ? PolyvVlmsTestData.SECRETKEY : null;
+                    // 仅供demo测试使用，生产环境务必通过服务端下发的非必须secretKey的方式获取视频列表
+                    list = PolyvSDKClient.getInstance().getVideoList(pageNum, pageSize, secretKey);
+                    if (TextUtils.isEmpty(secretKey)) {
+                        PolyvOnlineVideoActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(PolyvOnlineVideoActivity.this, "请到PolyvOnlineVideoActivity类中设置secretKey", Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+                } else {
+                    list = PolyvSDKClient.getInstance().getVideoList(pageNum, pageSize);
+                }
+                return list;
             } catch (JSONException e) {
                 e.printStackTrace();
             }

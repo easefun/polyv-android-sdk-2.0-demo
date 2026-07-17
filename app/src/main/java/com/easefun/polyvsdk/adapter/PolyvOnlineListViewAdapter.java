@@ -17,10 +17,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.easefun.polyvsdk.PolyvApplication;
 import com.easefun.polyvsdk.PolyvBitRate;
 import com.easefun.polyvsdk.PolyvDownloader;
 import com.easefun.polyvsdk.PolyvDownloaderErrorReason;
 import com.easefun.polyvsdk.PolyvDownloaderManager;
+import com.easefun.polyvsdk.PolyvSDKClient;
 import com.easefun.polyvsdk.PolyvSDKUtil;
 import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.RestVO;
@@ -28,10 +30,16 @@ import com.easefun.polyvsdk.activity.PolyvMainActivity;
 import com.easefun.polyvsdk.activity.PolyvPlayerActivity;
 import com.easefun.polyvsdk.bean.PolyvDownloadInfo;
 import com.easefun.polyvsdk.database.PolyvDownloadSQLiteHelper;
+import com.easefun.polyvsdk.download.listener.IPLVDownloaderTokenRequestListener;
 import com.easefun.polyvsdk.download.listener.IPolyvDownloaderProgressListener2;
+import com.easefun.polyvsdk.download.listener.sdk.PLVDownloaderSDKTokenRequestListener;
+import com.easefun.polyvsdk.sub.vlms.main.PolyvVlmsTestData;
 import com.easefun.polyvsdk.util.PolyvErrorMessageUtils;
 import com.easefun.polyvsdk.util.PolyvImageLoader;
 import com.easefun.polyvsdk.vo.PolyvVideoVO;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -191,6 +199,26 @@ public class PolyvOnlineListViewAdapter extends AbsRecyclerViewAdapter {
                                     if (downloadSQLiteHelper != null && !downloadSQLiteHelper.isAdd(downloadInfo)) {
                                         downloadSQLiteHelper.insert(downloadInfo);
                                         PolyvDownloader polyvDownloader = PolyvDownloaderManager.getPolyvDownloader(vid, bitrate, downloadInfo.getFileType());
+                                        if (PolyvApplication.isUseCustomTokenPlay) {
+                                            polyvDownloader.setDownloaderTokenRequestListener(new IPLVDownloaderTokenRequestListener() {
+                                                @Nullable
+                                                @Override
+                                                public String onRequestToken(@NotNull String videoId, int bitRate) {
+                                                    // 如果是demo测试账号
+                                                    boolean isDemoUser = PolyvVlmsTestData.USERID_2.equals(PolyvSDKClient.getInstance().getUserId());
+                                                    String token = null;
+                                                    if (isDemoUser) {
+                                                        token = PLVDownloaderSDKTokenRequestListener.onRequestTokenBySecretKey(videoId, bitRate, PolyvVlmsTestData.SECRETKEY);
+                                                    } else {
+                                                        // 通过网络请求，向您的服务器请求视频播放token
+                                                        // 视频下载传入token方式：https://help.polyv.net/index.html#/vod/android/5.视频下载?id=_2-视频下载
+                                                        // 切到主线程toast，如果返回了token，请注释toast代码
+                                                        postToast("请参考 https://help.polyv.net/index.html#/vod/android/5.视频下载?id=_2-视频下载 获取下载视频凭证");
+                                                    }
+                                                    return token;
+                                                }
+                                            });
+                                        }
                                         polyvDownloader.setPolyvDownloadProressListener2(new MyDownloadListener(context, downloadInfo));
                                         polyvDownloader.start(context);
                                     } else {
@@ -214,6 +242,15 @@ public class PolyvOnlineListViewAdapter extends AbsRecyclerViewAdapter {
 
             loadVideoInfoTask.execute(vid);
         }
+    }
+
+    private void postToast(final String msg) {
+        ((Activity) context).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     private static class LoadVideoInfoTask extends AsyncTask<String, Void, PolyvVideoVO> {

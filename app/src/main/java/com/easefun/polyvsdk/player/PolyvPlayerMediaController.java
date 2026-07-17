@@ -1850,7 +1850,7 @@ public class PolyvPlayerMediaController extends PolyvBaseMediaController impleme
             if (viceLayout != null && viceLayout.isPPTInMinScreen() && viceLayout.getPPTView() != null) {
                 bitmap = viceLayout.getPPTView().getImg();
             } else {
-                bitmap = videoView.screenshot();
+                bitmap = videoView.screenshot(videoView.getVideoWidth(), videoView.getVideoHeight());
             }
             if (bitmap != null) {
                 String fileName = videoView.getCurrentVid() + "_" + PolyvTimeUtils.generateTime(videoView.getCurrentPosition()) + "_" + new SimpleDateFormat("yyyy-MM-dd_kk:mm:ss").format(new Date()) + ".jpg";

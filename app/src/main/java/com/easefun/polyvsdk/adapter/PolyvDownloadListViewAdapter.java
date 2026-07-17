@@ -15,22 +15,31 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.adapters.BaseSwipeAdapter;
+import com.easefun.polyvsdk.PolyvApplication;
 import com.easefun.polyvsdk.PolyvDownloader;
 import com.easefun.polyvsdk.PolyvDownloaderErrorReason;
 import com.easefun.polyvsdk.PolyvDownloaderManager;
+import com.easefun.polyvsdk.PolyvSDKClient;
 import com.easefun.polyvsdk.R;
 import com.easefun.polyvsdk.activity.PolyvMainActivity;
 import com.easefun.polyvsdk.activity.PolyvPlayerActivity;
 import com.easefun.polyvsdk.bean.PolyvDownloadInfo;
 import com.easefun.polyvsdk.database.PolyvDownloadSQLiteHelper;
+import com.easefun.polyvsdk.download.listener.IPLVDownloaderTokenRequestListener;
 import com.easefun.polyvsdk.download.listener.IPolyvDownloaderProgressListener2;
 import com.easefun.polyvsdk.download.listener.IPolyvDownloaderSpeedListener;
 import com.easefun.polyvsdk.download.listener.IPolyvDownloaderStartListener2;
 import com.easefun.polyvsdk.download.listener.IPolyvDownloaderWaitingListener;
+import com.easefun.polyvsdk.download.listener.sdk.PLVDownloaderSDKTokenRequestListener;
+import com.easefun.polyvsdk.sub.vlms.main.PolyvVlmsTestData;
 import com.easefun.polyvsdk.util.PolyvErrorMessageUtils;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -467,6 +476,34 @@ public class PolyvDownloadListViewAdapter extends BaseSwipeAdapter {
             downloader.setPolyvDownloadProressListener2(new MyDownloadListener(context, lv_download, this, downloadInfo, position, lists));
             downloader.setPolyvDownloadStartListener2(new MyDownloaderStartListener(lv_download, this, position));
             downloader.setPolyvDownloadWaitingListener(new MyDownloaderWaitingListener(lv_download, this, position));
+            if (PolyvApplication.isUseCustomTokenPlay) {
+                downloader.setDownloaderTokenRequestListener(new IPLVDownloaderTokenRequestListener() {
+                    @Nullable
+                    @Override
+                    public String onRequestToken(@NotNull String videoId, int bitRate) {
+                        // 如果是demo测试账号
+                        boolean isDemoUser = PolyvVlmsTestData.USERID_2.equals(PolyvSDKClient.getInstance().getUserId());
+                        String token = null;
+                        if (isDemoUser) {
+                            token = PLVDownloaderSDKTokenRequestListener.onRequestTokenBySecretKey(videoId, bitRate, PolyvVlmsTestData.SECRETKEY);
+                        } else {
+                            // 通过网络请求，向您的服务器请求视频播放token
+                            // 视频下载传入token方式：https://help.polyv.net/index.html#/vod/android/5.视频下载?id=_2-视频下载
+                            // 切到主线程toast，如果返回了token，请注释toast代码
+                            postToast("请参考 https://help.polyv.net/index.html#/vod/android/5.视频下载?id=_2-视频下载 获取下载视频凭证");
+                        }
+                        return token;
+                    }
+                });
+            }
+        }
+        private void postToast(final String msg) {
+            ((Activity) context).runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
+                }
+            });
         }
     }
 

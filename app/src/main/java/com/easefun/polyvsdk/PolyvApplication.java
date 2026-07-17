@@ -14,6 +14,14 @@ public class PolyvApplication extends MultiDexApplication {
 	public static final String TAG = PolyvApplication.class.getSimpleName();
 
 	private static final String defaultConfig = "yQRmgnzPyCUYDx6weXRATIN8gkp7BYGAl3ATjE/jHZunrULx8CoKa1WGMjfHftVChhIQlCA9bFeDDX+ThiuBHLjsNRjotqxhiz97ZjYaCQH/MhUrbEURv58317PwPuGEf3rbLVPOa4c9jliBcO+22A==";
+	private static final String defaultUserId = "e97dbe3e64";
+	/**
+	 * 是否使用外部传入播放凭证的方式进行加密视频的播放，请根据需要在initPolyvCilent方法里使用对应的值和设置
+	 * 参考：https://help.polyv.net/index.html#/vod/android/4.视频播放?id=_12-外部传入播放凭证
+	 * true: 使用自定义token，需要设置settingsUserid以及videoView.setVideoTokenRequestListener、downloader.setDownloaderTokenRequestListener
+	 * false: 使用默认认证方式，需要设置加密串或者secretKey
+	 */
+	public static boolean isUseCustomTokenPlay;
 
 	@Override
 	public void onCreate() {
@@ -40,8 +48,12 @@ public class PolyvApplication extends MultiDexApplication {
 		// 打开多用户开关，设置用户id，根据学员账号进行设置
 //		openMultiAccount();
 
-		//使用SDK加密串来配置
-		client.settingsWithConfigString(defaultConfig, aeskey, iv);
+		// 使用外部传入播放凭证的方式需要配置userId
+		client.settingsUserid(defaultUserId, null, null);
+		// 使用SDK加密串来配置
+//		client.settingsWithConfigString(defaultConfig, aeskey, iv);
+		// 使用外部传入播放凭证时设置为true，使用SDK加密串或secretKey配置时设置为false
+		isUseCustomTokenPlay = true;
 		//初始化SDK设置
 		client.initSetting(getApplicationContext());
 
@@ -122,6 +134,7 @@ public class PolyvApplication extends MultiDexApplication {
 		String sdkConfig = PolyvSPUtils.getInstance(this).getString("SDKConfig");
 		if(!TextUtils.isEmpty(sdkConfig)){
 			PolyvSDKClient.getInstance().settingsWithConfigString(sdkConfig,aeskey,iv);
+			isUseCustomTokenPlay = false;
 		}
 	}
 }
