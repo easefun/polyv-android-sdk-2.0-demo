@@ -122,11 +122,12 @@ import com.easefun.polyvsdk.video.listener.IPolyvOnVideoTimeoutListener;
 import com.easefun.polyvsdk.view.PolyvLoadingLayout;
 import com.easefun.polyvsdk.view.PolyvNetworkPoorIndicateLayout;
 import com.easefun.polyvsdk.view.PolyvTouchSpeedLayout;
+import com.easefun.polyvsdk.vo.PLVTokenVO;
 import com.easefun.polyvsdk.vo.PolyvADMatterVO;
 import com.easefun.polyvsdk.vo.PolyvQuestionVO;
 import com.easefun.polyvsdk.vo.PolyvSubtitleVO;
 import com.easefun.polyvsdk.vo.PolyvVideoVO;
-import com.easefun.polyvsdk.vo.listener.IPLVVideoTokenRequestListener;
+import com.easefun.polyvsdk.vo.listener.IPLVVideoTokenRequestListener2;
 import com.google.gson.Gson;
 
 import java.net.MalformedURLException;
@@ -547,9 +548,9 @@ public class PolyvPlayerActivity extends FragmentActivity {
         videoView.disableScreenCAP(this, false);//防录屏开关，true为开启，如果开启防录屏，投屏功能将不可用
 
         if (PolyvApplication.isUseCustomTokenPlay) {
-            videoView.setVideoTokenRequestListener(new IPLVVideoTokenRequestListener() {
+            videoView.setVideoTokenRequestListener(new IPLVVideoTokenRequestListener2() {
                 @Override
-                public String onRequestToken(PolyvVideoVO videoVO, String viewerId, String viewerName, String viewerParam) {
+                public PLVTokenVO onRequestToken2(PolyvVideoVO videoVO, String viewerId, String viewerName, String viewerParam) {
                     // 如果是demo测试账号
                     boolean isDemoUser = PolyvVlmsTestData.USERID_2.equals(PolyvSDKClient.getInstance().getUserId());
                     String token = null;
@@ -561,7 +562,9 @@ public class PolyvPlayerActivity extends FragmentActivity {
                         // 切到主线程toast，如果返回了token，请注释toast代码
                         postToast("请参考 https://help.polyv.net/index.html#/vod/android/4.视频播放?id=_12-外部传入播放凭证 获取播放视频凭证");
                     }
-                    return token;
+                    boolean disposable = false; // 是否一次性token，请根据服务端的token接口请求参数配置
+                    long validTimeMillis = 5 * 60 * 1000; // token有效期，请根据服务端的token接口请求参数配置
+                    return new PLVTokenVO(token, disposable, validTimeMillis);
                 }
             });
         }
