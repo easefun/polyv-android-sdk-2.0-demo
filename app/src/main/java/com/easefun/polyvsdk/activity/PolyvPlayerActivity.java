@@ -1683,7 +1683,7 @@ public class PolyvPlayerActivity extends FragmentActivity {
 
     private boolean screencastCheckEnable() {
         boolean isEncryptVideo = videoView != null && videoView.getVideo() != null && videoView.getVideo().getVideoType() == PolyvVideoType.ENCRYPTION_M3U8;
-        if (isEncryptVideo) {
+        if (isEncryptVideo && !videoView.getVideo().isLowerVideoType()) {
             Toast.makeText(PolyvPlayerActivity.this, "加密视频不支持投屏", Toast.LENGTH_SHORT).show();
             return false;
         }
