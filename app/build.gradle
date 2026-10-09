@@ -6,8 +6,8 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 36
-        versionCode 228000
-        versionName "2.28.0"
+        versionCode 228010
+        versionName "2.28.1"
 
         //64K 引用限制
         multiDexEnabled true
